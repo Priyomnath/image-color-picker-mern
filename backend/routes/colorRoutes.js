@@ -1,52 +1,70 @@
 const router=require("express").Router();
 
-
-const Color=require("../models/Color");
+const supabase=require("../supabase");
 
 const auth=require("../middleware/auth");
 
 
 
+// SAVE COLOR
+
+router.post("/",
+auth,
+async(req,res)=>{
 
 
-router.post("/",auth,async(req,res)=>{
+const {data,error}=
+
+await supabase
+
+.from("colors")
+
+.insert({
+
+user_id:req.user.id,
+
+color:req.body.color,
+
+image:req.body.image
+
+});
 
 
-const color=
-await Color.create({
-
-user:req.user.id,
-
-hex:req.body.hex,
-
-rgb:req.body.rgb
+res.json(data);
 
 
 });
 
 
-res.json(color);
 
 
-});
+// GET COLORS
+
+
+router.get("/",
+auth,
+async(req,res)=>{
+
+
+const {data}=
+
+await supabase
+
+.from("colors")
+
+.select("*")
+
+.eq(
+
+"user_id",
+
+req.user.id
+
+);
 
 
 
-
-
-
-router.get("/",auth,async(req,res)=>{
-
-
-const colors=
-await Color.find({
-
-user:req.user.id
-
-});
-
-
-res.json(colors);
+res.json(data);
 
 
 });

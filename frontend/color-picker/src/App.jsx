@@ -1,141 +1,468 @@
-import {useState} from "react";
-import axios from "axios";
-  
-
-function App(){
+import { useState } from "react";
+import { SketchPicker } from "react-color";
+import api from "./api";
 
 
-const [image,setImage]=useState(null);
-
-const [color,setColor]=useState("");
+function App() {
 
 
+const [name,setName] = useState("");
 
-function upload(e){
+const [email,setEmail] = useState("");
+
+const [password,setPassword] = useState("");
+
+const [color,setColor] = useState("#ff0000");
+
+const [colors,setColors] = useState([]);
+
+const [file,setFile] = useState(null);
 
 
-let img=
-URL.createObjectURL(
-e.target.files[0]
+
+
+// REGISTER
+
+async function register(){
+
+try{
+
+const res = await api.post(
+"/auth/register",
+{
+name,
+email,
+password
+}
+);
+
+alert(res.data.message);
+
+
+}catch(error){
+
+alert(error.response?.data?.message);
+
+}
+
+}
+
+
+
+
+// LOGIN
+
+async function login(){
+
+try{
+
+const res = await api.post(
+"/auth/login",
+{
+email,
+password
+}
 );
 
 
-setImage(img);
+alert(res.data.message);
+
+
+}catch(error){
+
+alert(error.response?.data?.message);
+
+}
+
+}
+
+
+
+
+
+// IMAGE UPLOAD
+
+async function uploadImage(){
+
+
+if(!file) return "";
+
+
+const formData = new FormData();
+
+
+formData.append(
+"image",
+file
+);
+
+
+
+const res = await api.post(
+"/upload",
+formData
+);
+
+
+return res.data.url;
 
 
 }
 
 
 
-function pick(e){
 
 
-let canvas=
-document.createElement("canvas");
+// SAVE COLOR
 
 
-let ctx=
-canvas.getContext("2d");
+async function saveColor(){
 
 
-let img=new Image();
+try{
 
 
-img.src=image;
+let image = "";
 
 
-img.onload=()=>{
+if(file){
 
+image = await uploadImage();
 
-canvas.width=img.width;
-
-canvas.height=img.height;
-
-
-ctx.drawImage(img,0,0);
+}
 
 
 
-let pixel=
-ctx.getImageData(
-e.nativeEvent.offsetX,
-e.nativeEvent.offsetY,
-1,1
-).data;
-
-
-
-let hex=
-"#"+
-((1<<24)+(pixel[0]<<16)+(pixel[1]<<8)+pixel[2])
-.toString(16)
-.slice(1);
-
-
-
-setColor(hex);
-
-
-
-axios.post(
-"http://localhost:5000/api/colors",
+await api.post(
+"/colors",
 {
-hex,
-rgb:`rgb(${pixel[0]},${pixel[1]},${pixel[2]})`
-},
-{
-withCredentials:true
+
+hex: color,
+
+image
+
 }
 
 );
 
 
+alert("Color saved");
+
+
+}catch(error){
+
+console.log(error);
+
+alert("Save failed");
+
+}
+
+
 }
 
 
 
+
+
+// GET COLORS
+
+
+async function getColors(){
+
+
+const res = await api.get(
+"/colors"
+);
+
+
+setColors(res.data);
+
+
 }
 
 
 
 
-return (
 
-<div>
+return(
 
-<h1>
-Image Color Picker
+
+<div className="container mt-5">
+
+
+<h1 className="text-center">
+
+Color Picker
+
 </h1>
 
 
+
+
+
+<div className="card p-4 shadow mt-4">
+
+
+<h3>
+
+Register
+
+</h3>
+
+
+
 <input
-type="file"
-onChange={upload}
-/>
 
+className="form-control mb-2"
 
+placeholder="Name"
 
-<br/>
-
-
-{image &&
-
-<img
-src={image}
-width="500"
-onClick={pick}
-/>
-
+onChange={
+e=>setName(e.target.value)
 }
 
+/>
 
 
-<h2>{color}</h2>
+
+<input
+
+className="form-control mb-2"
+
+placeholder="Email"
+
+onChange={
+e=>setEmail(e.target.value)
+}
+
+/>
+
+
+
+
+<input
+
+className="form-control mb-3"
+
+type="password"
+
+placeholder="Password"
+
+onChange={
+e=>setPassword(e.target.value)
+}
+
+/>
+
+
+
+
+<button
+
+className="btn btn-primary me-2"
+
+onClick={register}
+
+>
+
+Register
+
+</button>
+
+
+
+
+<button
+
+className="btn btn-success"
+
+onClick={login}
+
+>
+
+Login
+
+</button>
+
 
 
 </div>
 
+
+
+
+
+
+
+
+
+<div className="card p-4 mt-4">
+
+
+
+<SketchPicker
+
+
+color={color}
+
+
+onChange={
+c=>setColor(c.hex)
+}
+
+
+/>
+
+
+
+
+<h2>
+
+{color}
+
+</h2>
+
+
+
+
+
+<input
+
+type="file"
+
+className="form-control"
+
+
+onChange={
+e=>setFile(e.target.files[0])
+}
+
+/>
+
+
+
+
+<button
+
+className="btn btn-dark mt-3"
+
+onClick={saveColor}
+
+>
+
+Save Color
+
+</button>
+
+
+
+
+
+<button
+
+className="btn btn-warning mt-3 ms-2"
+
+onClick={getColors}
+
+>
+
+My Colors
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div className="mt-4">
+
+
+{
+
+colors.map(item=>(
+
+
+<div
+
+className="card p-3 mb-3"
+
+key={item._id || item.id}
+
+>
+
+
+<h3>
+
+{item.hex}
+
+</h3>
+
+
+
+
+<div
+
+style={{
+
+height:"60px",
+
+background:item.hex
+
+}}
+
+>
+
+</div>
+
+
+
+
+
+{
+
+item.image &&
+
+<img
+
+src={item.image}
+
+width="150"
+
+className="mt-2"
+
+/>
+
+}
+
+
+
+
+</div>
+
+
+
+))
+
+}
+
+
+</div>
+
+
+
+</div>
+
+
 )
+
 
 }
 

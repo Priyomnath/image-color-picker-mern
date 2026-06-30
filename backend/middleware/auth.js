@@ -1,30 +1,56 @@
-const jwt=require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 
-module.exports=(req,res,next)=>{
+module.exports = (req,res,next)=>{
 
 
-const token=req.cookies.token;
+const token = req.cookies.token;
+
+
+if(!token){
+
+return res.status(401).json({
+
+message:"Not login"
+
+});
+
+}
 
 
 
-if(!token)
-return res.json("not login");
+try{
 
 
+const user = jwt.verify(
 
-const data=
-jwt.verify(
 token,
+
 process.env.JWT_SECRET
+
 );
 
 
 
-req.user=data;
+req.user = user;
 
 
 next();
 
 
+
+}catch(error){
+
+
+return res.status(401).json({
+
+message:"Invalid token"
+
+});
+
+
 }
+
+
+
+};

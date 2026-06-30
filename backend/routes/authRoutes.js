@@ -1,40 +1,39 @@
 const router=require("express").Router();
 
+const User=require("../models/User");
+
 const bcrypt=require("bcrypt");
 
 const jwt=require("jsonwebtoken");
 
-const User=require("../models/User");
 
 
-
-
-// REGISTER
-
-router.post("/register",async(req,res)=>{
-
-
-const {name,email,password}=req.body;
-
+router.post("/register",
+async(req,res)=>{
 
 
 const hash=
-await bcrypt.hash(password,10);
+await bcrypt.hash(
+req.body.password,
+10
+);
 
 
 
-const user=
 await User.create({
 
-name,
-email,
+name:req.body.name,
+
+email:req.body.email,
+
 password:hash
 
 });
 
 
-
-res.json(user);
+res.json({
+message:"Register done"
+});
 
 
 });
@@ -42,53 +41,62 @@ res.json(user);
 
 
 
-
-// LOGIN
-
-router.post("/login",async(req,res)=>{
-
-
-const {email,password}=req.body;
-
+router.post("/login",
+async(req,res)=>{
 
 
 const user=
-await User.findOne({email});
+await User.findOne({
+
+email:req.body.email
+
+});
 
 
 
-const match=
+const ok=
 await bcrypt.compare(
-password,
+
+req.body.password,
+
 user.password
+
 );
-
-
-
-if(!match)
-return res.json("wrong password");
 
 
 
 const token=
 jwt.sign(
-{id:user._id},
+
+{
+id:user._id
+},
+
 process.env.JWT_SECRET
+
 );
 
 
 
-res.cookie("token",token,{
-httpOnly:true
+res.cookie(
+"token",
+token,
+{
+httpOnly:true,
+sameSite:"lax",
+secure:false,
+maxAge:24*60*60*1000
+}
+);
+
+
+
+res.json({
+message:"Login success"
 });
 
 
-
-res.json("login success");
-
-
 });
-
 
 
 
