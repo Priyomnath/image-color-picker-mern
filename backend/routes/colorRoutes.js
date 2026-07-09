@@ -1,74 +1,16 @@
-const router=require("express").Router();
+import express from "express";
+import {
+  savePalette,
+  getPalettes,
+  deletePalette,
+} from "../controllers/colorController.js";
 
-const supabase=require("../supabase");
+const router = express.Router();
 
-const auth=require("../middleware/auth");
+router.post("/", savePalette);
 
+router.get("/", getPalettes);
 
+router.delete("/:id", deletePalette);
 
-// SAVE COLOR
-
-router.post("/",
-auth,
-async(req,res)=>{
-
-
-const {data,error}=
-
-await supabase
-
-.from("colors")
-
-.insert({
-
-user_id:req.user.id,
-
-color:req.body.color,
-
-image:req.body.image
-
-});
-
-
-res.json(data);
-
-
-});
-
-
-
-
-// GET COLORS
-
-
-router.get("/",
-auth,
-async(req,res)=>{
-
-
-const {data}=
-
-await supabase
-
-.from("colors")
-
-.select("*")
-
-.eq(
-
-"user_id",
-
-req.user.id
-
-);
-
-
-
-res.json(data);
-
-
-});
-
-
-
-module.exports=router;
+export default router;

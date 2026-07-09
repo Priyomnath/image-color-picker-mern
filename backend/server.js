@@ -1,59 +1,33 @@
-const express=require("express");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
 
-const cors = require("cors");
+import connectDB from "./config/db.js";
+import colorRoutes from "./routes/colorRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import cookieParser from "cookie-parser";
 
-const cookieParser=require("cookie-parser");
+dotenv.config();
+connectDB();
 
-require("dotenv").config();
-
-const mongoose = require("mongoose");
-
-const app=express();
-
-mongoose
-    .connect(process.env.MONGO_URI)
-    .then(() => {
-        console.log("MongoDB Connected");
-    })
-    .catch((err) => {
-        console.log("MongoDB error", err.message);
-    })
-
+const app = express();
 
 app.use(cors({
-
-origin:"http://localhost:5173",
-
-credentials:true
-
+  origin: "http://localhost:5173",
+  credentials: true,
 }));
 
-
 app.use(express.json());
-
 app.use(cookieParser());
+app.use("/api/auth", authRoutes);
+app.use("/api/colors", colorRoutes);
 
-
-
-app.use(
-"/auth",
-require("./routes/authRoutes")
-);
-
-app.use(
-"/upload",
-require("./routes/uploadRoutes")
-);
-
-
-app.use(
-"/colors",
-require("./routes/colorRoutes")
-);
-
+app.get("/", (req, res) => {
+  res.send("API Running...");
+});
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT,()=>{
-    console.log(`Server running ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server Running on ${PORT}`);
 });
