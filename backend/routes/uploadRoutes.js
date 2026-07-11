@@ -1,9 +1,9 @@
-const router = require("express").Router();
+import express from "express";
+import upload from "../middleware/upload.js";
+import { uploadImage } from "../controllers/uploadController.js";
 
-router.get("/", (req, res) => {
-  res.json({
-    message: "Upload Route Working",
-  });
-});
+const router = express.Router();
 
-module.exports = router;
+router.post("/", upload.single("image"), uploadImage);
+
+export default router;

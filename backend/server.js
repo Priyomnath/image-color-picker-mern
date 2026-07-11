@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
+import uploadRoutes from "./routes/uploadRoutes.js";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import colorRoutes from "./routes/colorRoutes.js";
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
 // CORS
 app.use(
   cors({
@@ -27,15 +29,27 @@ app.use(
 );
 
 // Routes
+// app.get("/", (req, res) => {
+//   res.json({
+//     success: true,
+//     message: "Image Color Picker Pro API Running 🚀",
+//   });
+// });
+
+// টেস্ট করার জন্য সাময়িক HTML Form (ছবি আপলোডের জন্য)
 app.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Image Color Picker Pro API Running 🚀",
-  });
+  res.send(`
+    <h2>Cloudinary Upload Test</h2>
+    <form action="/api/upload" method="POST" enctype="multipart/form-data">
+      <input type="file" name="image" required />
+      <button type="submit">Upload Image</button>
+    </form>
+  `);
 });
 
 app.use("/api/auth", authRoutes);
 app.use("/api/colors", colorRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // 404
 app.use((req, res) => {
