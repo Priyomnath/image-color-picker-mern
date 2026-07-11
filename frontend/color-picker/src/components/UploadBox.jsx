@@ -58,7 +58,6 @@ function UploadBox() {
       }
 
       await api.post("/colors", {
-        user: user._id,
         title: "My Palette",
         dominantColor,
         colors,
@@ -68,7 +67,8 @@ function UploadBox() {
       alert("Palette Saved Successfully");
     } catch (error) {
       console.log(error);
-      alert("Save Failed");
+
+      alert(error.response?.data?.message || "Save Failed");
     } finally {
       setLoading(false);
     }
@@ -112,7 +112,7 @@ function UploadBox() {
           </button>
         </div>
       )}
-      
+
       {/*Add*/}
       <div className="text-center mt-3">
         <button

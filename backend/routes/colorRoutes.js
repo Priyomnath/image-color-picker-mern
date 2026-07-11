@@ -5,12 +5,13 @@ import {
   deletePalette,
 } from "../controllers/colorController.js";
 
+import auth from "../middleware/auth.js";
+
 const router = express.Router();
 
-router.post("/", savePalette);
-
-router.get("/", getPalettes);
-
-router.delete("/:id", deletePalette);
+// সব Palette Route protected
+router.post("/", auth, savePalette);
+router.get("/", auth, getPalettes);
+router.delete("/:id", auth, deletePalette);
 
 export default router;

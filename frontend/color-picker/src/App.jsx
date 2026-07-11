@@ -7,17 +7,26 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import MyPalettes from "./pages/MyPalettes";
 
 function App() {
   return (
     <>
       <Routes>
-        
         <Route
           path="/"
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-palettes"
+          element={
+            <ProtectedRoute>
+              <MyPalettes />
             </ProtectedRoute>
           }
         />

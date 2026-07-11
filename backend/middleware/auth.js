@@ -1,56 +1,32 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
+const auth = (req, res, next) => {
+  try {
+    let token = req.cookies.token;
 
-module.exports = (req,res,next)=>{
+    // যদি cookie না থাকে তাহলে Authorization Header check করবে
+    if (!token && req.headers.authorization) {
+      token = req.headers.authorization.split(" ")[1];
+    }
 
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized. Please login.",
+      });
+    }
 
-const token = req.cookies.token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    req.user = decoded;
 
-if(!token){
-
-return res.status(401).json({
-
-message:"Not login"
-
-});
-
-}
-
-
-
-try{
-
-
-const user = jwt.verify(
-
-token,
-
-process.env.JWT_SECRET
-
-);
-
-
-
-req.user = user;
-
-
-next();
-
-
-
-}catch(error){
-
-
-return res.status(401).json({
-
-message:"Invalid token"
-
-});
-
-
-}
-
-
-
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or Expired Token",
+    });
+  }
 };
+
+export default auth;
