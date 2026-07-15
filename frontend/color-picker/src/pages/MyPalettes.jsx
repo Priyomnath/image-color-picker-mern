@@ -30,6 +30,60 @@ function MyPalettes() {
     toast.success("Palette Copied 📋");
   };
 
+  //15/07/2026
+  const exportCSS = (colors) => {
+    const css = `:root {
+  ${colors.map((color, index) => `  --color-${index + 1}: ${color};`).join("\n")}
+  }`;
+
+    const blob = new Blob([css], { type: "text/css" });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+
+    a.download = "colors.css";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    toast.success("CSS Exported 🎨");
+  };
+
+  //15/07/2026
+  const exportTailwind = (colors) => {
+    const content = `export default {
+  theme: {
+    extend: {
+      colors: {
+${colors
+  .map((color, index) => `        color${index + 1}: "${color}",`)
+  .join("\n")}
+      },
+    },
+  },
+};`;
+
+    const blob = new Blob([content], {
+      type: "application/javascript",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = "tailwind-colors.js";
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    toast.success("Tailwind Config Exported 🚀");
+  };
+
   const deletePalette = async (id) => {
     try {
       await api.delete(`/colors/${id}`);
@@ -111,7 +165,7 @@ function MyPalettes() {
 
       <div className="row">
         {palettes
-        //15/07/2026
+          //15/07/2026
           .filter((palette) => {
             const matchSearch = (palette.title || "")
               .toLowerCase()
@@ -121,7 +175,7 @@ function MyPalettes() {
 
             return matchSearch && matchFavorite;
           })
-          
+
           .map((palette) => (
             <div className="col-md-4 mb-4" key={palette._id}>
               <div className="card shadow">
@@ -186,6 +240,22 @@ function MyPalettes() {
                     onClick={() => copyPalette(palette.colors)}
                   >
                     Copy Palette
+                  </button>
+
+                  {/* //15/07/2026 */}
+                  <button
+                    className="btn btn-info w-100 mb-2"
+                    onClick={() => exportCSS(palette.colors)}
+                  >
+                    Export CSS
+                  </button>
+
+                  {/* //15/07/2026 */}
+                  <button
+                    className="btn btn-dark w-100 mb-2"
+                    onClick={() => exportTailwind(palette.colors)}
+                  >
+                    Export Tailwind
                   </button>
 
                   {/* //12/07/2026 */}
