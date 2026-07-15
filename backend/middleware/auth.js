@@ -1,6 +1,11 @@
 import jwt from "jsonwebtoken";
 
 const auth = (req, res, next) => {
+  //Add
+  console.log("Cookies:", req.cookies);
+  console.log("Authorization:", req.headers.authorization);
+  console.log("Path:", req.originalUrl);
+
   try {
     let token = req.cookies.token;
 

@@ -5,29 +5,54 @@ import api from "../api/api";
 import ColorPalette from "./ColorPalette";
 import { Vibrant } from "node-vibrant/browser";
 
+//13/07/2026
+import { toast } from "react-toastify";
+
 function UploadBox() {
   const [image, setImage] = useState(null);
   const [colors, setColors] = useState([]);
   const [dominantColor, setDominantColor] = useState("");
 
+  // add
+  const [imageUrl, setImageUrl] = useState("");
+
   const [loading, setLoading] = useState(false);
 
+  //REPLACE
   const onDrop = useCallback(async (acceptedFiles) => {
     const file = acceptedFiles[0];
     if (!file) return;
 
-    const url = URL.createObjectURL(file);
-    setImage(url);
+    try {
+      // Local preview
+      const preview = URL.createObjectURL(file);
+      setImage(preview);
 
-    const palette = await Vibrant.from(url).getPalette();
-    const extracted = Object.values(palette)
-      .filter(Boolean)
-      .map((item) => item.hex);
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append("image", file);
 
-    setColors(extracted);
+      const uploadRes = await api.post("/upload", formData);
 
-    if (palette.Vibrant) {
-      setDominantColor(palette.Vibrant.hex);
+      const cloudImage = uploadRes.data.imageUrl;
+
+      setImageUrl(cloudImage);
+
+      // Extract colors from Cloudinary image
+      const palette = await Vibrant.from(cloudImage).getPalette();
+
+      const extracted = Object.values(palette)
+        .filter(Boolean)
+        .map((item) => item.hex);
+
+      setColors(extracted);
+
+      if (palette.Vibrant) {
+        setDominantColor(palette.Vibrant.hex);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Image Upload Failed");
     }
   }, []);
 
@@ -61,14 +86,18 @@ function UploadBox() {
         title: "My Palette",
         dominantColor,
         colors,
-        image,
+        
+        //CHANGE
+        image: imageUrl,
       });
 
-      alert("Palette Saved Successfully");
+      //13/07/2026
+      toast.success("Palette Saved Successfully 🎨");
     } catch (error) {
       console.log(error);
 
-      alert(error.response?.data?.message || "Save Failed");
+      //13/07/2026
+      toast.error(error.response?.data?.message || "Save Failed");
     } finally {
       setLoading(false);
     }

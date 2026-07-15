@@ -27,10 +27,16 @@ const colorSchema = new mongoose.Schema(
       type: String,
       default: "Untitled Palette",
     },
+
+    // 14/07/2026
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model("Color", colorSchema);

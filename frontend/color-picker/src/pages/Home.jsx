@@ -1,18 +1,21 @@
 import UploadBox from "../components/UploadBox";
 
+// 14/07/2026
+import NavbarComponent from "../components/Navbar";
+
 function Home() {
   return (
-    <div className="container">
+    <>
+      <NavbarComponent />
 
-      <h1 className="text-center mt-5">
+      <div className="container">
+        <h1 className="text-center mt-5">
+          Image Color Picker
+        </h1>
 
-        Image Color Picker
-
-      </h1>
-
-      <UploadBox />
-
-    </div>
+        <UploadBox />
+      </div>
+    </>
   );
 }
 

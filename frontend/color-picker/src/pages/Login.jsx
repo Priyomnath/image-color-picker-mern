@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 
+//13/07/2026
+import { toast } from "react-toastify";
+
 function Login() {
   const navigate = useNavigate();
 
@@ -21,11 +24,13 @@ function Login() {
 
       localStorage.setItem("token", data.token);
 
-      alert("Login Success");
+      //13/07/2026
+      toast.success("Login Successful 🎉");
 
       navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || "Login Failed");
+      //13/07/2026
+      toast.error(err.response?.data?.message || "Login Failed");
     }
   };
 

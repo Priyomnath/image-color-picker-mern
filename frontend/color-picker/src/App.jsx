@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -37,8 +36,6 @@ function App() {
 
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-
-      <ToastContainer position="top-right" />
     </>
   );
 }
