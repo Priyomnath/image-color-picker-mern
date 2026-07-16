@@ -1,7 +1,6 @@
-import UploadBox from "../components/UploadBox";
-
 // 14/07/2026
 import NavbarComponent from "../components/Navbar";
+import UploadBox from "../components/UploadBox";
 
 function Home() {
   return (
