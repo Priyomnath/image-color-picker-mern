@@ -1,7 +1,8 @@
 // 14/07/2026
 import NavbarComponent from "../components/Navbar";
 import UploadBox from "../components/UploadBox";
-//this my bad situation
+
+//this my bad
 function Home() {
   return (
     <>
