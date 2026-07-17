@@ -1,5 +1,5 @@
 // 14/07/2026
-import NavbarComponent from "../components/Navbar";
+import NavbarComponent from "../components/Navbar"; //one change now
 import UploadBox from "../components/UploadBox";
 
 //this my bad
