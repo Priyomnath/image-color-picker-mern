@@ -45,6 +45,8 @@ export const toggleFavorite = async (req, res) => {
       favorite: palette.favorite,
     });
   } catch (error) {
+    console.error("Save Palette Error:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
