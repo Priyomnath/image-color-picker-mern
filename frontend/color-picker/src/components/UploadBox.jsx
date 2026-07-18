@@ -71,35 +71,68 @@ function UploadBox() {
   };
 
   //ADD
-  const savePalette = async () => {
+  // const savePalette = async () => {
+  //   try {
+  //     setLoading(true);
+
+  //     const user = JSON.parse(localStorage.getItem("user"));
+
+  //     if (!user) {
+  //       alert("Please Login First");
+  //       return;
+  //     }
+
+  //     await api.post("/colors", {
+  //       title: "My Palette",
+  //       dominantColor,
+  //       colors,
+
+  //       //CHANGE
+  //       image: imageUrl,
+  //     });
+
+  //     //13/07/2026
+  //     toast.success("Palette Saved Successfully 🎨");
+  //   } catch (error) {
+  //     console.log(error);
+
+  //     //13/07/2026
+  //     toast.error(error.response?.data?.message || "Save Failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  //18/07/2026
+  export const savePalette = async (req, res) => {
     try {
-      setLoading(true);
+      console.log("Body:", req.body);
+      console.log("User:", req.user);
 
-      const user = JSON.parse(localStorage.getItem("user"));
+      const { colors, dominantColor, title, image } = req.body;
 
-      if (!user) {
-        alert("Please Login First");
-        return;
-      }
-
-      await api.post("/colors", {
-        title: "My Palette",
-        dominantColor,
+      const palette = await Color.create({
+        user: req.user.id,
         colors,
-        
-        //CHANGE
-        image: imageUrl,
+        dominantColor,
+        title,
+        image,
       });
 
-      //13/07/2026
-      toast.success("Palette Saved Successfully 🎨");
+      res.status(201).json({
+        success: true,
+        palette,
+      });
     } catch (error) {
-      console.log(error);
+      console.error("========== ERROR ==========");
+      console.error(error);
+      console.error(error.message);
+      console.error(error.stack);
 
-      //13/07/2026
-      toast.error(error.response?.data?.message || "Save Failed");
-    } finally {
-      setLoading(false);
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
   };
 
