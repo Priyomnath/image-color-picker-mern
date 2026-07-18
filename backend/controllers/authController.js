@@ -40,7 +40,6 @@ export const registerUser = async (req, res) => {
         email: user.email,
       },
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -52,6 +51,8 @@ export const registerUser = async (req, res) => {
 // Login
 export const loginUser = async (req, res) => {
   try {
+    //SOME UPDATE
+    console.log("NODE_ENV:", process.env.NODE_ENV);
 
     const { email, password } = req.body;
 
@@ -75,10 +76,11 @@ export const loginUser = async (req, res) => {
 
     const token = generateToken(user._id);
 
+    //07/18/2026
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -92,7 +94,6 @@ export const loginUser = async (req, res) => {
         email: user.email,
       },
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -103,24 +104,20 @@ export const loginUser = async (req, res) => {
 
 // Logout
 export const logoutUser = (req, res) => {
-
   res.clearCookie("token");
 
   res.json({
     success: true,
     message: "Logout Successful",
   });
-
 };
 
 // Current User
 export const getMe = async (req, res) => {
-
   const user = await User.findById(req.user.id).select("-password");
 
   res.json({
     success: true,
     user,
   });
-
 };
