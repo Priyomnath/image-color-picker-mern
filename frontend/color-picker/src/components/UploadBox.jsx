@@ -71,70 +71,70 @@ function UploadBox() {
   };
 
   //ADD
-  // const savePalette = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     const user = JSON.parse(localStorage.getItem("user"));
-
-  //     if (!user) {
-  //       alert("Please Login First");
-  //       return;
-  //     }
-
-  //     await api.post("/colors", {
-  //       title: "My Palette",
-  //       dominantColor,
-  //       colors,
-
-  //       //CHANGE
-  //       image: imageUrl,
-  //     });
-
-  //     //13/07/2026
-  //     toast.success("Palette Saved Successfully 🎨");
-  //   } catch (error) {
-  //     console.log(error);
-
-  //     //13/07/2026
-  //     toast.error(error.response?.data?.message || "Save Failed");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  //18/07/2026
-  export const savePalette = async (req, res) => {
+  const savePalette = async () => {
     try {
-      console.log("Body:", req.body);
-      console.log("User:", req.user);
+      setLoading(true);
 
-      const { colors, dominantColor, title, image } = req.body;
+      const user = JSON.parse(localStorage.getItem("user"));
 
-      const palette = await Color.create({
-        user: req.user.id,
-        colors,
+      if (!user) {
+        alert("Please Login First");
+        return;
+      }
+
+      await api.post("/colors", {
+        title: "My Palette",
         dominantColor,
-        title,
-        image,
+        colors,
+
+        //CHANGE
+        image: imageUrl,
       });
 
-      res.status(201).json({
-        success: true,
-        palette,
-      });
+      //13/07/2026
+      toast.success("Palette Saved Successfully 🎨");
     } catch (error) {
-      console.error("========== ERROR ==========");
-      console.error(error);
-      console.error(error.message);
-      console.error(error.stack);
+      console.log(error);
 
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
+      //13/07/2026
+      toast.error(error.response?.data?.message || "Save Failed");
+    } finally {
+      setLoading(false);
     }
   };
+
+  //18/07/2026
+  // export const savePalette = async (req, res) => {
+  //   try {
+  //     console.log("Body:", req.body);
+  //     console.log("User:", req.user);
+
+  //     const { colors, dominantColor, title, image } = req.body;
+
+  //     const palette = await Color.create({
+  //       user: req.user.id,
+  //       colors,
+  //       dominantColor,
+  //       title,
+  //       image,
+  //     });
+
+  //     res.status(201).json({
+  //       success: true,
+  //       palette,
+  //     });
+  //   } catch (error) {
+  //     console.error("========== ERROR ==========");
+  //     console.error(error);
+  //     console.error(error.message);
+  //     console.error(error.stack);
+
+  //     res.status(500).json({
+  //       success: false,
+  //       message: error.message,
+  //     });
+  //   }
+  // };
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
