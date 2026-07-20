@@ -1,24 +1,16 @@
 import { Navbar, Container, Nav } from "react-bootstrap";
-
-// 14/07/2026
-import { useEffect, useState } from "react";
+// 20/07/2026
+//import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 function NavbarComponent() {
-  // 14/07/2026
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("theme") === "dark",
-  );
+  // 21/07/2026   {time: 12:09 AM}
+  const { darkMode, toggleTheme } = useTheme();
 
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("bg-dark", "text-white");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.body.classList.remove("bg-dark", "text-white");
-      localStorage.setItem("theme", "light");
-    }
-  }, [darkMode]);
+  // 21/07/2026   {time: 12:07 AM}
+  //START UPDATE
+  import { useTheme } from "../context/ThemeContext";
+  //END UPDATE
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -59,11 +51,8 @@ function NavbarComponent() {
               Login
             </Nav.Link>
 
-            {/* // 14/07/2026 */}
-            <button
-              className="btn btn-secondary me-2"
-              onClick={() => setDarkMode(!darkMode)}
-            >
+            {/* // 21/07/2026   {time: 12:11 AM} */}
+            <button className="btn btn-secondary me-2" onClick={toggleTheme}>
               {darkMode ? "☀️ Light" : "🌙 Dark"}
             </button>
 

@@ -8,7 +8,13 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyPalettes from "./pages/MyPalettes";
 
+
+
 function App() {
+  
+
+  
+
   return (
     <>
       <Routes>
