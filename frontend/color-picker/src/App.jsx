@@ -10,6 +10,7 @@ import MyPalettes from "./pages/MyPalettes";
 
 //22/07/2026 {time: 10:46 PM}
 import ExtractColors from "./pages/ExtractColors";
+import ColorPaletteGenerator from "./pages/ColorPaletteGenerator";
 
 function App() {
   return (
@@ -35,6 +36,12 @@ function App() {
 
         {/* //22/07/2026 {time: 10:48 PM} */}
         <Route path="/extract-colors-from-image" element={<ExtractColors />} />
+
+        <Route
+          path="/color-palette-generator"
+          element={<ColorPaletteGenerator />}
+        />
+        
 
         <Route path="/login" element={<Login />} />
 

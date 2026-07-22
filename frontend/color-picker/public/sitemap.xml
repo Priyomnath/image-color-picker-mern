@@ -18,9 +18,17 @@
     <loc>https://image-color-picker-mern-z72c-lilac.vercel.app/dashboard</loc>
   </url>
 
+
+  <!-- //22/07/2026 {time: 11:47 PM} -->
   <url>
     <loc>
       https://image-color-picker-mern-z72c-lilac.vercel.app/extract-colors-from-image
+    </loc>
+  </url>
+
+  <url>
+    <loc>
+      https://image-color-picker-mern-z72c-lilac.vercel.app/color-palette-generator
     </loc>
   </url>
 </urlset>

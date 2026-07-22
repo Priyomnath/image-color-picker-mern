@@ -121,6 +121,11 @@ function NavbarComponent() {
               Extract Colors
             </Nav.Link>
 
+            <Nav.Link as={Link} to="/color-palette-generator">
+              Color Palette Generator
+            </Nav.Link>
+            
+
             <button className="btn btn-secondary me-2" onClick={toggleTheme}>
               {darkMode ? "☀️ Light" : "🌙 Dark"}
             </button>
