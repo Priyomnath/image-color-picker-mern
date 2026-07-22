@@ -16,8 +16,6 @@
 //   </BrowserRouter>,
 // );
 
-
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -30,15 +28,16 @@ import App from "./App";
 
 import { ThemeProvider } from "./context/ThemeContext";
 
+//22/07/2026 {time: 10:38 PM}
+import { HelmetProvider } from "react-helmet-async";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <ThemeProvider>
-      <App />
-      <ToastContainer
-        position="top-right"
-        autoClose={2500}
-        theme="colored"
-      />
-    </ThemeProvider>
-  </BrowserRouter>
+    <HelmetProvider>
+      <ThemeProvider>
+        <App />
+        <ToastContainer position="top-right" autoClose={2500} theme="colored" />
+      </ThemeProvider>
+    </HelmetProvider>
+  </BrowserRouter>,
 );

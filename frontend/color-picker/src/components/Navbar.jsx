@@ -68,16 +68,6 @@
 
 // export default NavbarComponent;
 
-
-
-
-
-
-
-
-
-
-
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { Link } from "react-router-dom";
 // 🎯 ১. সব import সবসময় ফাইলের একদম ওপরে (ফাংশনের বাইরে) হতে হবে
@@ -124,6 +114,11 @@ function NavbarComponent() {
 
             <Nav.Link as={Link} to="/login">
               Login
+            </Nav.Link>
+
+            {/* //22/07/2026 {time: 10:58 PM} */}
+            <Nav.Link as={Link} to="/extract-colors-from-image">
+              Extract Colors
             </Nav.Link>
 
             <button className="btn btn-secondary me-2" onClick={toggleTheme}>

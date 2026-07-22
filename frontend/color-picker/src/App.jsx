@@ -8,13 +8,10 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyPalettes from "./pages/MyPalettes";
 
-
+//22/07/2026 {time: 10:46 PM}
+import ExtractColors from "./pages/ExtractColors";
 
 function App() {
-  
-
-  
-
   return (
     <>
       <Routes>
@@ -35,6 +32,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* //22/07/2026 {time: 10:48 PM} */}
+        <Route path="/extract-colors-from-image" element={<ExtractColors />} />
 
         <Route path="/login" element={<Login />} />
 
