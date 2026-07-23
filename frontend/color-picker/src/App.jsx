@@ -12,6 +12,12 @@ import MyPalettes from "./pages/MyPalettes";
 import ExtractColors from "./pages/ExtractColors";
 import ColorPaletteGenerator from "./pages/ColorPaletteGenerator";
 
+//23/07/2026 {time: 9:21 PM}
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+
+
+
 function App() {
   return (
     <>
@@ -41,7 +47,10 @@ function App() {
           path="/color-palette-generator"
           element={<ColorPaletteGenerator />}
         />
-        
+
+        {/* //23/07/2026 {time: 9:20 PM} */}
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
 
         <Route path="/login" element={<Login />} />
 
@@ -49,6 +58,8 @@ function App() {
 
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
+
+      <Footer />
     </>
   );
 }
