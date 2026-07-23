@@ -12,11 +12,14 @@ import MyPalettes from "./pages/MyPalettes";
 import ExtractColors from "./pages/ExtractColors";
 import ColorPaletteGenerator from "./pages/ColorPaletteGenerator";
 
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+
 //23/07/2026 {time: 9:21 PM}
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
+import Terms from "./pages/Terms";
 
-
+import Footer from "./pages/Footer";
 
 function App() {
   return (
@@ -48,9 +51,13 @@ function App() {
           element={<ColorPaletteGenerator />}
         />
 
+        <Route path="/about" element={<About />} />
+
+        <Route path="/contact" element={<Contact />} />
+
         {/* //23/07/2026 {time: 9:20 PM} */}
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/terms" element={<Terms />} />
 
         <Route path="/login" element={<Login />} />
 
@@ -59,6 +66,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
 
+      {/* //23/07/2026 {time: 9:47 PM} */}
       <Footer />
     </>
   );

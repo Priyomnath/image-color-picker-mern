@@ -6,13 +6,10 @@ function PrivacyPolicy() {
     <>
       <Helmet>
         <title>Privacy Policy | Image Color Picker</title>
+
         <meta
           name="description"
-          content="Privacy Policy for Image Color Picker. Learn how we collect, use, and protect your data."
-        />
-        <link
-          rel="canonical"
-          href="https://image-color-picker-mern-z72c-lilac.vercel.app/privacy-policy"
+          content="Read the Privacy Policy of Image Color Picker to learn how we collect, use, and protect information when you use our website."
         />
       </Helmet>
 
@@ -21,52 +18,130 @@ function PrivacyPolicy() {
       <main className="container py-5">
         <div className="row justify-content-center">
           <div className="col-lg-9">
-            <h1 className="mb-4">Privacy Policy</h1>
-            <p className="text-muted">Last updated: July 2026</p>
+            <h1 className="text-center mb-4">
+              Privacy Policy
+            </h1>
 
             <p>
-              At Image Color Picker, accessible from
-              https://image-color-picker-mern-z72c-lilac.vercel.app, one of our main
-              priorities is the privacy of our visitors. This Privacy Policy
-              document contains types of information that is collected and recorded
-              by Image Color Picker and how we use it.
+              <strong>Last Updated:</strong> July 2026
             </p>
 
-            <h2 className="mt-4 mb-3">Information We Collect</h2>
             <p>
-              When you use our service, we may collect minimal information such as
-              account information (name, email) if you register, and uploaded images
-              to extract color palettes. We do not sell or share your personal data with
-              third parties.
+              Welcome to Image Color Picker. Your privacy is important
+              to us. This Privacy Policy explains how information may
+              be collected, used, and protected when you use our website.
             </p>
 
-            <h2 className="mt-4 mb-3">Cookies and Web Beacons</h2>
+            <h2 className="mt-5">1. Information We Collect</h2>
+
             <p>
-              Like any other website, Image Color Picker uses 'cookies'. These
-              cookies are used to store information including visitors'
-              preferences, and the pages on the website that the visitor accessed
-              or visited.
+              When you use our website, we may collect information
+              that you voluntarily provide, such as your name and
+              email address when you create an account or contact us.
             </p>
 
-            <h2 className="mt-4 mb-3">Google DoubleClick DART Cookie</h2>
             <p>
-              Google is one of a third-party vendor on our site. It also uses
-              cookies, known as DART cookies, to serve ads to our site visitors
-              based upon their visit to our site and other sites on the internet.
+              We may also collect technical information such as
+              browser type, device information, IP address, and
+              general usage information for security and analytics
+              purposes.
             </p>
 
-            <h2 className="mt-4 mb-3">Third Party Privacy Policies</h2>
+            <h2 className="mt-5">2. Uploaded Images</h2>
+
             <p>
-              Image Color Picker's Privacy Policy does not apply to other
-              advertisers or websites. Thus, we are advising you to consult the
-              respective Privacy Policies of these third-party ad servers for more
-              detailed information.
+              Images uploaded to our color extraction tools may be
+              processed to generate color palettes and color information.
+              Uploaded images may be stored when you choose to save
+              a palette to your account.
             </p>
 
-            <h2 className="mt-4 mb-3">Consent</h2>
+            <h2 className="mt-5">3. How We Use Information</h2>
+
             <p>
-              By using our website, you hereby consent to our Privacy Policy and
-              agree to its terms.
+              We may use collected information to:
+            </p>
+
+            <ul>
+              <li>Provide and operate our services</li>
+              <li>Manage user accounts</li>
+              <li>Save user color palettes</li>
+              <li>Improve website performance</li>
+              <li>Respond to support requests</li>
+              <li>Prevent fraud and abuse</li>
+            </ul>
+
+            <h2 className="mt-5">4. Cookies</h2>
+
+            <p>
+              We may use cookies and similar technologies to provide
+              authentication and improve the functionality of our
+              website.
+            </p>
+
+            <p>
+              Our authentication system may use cookies to securely
+              maintain your login session.
+            </p>
+
+            <h2 className="mt-5">5. Third-Party Services</h2>
+
+            <p>
+              We may use third-party services such as hosting,
+              cloud storage, database, analytics, and advertising
+              providers to operate our website.
+            </p>
+
+            <p>
+              These third-party services may process information
+              according to their own privacy policies.
+            </p>
+
+            <h2 className="mt-5">6. Advertising</h2>
+
+            <p>
+              We may display advertisements from third-party advertising
+              providers in the future. These providers may use cookies
+              or similar technologies to provide relevant advertisements.
+            </p>
+
+            <h2 className="mt-5">7. Data Security</h2>
+
+            <p>
+              We take reasonable measures to protect information
+              associated with our services. However, no online service
+              can guarantee complete security of information.
+            </p>
+
+            <h2 className="mt-5">8. Your Choices</h2>
+
+            <p>
+              You may contact us if you have questions about your
+              personal information or wish to request assistance
+              regarding your account.
+            </p>
+
+            <h2 className="mt-5">9. Children's Privacy</h2>
+
+            <p>
+              Our services are not intended to knowingly collect
+              personal information from children without appropriate
+              consent.
+            </p>
+
+            <h2 className="mt-5">10. Changes to This Policy</h2>
+
+            <p>
+              We may update this Privacy Policy from time to time.
+              Any changes will be posted on this page with an updated
+              revision date.
+            </p>
+
+            <h2 className="mt-5">11. Contact Us</h2>
+
+            <p>
+              If you have questions about this Privacy Policy, please
+              visit our Contact page.
             </p>
           </div>
         </div>
