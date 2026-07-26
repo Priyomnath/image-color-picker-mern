@@ -26,6 +26,9 @@ import "react-toastify/dist/ReactToastify.css";
 
 import App from "./App";
 
+//26/07/2026 {time: PM}
+import "./App.css";
+
 import { ThemeProvider } from "./context/ThemeContext";
 
 //22/07/2026 {time: 10:38 PM}

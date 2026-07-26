@@ -182,3 +182,733 @@
     border-right-color: var(--border);
   }
 }
+
+
+/* //25/07/2026 {time: PM} */
+/* =========================================
+   PREMIUM UI - DARK MODE
+========================================= */
+
+/* Smooth Theme Transition */
+
+body,
+.card,
+.navbar,
+.btn,
+.form-control {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+
+/* =========================================
+   DARK MODE
+========================================= */
+
+body.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+
+/* Cards */
+
+body.dark-mode .card {
+  background-color: #1e1e1e !important;
+  color: #f1f1f1;
+}
+
+
+/* Card Header */
+
+body.dark-mode .card-header {
+  background-color: #1e1e1e !important;
+  color: #f1f1f1;
+}
+
+
+/* Text */
+
+body.dark-mode .text-muted {
+  color: #adb5bd !important;
+}
+
+
+/* Borders */
+
+body.dark-mode .border {
+  border-color: #3a3a3a !important;
+}
+
+
+/* Upload Area */
+
+body.dark-mode .upload-area {
+  background:
+    linear-gradient(
+      135deg,
+      #1e1e1e,
+      #252525
+    ) !important;
+
+  border-color: #555 !important;
+}
+
+
+/* Upload Area Hover */
+
+body.dark-mode .upload-area:hover {
+  border-color: #0d6efd !important;
+  background:
+    linear-gradient(
+      135deg,
+      #202020,
+      #292929
+    ) !important;
+}
+
+
+/* Image Background */
+
+body.dark-mode .image-preview-container {
+  background-color: #181818 !important;
+}
+
+
+/* Buttons */
+
+body.dark-mode .btn-outline-secondary {
+  color: #f1f1f1;
+  border-color: #6c757d;
+}
+
+
+body.dark-mode .btn-outline-secondary:hover {
+  background-color: #f1f1f1;
+  color: #121212;
+}
+
+
+/* =========================================
+   PREMIUM BUTTON HOVER
+========================================= */
+
+.premium-btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.premium-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(0, 0, 0, 0.15);
+}
+
+
+.premium-btn:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================
+   SAVE BUTTON
+========================================= */
+
+.save-palette-btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.save-palette-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(13, 110, 253, 0.25);
+}
+
+
+/* =========================================
+   DOWNLOAD BUTTON
+========================================= */
+
+.download-json-btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.download-json-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(25, 135, 84, 0.2);
+}
+
+
+/* =========================================
+   COPY BUTTON
+========================================= */
+
+.copy-color-btn {
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+
+.copy-color-btn:hover {
+  transform: translateY(-2px);
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 576px) {
+
+  .premium-btn,
+  .save-palette-btn,
+  .download-json-btn {
+    width: 100%;
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+/* //26/07/2026 {time: PM} */
+
+/* =========================================
+STEP 8.1 — MOBILE RESPONSIVE POLISH
+========================================= */
+
+/* =========================================
+GLOBAL RESPONSIVE FIX
+========================================= */
+
+html,
+body {
+overflow-x: hidden;
+}
+
+img {
+max-width: 100%;
+}
+
+/* =========================================
+UPLOAD AREA
+========================================= */
+
+.upload-area {
+width: 100%;
+transition: all 0.25s ease;
+}
+
+.upload-area button {
+max-width: 100%;
+}
+
+/* =========================================
+IMAGE PREVIEW
+========================================= */
+
+.image-preview-container {
+width: 100%;
+overflow: hidden;
+}
+
+.image-preview-container img {
+width: 100%;
+max-width: 100%;
+height: auto;
+object-fit: contain;
+}
+
+/* =========================================
+COLOR PALETTE
+========================================= */
+
+.color-palette-card {
+width: 100%;
+overflow: hidden;
+}
+
+/* =========================================
+COPY COLOR BUTTON
+========================================= */
+
+.copy-color-btn {
+white-space: nowrap;
+}
+
+/* =========================================
+PREMIUM BUTTON
+========================================= */
+
+.premium-btn {
+white-space: nowrap;
+}
+
+/* =========================================
+TABLET
+========================================= */
+
+@media (max-width: 991.98px) {
+
+.upload-area {
+min-height: 280px !important;
+}
+
+.image-preview-container img {
+max-height: 450px !important;
+}
+
+}
+
+/* =========================================
+MOBILE
+========================================= */
+
+@media (max-width: 767.98px) {
+
+/* Main Container */
+
+.container {
+max-width: 100%;
+}
+
+/* Upload Area */
+
+.upload-area {
+min-height: 260px !important;
+padding: 30px 20px !important;
+}
+
+/* Upload Icon */
+
+.upload-area .rounded-circle {
+width: 70px !important;
+height: 70px !important;
+font-size: 32px !important;
+}
+
+/* Upload Heading */
+
+.upload-area h2 {
+font-size: 1.5rem;
+}
+
+/* Upload Description */
+
+.upload-area p {
+font-size: 0.95rem;
+}
+
+/* Upload Button */
+
+.upload-area button {
+width: 100%;
+max-width: 280px;
+}
+
+/* Image Preview */
+
+.image-preview-container {
+padding: 10px !important;
+}
+
+.image-preview-container img {
+max-height: 350px !important;
+border-radius: 12px !important;
+}
+
+/* Change Image Button */
+
+.card-header button {
+width: 100%;
+}
+
+/* Action Buttons */
+
+.premium-btn {
+width: 100%;
+}
+
+/* Action Button Container */
+
+.card-body .d-flex.flex-wrap {
+width: 100%;
+}
+
+/* Color Strip */
+
+.d-flex.overflow-hidden.rounded-4 {
+height: 90px !important;
+}
+
+/* Color Cards */
+
+.col-xl-4,
+.col-lg-6 {
+width: 100%;
+}
+
+/* Color Preview */
+
+.card [style*="height: 180px"] {
+height: 150px !important;
+}
+
+/* Color Information */
+
+.card .p-4 {
+padding: 20px !important;
+}
+
+/* Color Copy Buttons */
+
+.copy-color-btn {
+padding: 6px 12px;
+font-size: 0.85rem;
+}
+
+/* HEX / RGB / HSL */
+
+.border.rounded-3.p-3 {
+gap: 12px;
+}
+
+/* Home Hero */
+
+.display-4 {
+font-size: 2.2rem;
+}
+
+/* Hero Description */
+
+.lead {
+font-size: 1rem;
+}
+
+/* Feature Cards */
+
+.card {
+border-radius: 16px !important;
+}
+
+/* Section Spacing */
+
+section.container {
+padding-top: 40px !important;
+padding-bottom: 40px !important;
+}
+
+}
+
+/* =========================================
+SMALL MOBILE
+========================================= */
+
+@media (max-width: 575.98px) {
+
+/* Hero Heading */
+
+.display-4 {
+font-size: 1.9rem;
+}
+
+/* Upload Heading */
+
+.upload-area h2 {
+font-size: 1.35rem;
+}
+
+/* Upload Area */
+
+.upload-area {
+padding: 25px 15px !important;
+}
+
+/* Image Preview */
+
+.image-preview-container img {
+max-height: 280px !important;
+}
+
+/* Color Strip */
+
+.d-flex.overflow-hidden.rounded-4 {
+height: 75px !important;
+}
+
+/* Color Number */
+
+.d-flex.overflow-hidden.rounded-4
+.position-absolute {
+font-size: 12px;
+}
+
+/* Color Info */
+
+.card .p-4 {
+padding: 16px !important;
+}
+
+/* HEX / RGB / HSL Rows */
+
+.border.rounded-3.p-3 {
+padding: 12px !important;
+}
+
+/* Copy Button */
+
+.copy-color-btn {
+padding: 5px 10px;
+}
+
+/* Upload Another Image */
+
+.btn-outline-primary {
+max-width: 100%;
+}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* //26/07/2026 {time: PM} */
+
+/* =========================================
+STEP 8.2 — MOBILE NAVBAR POLISH
+========================================= */
+
+/* =========================================
+NAVBAR BASE
+========================================= */
+
+.navbar-component {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* =========================================
+NAVBAR LINKS
+========================================= */
+
+.navbar-link {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navbar-link:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================================
+ACTIVE LINK
+========================================= */
+
+.navbar-link.active {
+  color: #0d6efd !important;
+  background-color: rgba(13, 110, 253, 0.08);
+}
+
+/* =========================================
+LOGO
+========================================= */
+
+.navbar-logo {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 6px 15px rgba(13, 110, 253, 0.2);
+}
+
+/* =========================================
+THEME BUTTON
+========================================= */
+
+.navbar-theme-btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navbar-theme-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* =========================================
+LOGOUT BUTTON
+========================================= */
+
+.navbar-logout-btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navbar-logout-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 6px 15px rgba(220, 53, 69, 0.25);
+}
+
+/* =========================================
+MOBILE NAVBAR
+========================================= */
+
+@media (max-width: 991.98px) {
+
+  /* Navbar */
+
+  .navbar-component .container {
+    position: relative;
+  }
+
+  /* Brand */
+
+  .navbar-brand-text small {
+    font-size: 11px;
+  }
+
+  /* Collapse */
+
+  .navbar-component .navbar-collapse {
+    margin-top: 15px;
+    padding-top: 15px;
+
+    border-top: 1px solid
+      rgba(128, 128, 128, 0.2);
+  }
+
+  /* Navigation */
+
+  .navbar-nav-custom {
+    width: 100%;
+    gap: 6px !important;
+  }
+
+  /* Links */
+
+  .navbar-link {
+    width: 100%;
+    padding: 11px 15px !important;
+    text-align: center;
+  }
+
+  .navbar-link:hover {
+    transform: none;
+  }
+
+  /* Active */
+
+  .navbar-link.active {
+    background-color:
+      rgba(13, 110, 253, 0.1);
+  }
+
+  /* Theme Button */
+
+  .navbar-theme-btn {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  /* Logout Button */
+
+  .navbar-logout-btn {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+}
+
+/* =========================================
+SMALL MOBILE
+========================================= */
+
+@media (max-width: 575.98px) {
+
+  /* Navbar */
+
+  .navbar-component {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* Logo */
+
+  .navbar-logo {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 19px !important;
+  }
+
+  /* Brand */
+
+  .navbar-brand-text .fs-5 {
+    font-size: 1rem !important;
+  }
+
+  .navbar-brand-text small {
+    font-size: 9px;
+  }
+
+  /* Toggle */
+
+  .navbar-toggler {
+    padding: 6px 9px;
+    border-radius: 8px;
+  }
+
+  /* Collapse */
+
+  .navbar-component .navbar-collapse {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+}

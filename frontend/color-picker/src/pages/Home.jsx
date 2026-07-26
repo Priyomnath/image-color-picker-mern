@@ -1,36 +1,3 @@
-// // 14/07/2026
-// import NavbarComponent from "../components/Navbar"; //one change now
-// import UploadBox from "../components/UploadBox";
-
-// //this my bad
-// function Home() {
-//   return (
-//     <>
-//       <NavbarComponent />
-
-//       <div className="container">
-//         <h1 className="text-center mt-5">
-//           Image Color Picker
-//         </h1>
-
-//         <UploadBox />
-//       </div>
-//     </>
-//   );
-// }
-
-// export default Home;
-
-
-
-
-
-
-
-
-
-
-
 import NavbarComponent from "../components/Navbar";
 import UploadBox from "../components/UploadBox";
 
@@ -40,145 +7,436 @@ function Home() {
       <NavbarComponent />
 
       <main>
-        {/* Hero Section */}
+
+        {/* ========================================= */}
+        {/* PREMIUM HERO SECTION */}
+        {/* ========================================= */}
+
         <section className="container py-5">
-          <div className="text-center">
-            <h1 className="display-4 fw-bold">
-              Image Color Picker & Color Palette Generator
+
+          <div
+            className="rounded-4 p-4 p-md-5 text-center shadow-sm"
+            style={{
+              background:
+                "linear-gradient(135deg, #f8f9ff, #eef5ff, #f8f0ff)",
+              border: "1px solid rgba(13, 110, 253, 0.08)",
+            }}
+          >
+
+            {/* Badge */}
+
+            <div className="mb-4">
+
+              <span
+                className="badge rounded-pill px-3 py-2"
+                style={{
+                  background:
+                    "rgba(13, 110, 253, 0.1)",
+                  color: "#0d6efd",
+                  fontSize: "14px",
+                }}
+              >
+                🎨 Free Online Color Extraction Tool
+              </span>
+
+            </div>
+
+            {/* Main Heading */}
+
+            <h1
+              className="display-4 fw-bold mb-4"
+              style={{
+                lineHeight: "1.15",
+                color: "#212529" // 👈 Light mode dark color fix
+              }}
+            >
+              Extract Beautiful Colors
+              <br />
+
+              <span className="text-primary">
+                From Any Image
+              </span>
             </h1>
 
-            <p className="lead mt-3">
-              Extract beautiful colors from any image instantly with our free
-              online image color picker. Upload an image and generate a
-              stunning color palette with HEX color codes.
+            {/* Description */}
+
+            <p
+              className="lead text-muted mx-auto mb-4"
+              style={{
+                maxWidth: "750px",
+                lineHeight: "1.7",
+              }}
+            >
+              Upload an image and instantly discover its
+              dominant colors, HEX, RGB, and HSL color
+              codes. Create beautiful color palettes for
+              your websites, apps, branding, and design
+              projects.
             </p>
+
+            {/* Feature Highlights */}
+
+            <div className="d-flex flex-wrap justify-content-center gap-3 mb-4">
+
+              <span className="badge bg-white text-dark border shadow-sm px-3 py-2">
+                ⚡ Instant Color Extraction
+              </span>
+
+              <span className="badge bg-white text-dark border shadow-sm px-3 py-2">
+                🎨 HEX • RGB • HSL
+              </span>
+
+              <span className="badge bg-white text-dark border shadow-sm px-3 py-2">
+                💾 Save Your Palettes
+              </span>
+
+              <span className="badge bg-white text-dark border shadow-sm px-3 py-2">
+                📥 Download JSON
+              </span>
+
+            </div>
+
+            {/* Main Tool */}
+
+            <div className="mt-5 text-start">
+              <UploadBox />
+            </div>
+
           </div>
 
-          {/* Color Picker Tool */}
-          <div className="mt-5">
-            <UploadBox />
-          </div>
         </section>
 
-        {/* Features Section */}
+
+        {/* ========================================= */}
+        {/* FEATURES SECTION */}
+        {/* ========================================= */}
+
         <section className="container py-5">
-          <h2 className="text-center mb-4">
-            Powerful Image Color Picker Features
-          </h2>
+
+          <div className="text-center mb-5">
+
+            <span className="text-primary fw-semibold">
+              POWERFUL FEATURES
+            </span>
+
+            <h2 className="fw-bold mt-2">
+              Everything You Need to Work With Colors
+            </h2>
+
+            <p className="text-muted mx-auto" style={{ maxWidth: "650px" }}>
+              Quickly extract, explore, copy, download,
+              and save beautiful colors from your favorite
+              images.
+            </p>
+
+          </div>
+
 
           <div className="row g-4">
-            <div className="col-md-4">
-              <div className="card h-100 shadow-sm p-4">
-                <h3 className="h5">🎨 Extract Colors from Images</h3>
 
-                <p>
-                  Upload any image and automatically extract the most
-                  beautiful and dominant colors from it.
-                </p>
-              </div>
-            </div>
+            {/* Feature 1 */}
 
             <div className="col-md-4">
-              <div className="card h-100 shadow-sm p-4">
-                <h3 className="h5">🌈 Generate Color Palettes</h3>
 
-                <p>
-                  Create beautiful color palettes from your favorite photos
-                  and images for your next design project.
+              <div
+                className="card h-100 border-0 shadow-sm rounded-4 p-4"
+              >
+
+                <div
+                  className="rounded-3 d-flex align-items-center justify-content-center mb-4"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    background:
+                      "rgba(13, 110, 253, 0.1)",
+                    fontSize: "28px",
+                  }}
+                >
+                  🎨
+                </div>
+
+                <h3 className="h5 fw-bold">
+                  Extract Colors from Images
+                </h3>
+
+                <p className="text-muted mb-0">
+                  Upload any image and automatically
+                  discover its most beautiful and dominant
+                  colors in seconds.
                 </p>
+
               </div>
+
             </div>
+
+
+            {/* Feature 2 */}
 
             <div className="col-md-4">
-              <div className="card h-100 shadow-sm p-4">
-                <h3 className="h5">📋 Copy HEX Color Codes</h3>
 
-                <p>
-                  Easily copy HEX color codes and use them in your websites,
-                  apps, graphic designs, and UI projects.
+              <div
+                className="card h-100 border-0 shadow-sm rounded-4 p-4"
+              >
+
+                <div
+                  className="rounded-3 d-flex align-items-center justify-content-center mb-4"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    background:
+                      "rgba(111, 66, 193, 0.1)",
+                    fontSize: "28px",
+                  }}
+                >
+                  🌈
+                </div>
+
+                <h3 className="h5 fw-bold">
+                  Generate Color Palettes
+                </h3>
+
+                <p className="text-muted mb-0">
+                  Turn your favorite photos into beautiful
+                  color palettes for websites, apps,
+                  branding, and creative projects.
                 </p>
+
               </div>
+
             </div>
+
+
+            {/* Feature 3 */}
+
+            <div className="col-md-4">
+
+              <div
+                className="card h-100 border-0 shadow-sm rounded-4 p-4"
+              >
+
+                <div
+                  className="rounded-3 d-flex align-items-center justify-content-center mb-4"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    background:
+                      "rgba(25, 135, 84, 0.1)",
+                    fontSize: "28px",
+                  }}
+                >
+                  📋
+                </div>
+
+                <h3 className="h5 fw-bold">
+                  Copy HEX, RGB & HSL
+                </h3>
+
+                <p className="text-muted mb-0">
+                  Easily copy HEX, RGB, and HSL color
+                  values and use them directly in your
+                  design and development projects.
+                </p>
+
+              </div>
+
+            </div>
+
           </div>
+
         </section>
 
-        {/* How It Works */}
+
+        {/* ========================================= */}
+        {/* HOW IT WORKS */}
+        {/* ========================================= */}
+
         <section className="container py-5">
-          <h2 className="text-center mb-4">
-            How to Extract Colors from an Image
-          </h2>
+
+          <div className="text-center mb-5">
+
+            <span className="text-primary fw-semibold">
+              SIMPLE PROCESS
+            </span>
+
+            <h2 className="fw-bold mt-2">
+              How to Extract Colors from an Image
+            </h2>
+
+          </div>
+
 
           <div className="row g-4 text-center">
-            <div className="col-md-4">
-              <div className="p-4">
-                <h3 className="h5">1. Upload Your Image</h3>
 
-                <p>
-                  Select or drag and drop an image into the image color picker
-                  tool.
-                </p>
-              </div>
-            </div>
+            {/* Step 1 */}
 
             <div className="col-md-4">
-              <div className="p-4">
-                <h3 className="h5">2. Extract Colors</h3>
 
-                <p>
-                  Our tool analyzes your image and automatically generates
-                  beautiful colors from it.
+              <div className="p-4">
+
+                <div
+                  className="mx-auto mb-3 rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    fontSize: "22px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  1
+                </div>
+
+                <h3 className="h5 fw-bold">
+                  Upload Your Image
+                </h3>
+
+                <p className="text-muted">
+                  Select an image from your device or
+                  drag and drop it into the color picker.
                 </p>
+
               </div>
+
             </div>
+
+
+            {/* Step 2 */}
 
             <div className="col-md-4">
-              <div className="p-4">
-                <h3 className="h5">3. Save Your Palette</h3>
 
-                <p>
-                  Copy your HEX colors, download your palette, or save it to
-                  your account for later.
+              <div className="p-4">
+
+                <div
+                  className="mx-auto mb-3 rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    fontSize: "22px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  2
+                </div>
+
+                <h3 className="h5 fw-bold">
+                  Extract Colors
+                </h3>
+
+                <p className="text-muted">
+                  Our color extraction tool analyzes your
+                  image and generates a beautiful palette.
                 </p>
+
               </div>
+
             </div>
+
+
+            {/* Step 3 */}
+
+            <div className="col-md-4">
+
+              <div className="p-4">
+
+                <div
+                  className="mx-auto mb-3 rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    fontSize: "22px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  3
+                </div>
+
+                <h3 className="h5 fw-bold">
+                  Copy or Save Your Palette
+                </h3>
+
+                <p className="text-muted">
+                  Copy your color codes, download the
+                  palette as JSON, or save it to your account.
+                </p>
+
+              </div>
+
+            </div>
+
           </div>
+
         </section>
 
-        {/* About Section */}
+
+        {/* ========================================= */}
+        {/* ABOUT / SEO SECTION */}
+        {/* ========================================= */}
+
         <section className="container py-5">
+
           <div className="row justify-content-center">
+
             <div className="col-lg-9">
-              <h2 className="text-center mb-4">
+
+              <h2 className="text-center fw-bold mb-4">
                 Free Online Image Color Picker
               </h2>
 
               <p>
-                Our image color picker is a free online tool that helps
-                designers, developers, artists, and creators extract colors
-                from images. Whether you are working on a website, mobile app,
-                branding project, or graphic design, you can quickly generate
-                a color palette from any image.
+                Our image color picker is a free online
+                tool designed to help designers, developers,
+                artists, and creators extract colors from
+                images. Whether you are creating a website,
+                mobile application, branding project, or
+                graphic design, you can quickly generate a
+                color palette from any image.
               </p>
 
               <p>
-                Simply upload your image and our color extraction tool will
-                identify the dominant colors and generate HEX color codes.
-                You can then use these colors in your design projects or save
-                your favorite palettes for future use.
+                Simply upload your image and our color
+                extraction tool will identify dominant
+                colors and generate HEX, RGB, and HSL
+                color values. You can then copy these
+                colors, download your palette, or save your
+                favorite palettes for future projects.
               </p>
+
             </div>
+
           </div>
+
         </section>
 
-        {/* FAQ Section */}
-        <section className="container py-5">
-          <h2 className="text-center mb-4">
-            Frequently Asked Questions
-          </h2>
 
-          <div className="accordion" id="faqAccordion">
+        {/* ========================================= */}
+        {/* FAQ SECTION */}
+        {/* ========================================= */}
+
+        <section className="container py-5">
+
+          <div className="text-center mb-5">
+
+            <span className="text-primary fw-semibold">
+              FAQ
+            </span>
+
+            <h2 className="fw-bold mt-2">
+              Frequently Asked Questions
+            </h2>
+
+          </div>
+
+
+          <div
+            className="accordion"
+            id="faqAccordion"
+          >
+
+            {/* FAQ 1 */}
+
             <div className="accordion-item">
+
               <h3 className="accordion-header">
+
                 <button
                   className="accordion-button"
                   type="button"
@@ -187,6 +445,7 @@ function Home() {
                 >
                   What is an image color picker?
                 </button>
+
               </h3>
 
               <div
@@ -194,16 +453,27 @@ function Home() {
                 className="accordion-collapse collapse show"
                 data-bs-parent="#faqAccordion"
               >
+
                 <div className="accordion-body">
-                  An image color picker is an online tool that extracts
-                  colors from an image and generates a color palette with
-                  HEX color codes.
+
+                  An image color picker is an online tool
+                  that extracts colors from an image and
+                  generates a color palette with HEX, RGB,
+                  and HSL color values.
+
                 </div>
+
               </div>
+
             </div>
 
+
+            {/* FAQ 2 */}
+
             <div className="accordion-item">
+
               <h3 className="accordion-header">
+
                 <button
                   className="accordion-button collapsed"
                   type="button"
@@ -212,6 +482,7 @@ function Home() {
                 >
                   Can I extract colors from any image?
                 </button>
+
               </h3>
 
               <div
@@ -219,15 +490,27 @@ function Home() {
                 className="accordion-collapse collapse"
                 data-bs-parent="#faqAccordion"
               >
+
                 <div className="accordion-body">
-                  Yes. You can upload an image and our tool will analyze it
-                  to generate a color palette.
+
+                  Yes. You can upload supported image
+                  formats such as JPG, JPEG, PNG, and WEBP.
+                  The tool analyzes your image and generates
+                  a color palette.
+
                 </div>
+
               </div>
+
             </div>
 
+
+            {/* FAQ 3 */}
+
             <div className="accordion-item">
+
               <h3 className="accordion-header">
+
                 <button
                   className="accordion-button collapsed"
                   type="button"
@@ -236,6 +519,7 @@ function Home() {
                 >
                   What are HEX color codes?
                 </button>
+
               </h3>
 
               <div
@@ -243,14 +527,23 @@ function Home() {
                 className="accordion-collapse collapse"
                 data-bs-parent="#faqAccordion"
               >
+
                 <div className="accordion-body">
-                  HEX color codes are hexadecimal values used to represent
-                  colors in websites, apps, and digital design projects.
+
+                  HEX color codes are six-digit hexadecimal
+                  values used to represent colors in websites,
+                  applications, and digital design projects.
+
                 </div>
+
               </div>
+
             </div>
+
           </div>
+
         </section>
+
       </main>
     </>
   );
