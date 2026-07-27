@@ -1,45 +1,56 @@
+import { useState } from "react";
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 
 function NavbarComponent() {
   const { darkMode, toggleTheme } = useTheme();
+  const { isLoggedIn, logout } = useAuth();
   const location = useLocation();
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  // Mobile menu state
+  const [expanded, setExpanded] = useState(false);
 
-    window.location.href = "/login";
-  };
+  // =========================================
+  // ACTIVE LINK
+  // =========================================
 
   const isActive = (path) => {
     return location.pathname === path;
   };
 
+  // =========================================
+  // CLOSE MOBILE MENU
+  // =========================================
+
+  const closeMenu = () => {
+    setExpanded(false);
+  };
+
   return (
     <Navbar
       expand="lg"
+      expanded={expanded}
+      onToggle={setExpanded}
       sticky="top"
       className={`navbar-component py-2 py-lg-3 ${
         darkMode ? "bg-dark navbar-dark" : "bg-white navbar-light"
       }`}
       style={{
-        borderBottom: darkMode
-          ? "1px solid #343a40"
-          : "1px solid #e9ecef",
+        borderBottom: darkMode ? "1px solid #343a40" : "1px solid #e9ecef",
         zIndex: 1030,
       }}
     >
       <Container>
-
-        {/* ================================= */}
+        {/* ========================================= */}
         {/* BRAND */}
-        {/* ================================= */}
+        {/* ========================================= */}
 
         <Navbar.Brand
           as={Link}
           to="/"
+          onClick={closeMenu}
           className="d-flex align-items-center gap-2"
         >
           {/* Logo */}
@@ -49,8 +60,7 @@ function NavbarComponent() {
             style={{
               width: "42px",
               height: "42px",
-              background:
-                "linear-gradient(135deg, #6f42c1, #0d6efd)",
+              background: "linear-gradient(135deg, #6f42c1, #0d6efd)",
               fontSize: "22px",
             }}
           >
@@ -60,62 +70,52 @@ function NavbarComponent() {
           {/* Brand Text */}
 
           <div className="navbar-brand-text">
-            <div className="fw-bold fs-5">
-              Color Picker
-            </div>
+            <div className="fw-bold fs-5">Color Picker</div>
 
-            <small
-              className={
-                darkMode
-                  ? "text-secondary"
-                  : "text-muted"
-              }
-            >
+            <small className={darkMode ? "text-secondary" : "text-muted"}>
               Extract colors from images
             </small>
           </div>
         </Navbar.Brand>
 
-        {/* ================================= */}
+        {/* ========================================= */}
         {/* MOBILE TOGGLE */}
-        {/* ================================= */}
+        {/* ========================================= */}
 
         <Navbar.Toggle
           aria-controls="main-navbar"
           className="border-0 shadow-none"
         />
 
-        {/* ================================= */}
-        {/* NAVBAR COLLAPSE */}
-        {/* ================================= */}
+        {/* ========================================= */}
+        {/* NAVBAR MENU */}
+        {/* ========================================= */}
 
         <Navbar.Collapse id="main-navbar">
-
           <Nav className="ms-auto align-items-lg-center gap-lg-2 navbar-nav-custom">
-
-            {/* ================================= */}
+            {/* ========================================= */}
             {/* HOME */}
-            {/* ================================= */}
+            {/* ========================================= */}
 
             <Nav.Link
               as={Link}
               to="/"
+              onClick={closeMenu}
               className={`navbar-link px-3 rounded-3 ${
-                isActive("/")
-                  ? "active fw-semibold"
-                  : ""
+                isActive("/") ? "active fw-semibold" : ""
               }`}
             >
               Home
             </Nav.Link>
 
-            {/* ================================= */}
+            {/* ========================================= */}
             {/* EXTRACT COLORS */}
-            {/* ================================= */}
+            {/* ========================================= */}
 
             <Nav.Link
               as={Link}
               to="/extract-colors-from-image"
+              onClick={closeMenu}
               className={`navbar-link px-3 rounded-3 ${
                 isActive("/extract-colors-from-image")
                   ? "active fw-semibold"
@@ -125,103 +125,107 @@ function NavbarComponent() {
               Extract Colors
             </Nav.Link>
 
-            {/* ================================= */}
+            {/* ========================================= */}
             {/* PALETTE GENERATOR */}
-            {/* ================================= */}
+            {/* ========================================= */}
 
             <Nav.Link
               as={Link}
               to="/color-palette-generator"
+              onClick={closeMenu}
               className={`navbar-link px-3 rounded-3 ${
-                isActive("/color-palette-generator")
-                  ? "active fw-semibold"
-                  : ""
+                isActive("/color-palette-generator") ? "active fw-semibold" : ""
               }`}
             >
               Palette Generator
             </Nav.Link>
 
-            {/* ================================= */}
+            {/* ========================================= */}
             {/* MY PALETTES */}
-            {/* ================================= */}
+            {/* Only show when logged in */}
+            {/* ========================================= */}
 
-            <Nav.Link
-              as={Link}
-              to="/my-palettes"
-              className={`navbar-link px-3 rounded-3 ${
-                isActive("/my-palettes")
-                  ? "active fw-semibold"
-                  : ""
-              }`}
-            >
-              My Palettes
-            </Nav.Link>
+            {isLoggedIn && (
+              <Nav.Link
+                as={Link}
+                to="/my-palettes"
+                onClick={closeMenu}
+                className={`navbar-link px-3 rounded-3 ${
+                  isActive("/my-palettes") ? "active fw-semibold" : ""
+                }`}
+              >
+                My Palettes
+              </Nav.Link>
+            )}
 
-            {/* ================================= */}
+            {/* ========================================= */}
             {/* LOGIN */}
-            {/* ================================= */}
+            {/* Only show when logged out */}
+            {/* ========================================= */}
 
-            <Nav.Link
-              as={Link}
-              to="/login"
-              className={`navbar-link px-3 rounded-3 ${
-                isActive("/login")
-                  ? "active fw-semibold"
-                  : ""
-              }`}
-            >
-              Login
-            </Nav.Link>
+            {!isLoggedIn && (
+              <Nav.Link
+                as={Link}
+                to="/login"
+                onClick={closeMenu}
+                className={`navbar-link px-3 rounded-3 ${
+                  isActive("/login") ? "active fw-semibold" : ""
+                }`}
+              >
+                Login
+              </Nav.Link>
+            )}
 
-            {/* ================================= */}
+            {/* ========================================= */}
             {/* DESKTOP DIVIDER */}
-            {/* ================================= */}
+            {/* ========================================= */}
 
             <div
               className="navbar-divider d-none d-lg-block mx-1"
               style={{
                 height: "28px",
                 width: "1px",
-                backgroundColor: darkMode
-                  ? "#495057"
-                  : "#dee2e6",
+                backgroundColor: darkMode ? "#495057" : "#dee2e6",
               }}
             />
 
-            {/* ================================= */}
-            {/* THEME TOGGLE */}
-            {/* ================================= */}
+            {/* ========================================= */}
+            {/* THEME BUTTON */}
+            {/* ========================================= */}
 
             <button
               type="button"
               className={`btn navbar-theme-btn rounded-pill px-3 ${
-                darkMode
-                  ? "btn-outline-light"
-                  : "btn-outline-dark"
+                darkMode ? "btn-outline-light" : "btn-outline-dark"
               }`}
-              onClick={toggleTheme}
+              onClick={() => {
+                toggleTheme();
+                closeMenu();
+              }}
             >
-              {darkMode
-                ? "☀️ Light"
-                : "🌙 Dark"}
+              {darkMode ? "☀️ Light" : "🌙 Dark"}
             </button>
 
-            {/* ================================= */}
+            {/* ========================================= */}
             {/* LOGOUT */}
-            {/* ================================= */}
+            {/* Only show when logged in */}
+            {/* ========================================= */}
 
-            <button
-              type="button"
-              className="btn navbar-logout-btn btn-danger rounded-pill px-3"
-              onClick={logout}
-            >
-              Logout
-            </button>
-
+            {isLoggedIn && (
+              <button
+                type="button"
+                className="btn btn-danger rounded-pill px-3 ms-lg-1"
+                onClick={() => {
+                  closeMenu();
+                  logout();
+                  window.location.href = "/login";
+                }}
+              >
+                Logout
+              </button>
+            )}
           </Nav>
-
         </Navbar.Collapse>
-
       </Container>
     </Navbar>
   );

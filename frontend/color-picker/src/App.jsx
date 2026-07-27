@@ -21,18 +21,24 @@ import Terms from "./pages/Terms";
 
 import Footer from "./pages/Footer";
 
+//27/07/2026 {time: PM}
+import PublicRoute from "./components/PublicRoute";
+
 function App() {
   return (
     <>
       <Routes>
-        <Route
+        {/* <Route
           path="/"
           element={
             <ProtectedRoute>
               <Home />
             </ProtectedRoute>
           }
-        />
+        /> */}
+
+        {/* //27/07/2026 {time PM} */}
+        <Route path="/" element={<Home />} />
 
         <Route
           path="/my-palettes"
@@ -59,9 +65,29 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<Terms />} />
 
-        <Route path="/login" element={<Login />} />
+        {/* <Route path="/login" element={<Login />} />
 
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<Register />} /> */}
+
+
+        {/* //27/07/2026 {time:  PM} */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
 
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
