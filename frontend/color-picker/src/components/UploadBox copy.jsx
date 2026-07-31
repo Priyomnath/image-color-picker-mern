@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { Vibrant } from "node-vibrant/browser";
 import { toast } from "react-toastify";
 
+import ColorPalette from "./ColorPalette";
 import api from "../api/api";
 
 // RGB to HSL Convert Helper Function
@@ -39,21 +40,6 @@ const rgbToHsl = (r, g, b) => {
   return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
 };
 
-// RGB → HEX
-const rgbToHex = (r, g, b) => {
-  return (
-    "#" +
-    [r, g, b]
-      .map((value) =>
-        Math.round(value)
-          .toString(16)
-          .padStart(2, "0"),
-      )
-      .join("")
-      .toUpperCase()
-  );
-};
-
 function UploadBox() {
   // =====================================================
   // STATE
@@ -69,8 +55,8 @@ function UploadBox() {
   const [pixelPosition, setPixelPosition] = useState({ x: 0, y: 0 });
   const [magnifier, setMagnifier] = useState({ visible: false, x: 0, y: 0 });
 
+  const [isColorLocked, setIsColorLocked] = useState(false);
   const [zoom, setZoom] = useState(1.5);
-  const [expandedColors, setExpandedColors] = useState({});
 
   // =====================================================
   // REFS
@@ -155,7 +141,7 @@ function UploadBox() {
   };
 
   // =====================================================
-  // MOUSE MOVE
+  // MOUSE MOVE: REAL PIXEL COLOR DETECTION
   // =====================================================
   const handleMouseMove = (e) => {
     const img = imageRef.current;
@@ -164,6 +150,7 @@ function UploadBox() {
     if (!img || !canvas) return;
 
     const rect = img.getBoundingClientRect();
+
     const displayX = e.clientX - rect.left;
     const displayY = e.clientY - rect.top;
 
@@ -177,6 +164,7 @@ function UploadBox() {
     }
 
     const scaleX = img.naturalWidth / rect.width;
+
     const scaleY = img.naturalHeight / rect.height;
 
     const pixelX = Math.min(
@@ -189,6 +177,7 @@ function UploadBox() {
       Math.max(0, Math.floor(displayY * scaleY)),
     );
 
+    // Magnifier শুধু move করবে
     setPixelPosition({
       x: pixelX,
       y: pixelY,
@@ -201,9 +190,7 @@ function UploadBox() {
     });
   };
 
-  // =====================================================
-  // IMAGE CLICK
-  // =====================================================
+  //31/07/2026 {time:  PM}
   const handleImageClick = (e) => {
     const img = imageRef.current;
     const canvas = canvasRef.current;
@@ -211,7 +198,9 @@ function UploadBox() {
     if (!img || !canvas) return;
 
     const rect = img.getBoundingClientRect();
+
     const displayX = e.clientX - rect.left;
+
     const displayY = e.clientY - rect.top;
 
     if (
@@ -224,6 +213,7 @@ function UploadBox() {
     }
 
     const scaleX = img.naturalWidth / rect.width;
+
     const scaleY = img.naturalHeight / rect.height;
 
     const pixelX = Math.min(
@@ -236,8 +226,12 @@ function UploadBox() {
       Math.max(0, Math.floor(displayY * scaleY)),
     );
 
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+
     const pixel = ctx.getImageData(pixelX, pixelY, 1, 1).data;
+
     const [r, g, b] = pixel;
 
     const hex =
@@ -247,24 +241,29 @@ function UploadBox() {
         .join("")
         .toUpperCase();
 
+    // Click করলেই Color Lock/Select হবে
     setHoverColor(hex);
+
     setHoverRGB(`rgb(${r}, ${g}, ${b})`);
-    setHoverHSL(rgbToHsl(r, g, b));
 
-    setPixelPosition({ x: pixelX, y: pixelY });
+    setPixelPosition({
+      x: pixelX,
+      y: pixelY,
+    });
 
-    toast.success(`Color Selected: ${hex}`, { autoClose: 800 });
+    toast.success(`Color Selected: ${hex}`, {
+      autoClose: 800,
+    });
   };
 
   const handleMouseLeave = () => {
     setMagnifier((prev) => ({ ...prev, visible: false }));
   };
 
-  // =====================================================
-  // COLOR VARIATIONS GENERATOR
-  // =====================================================
+  // 💥
   const generateColorVariations = (hex) => {
     const clean = hex.replace("#", "");
+
     const r = parseInt(clean.slice(0, 2), 16);
     const g = parseInt(clean.slice(2, 4), 16);
     const b = parseInt(clean.slice(4, 6), 16);
@@ -293,7 +292,7 @@ function UploadBox() {
   };
 
   // =====================================================
-  // PIXEL MAGNIFIER EFFECT
+  // PROFESSIONAL PIXEL MAGNIFIER
   // =====================================================
   useEffect(() => {
     if (!magnifier.visible) return;
@@ -327,6 +326,7 @@ function UploadBox() {
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, size, size);
 
+    // Zoomed portion draw
     ctx.drawImage(
       sourceCanvas,
       sourceX,
@@ -339,6 +339,7 @@ function UploadBox() {
       size,
     );
 
+    // Center Crosshair / Target reticle
     const centerX = size / 2;
     const centerY = size / 2;
 
@@ -357,7 +358,7 @@ function UploadBox() {
   }, [magnifier.visible, pixelPosition.x, pixelPosition.y, zoom]);
 
   // =====================================================
-  // SAVE / DOWNLOAD / REMOVE ACTIONS
+  // SAVE PALETTE
   // =====================================================
   const savePalette = async () => {
     if (!colors.length) {
@@ -380,6 +381,9 @@ function UploadBox() {
     }
   };
 
+  // =====================================================
+  // DOWNLOAD JSON
+  // =====================================================
   const downloadJSON = () => {
     const data = {
       colors,
@@ -401,6 +405,9 @@ function UploadBox() {
     URL.revokeObjectURL(url);
   };
 
+  // =====================================================
+  // REMOVE IMAGE
+  // =====================================================
   const removeImage = () => {
     setImage(null);
     setColors([]);
@@ -408,6 +415,7 @@ function UploadBox() {
     setHoverColor("");
     setHoverRGB("");
     setHoverHSL("");
+    setIsColorLocked(false);
     setPixelPosition({ x: 0, y: 0 });
     setMagnifier({ visible: false, x: 0, y: 0 });
     setZoom(1.5);
@@ -425,8 +433,10 @@ function UploadBox() {
         minHeight: "100vh",
       }}
     >
+      {/* Hidden Original Canvas */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
+      {/* UPLOAD AREA */}
       {!image && (
         <div
           {...getRootProps()}
@@ -453,6 +463,7 @@ function UploadBox() {
         </div>
       )}
 
+      {/* MAIN COLOR PICKER UI */}
       {image && (
         <div
           style={{
@@ -465,10 +476,11 @@ function UploadBox() {
             background: "#08090a",
           }}
         >
-          {/* LEFT SIDE — IMAGE & PALETTE */}
+          {/* LEFT SIDE — IMAGE */}
           <div>
             <h5 style={{ fontWeight: 700, marginBottom: "18px" }}>Image</h5>
 
+            {/* Image Wrapper */}
             <div
               style={{
                 position: "relative",
@@ -495,23 +507,35 @@ function UploadBox() {
                 }}
               />
 
+              {/* CIRCULAR MAGNIFIER */}
               {magnifier.visible && (
                 <div
                   style={{
                     position: "fixed",
+
                     left: magnifier.x + 15,
                     top: magnifier.y + 15,
+
                     width: "80px",
                     height: "80px",
+
                     borderRadius: "50%",
+
                     overflow: "hidden",
+
                     background: "rgba(17, 17, 17, 0.55)",
+
                     border: "2px solid rgba(255,255,255,0.75)",
+
                     boxShadow: "0 8px 30px rgba(0,0,0,0.65)",
+
                     backdropFilter: "blur(20px)",
                     WebkitBackdropFilter: "blur(20px)",
+
                     filter: "blur(0.8px)",
+
                     zIndex: 9999,
+
                     pointerEvents: "none",
                   }}
                 >
@@ -522,8 +546,11 @@ function UploadBox() {
                     style={{
                       width: "80px",
                       height: "80px",
+
                       display: "block",
+
                       imageRendering: "pixelated",
+
                       opacity: 0.9,
                     }}
                   />
@@ -531,6 +558,7 @@ function UploadBox() {
               )}
             </div>
 
+            {/* SELECTED COLOR INFO */}
             {hoverColor && (
               <div
                 className="mt-3"
@@ -571,125 +599,108 @@ function UploadBox() {
                   Color Palette
                 </h5>
 
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
+                {/* 💥 */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExpandedColors((prev) => ({
+                      ...prev,
+                      [index]: !prev[index],
+                    }));
                   }}
                 >
-                  {colors.map((color, index) => (
-                    <div key={index}>
+                  {expandedColors[index] ? "−" : "+"}
+                </button>
+
+                <div className="d-flex align-items-center gap-3">
+                  {/* Zoom Out */}
+                  {/* <button
+                    type="button"
+                    className="btn btn-outline-light"
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => {
+                      setZoom((prev) =>
+                        Math.max(1, Number((prev - 0.5).toFixed(1))),
+                      );
+                    }}
+                  >
+                    −
+                  </button> */}
+
+                  {/* Zoom In */}
+                  {/* <button
+                    type="button"
+                    className="btn btn-outline-light"
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                    }}
+                    onClick={() => {
+                      setZoom((prev) =>
+                        Math.min(8, Number((prev + 0.5).toFixed(1))),
+                      );
+                    }}
+                  >
+                    +
+                  </button> */}
+
+                  {/* Color Strip */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flex: 1,
+                      height: "48px",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {colors.map((color, index) => (
                       <div
+                        key={index}
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
+                          flex: 1,
+                          backgroundColor: color,
+                          cursor: "pointer",
                         }}
-                      >
-                        <div
-                          onClick={() => {
-                            const clean = color.replace("#", "");
-                            const r = parseInt(clean.slice(0, 2), 16);
-                            const g = parseInt(clean.slice(2, 4), 16);
-                            const b = parseInt(clean.slice(4, 6), 16);
+                        onClick={() => {
+                          setHoverColor(color);
+                        }}
+                      />
+                    ))}
+                  </div>
 
-                            setHoverColor(color);
-                            setHoverRGB(`rgb(${r}, ${g}, ${b})`);
-                            setHoverHSL(rgbToHsl(r, g, b));
-                          }}
-                          style={{
-                            flex: 1,
-                            height: "48px",
-                            backgroundColor: color,
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                            border:
-                              hoverColor === color
-                                ? "3px solid white"
-                                : "1px solid rgba(255,255,255,0.15)",
-                            transition: "0.2s ease",
-                          }}
-                        />
+                  {/* Download */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-light"
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                    }}
+                    onClick={downloadJSON}
+                  >
+                    📥
+                  </button>
 
-                        <span
-                          style={{
-                            width: "90px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            color: "#ddd",
-                          }}
-                        >
-                          {color}
-                        </span>
-
-                        <button
-                          type="button"
-                          className="btn btn-outline-light"
-                          style={{
-                            width: "42px",
-                            height: "42px",
-                            borderRadius: "50%",
-                            fontSize: "20px",
-                            fontWeight: "bold",
-                            padding: 0,
-                          }}
-                          onClick={() => {
-                            setExpandedColors((prev) => ({
-                              ...prev,
-                              [index]: !prev[index],
-                            }));
-                          }}
-                        >
-                          {expandedColors[index] ? "−" : "+"}
-                        </button>
-                      </div>
-
-                      {expandedColors[index] && (
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(6, 1fr)",
-                            gap: "8px",
-                            marginTop: "10px",
-                            paddingLeft: "10px",
-                          }}
-                        >
-                          {generateColorVariations(color).map(
-                            (variation, variationIndex) => (
-                              <div
-                                key={variationIndex}
-                                onClick={() => {
-                                  const clean = variation.replace("#", "");
-                                  const r = parseInt(clean.slice(0, 2), 16);
-                                  const g = parseInt(clean.slice(2, 4), 16);
-                                  const b = parseInt(clean.slice(4, 6), 16);
-
-                                  setHoverColor(variation);
-                                  setHoverRGB(`rgb(${r}, ${g}, ${b})`);
-                                  setHoverHSL(rgbToHsl(r, g, b));
-
-                                  toast.success(
-                                    `Color Selected: ${variation}`,
-                                    { autoClose: 800 }
-                                  );
-                                }}
-                                style={{
-                                  height: "42px",
-                                  backgroundColor: variation,
-                                  borderRadius: "8px",
-                                  cursor: "pointer",
-                                  border: "1px solid rgba(255,255,255,0.15)",
-                                  transition: "transform 0.2s ease",
-                                }}
-                                title={variation}
-                              />
-                            )
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {/* Save */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-light"
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                    }}
+                    onClick={savePalette}
+                  >
+                    💾
+                  </button>
                 </div>
               </div>
             )}
@@ -709,6 +720,34 @@ function UploadBox() {
                   backgroundColor: hoverColor || "#4CAF4F",
                 }}
               />
+
+                {/* 💥 */}
+                {
+    expandedColors[index] && (
+      <div className="mt-3">
+        {generateColorVariations(color).map((variation, variationIndex) => (
+          <div
+            key={variationIndex}
+            onClick={() => {
+              setSelectedColor(variation);
+              setSelectedRGB(hexToRgb(variation));
+            }}
+            style={{
+              backgroundColor: variation,
+              width: "100%",
+              height: "45px",
+              cursor: "pointer",
+              borderRadius: "8px",
+              marginBottom: "5px",
+            }}
+          >
+            {variation}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
               <div
                 style={{
                   width: "100px",
