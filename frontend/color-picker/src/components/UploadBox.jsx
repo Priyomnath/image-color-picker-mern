@@ -44,11 +44,7 @@ const rgbToHex = (r, g, b) => {
   return (
     "#" +
     [r, g, b]
-      .map((value) =>
-        Math.round(value)
-          .toString(16)
-          .padStart(2, "0"),
-      )
+      .map((value) => Math.round(value).toString(16).padStart(2, "0"))
       .join("")
       .toUpperCase()
   );
@@ -58,7 +54,10 @@ function UploadBox() {
   // =====================================================
   // STATE
   // =====================================================
-  const [image, setImage] = useState(null);
+  // 💥
+  const DEFAULT_IMAGE = "/default-image.jpg";
+
+  const [image, setImage] = useState(DEFAULT_IMAGE);
   const [colors, setColors] = useState([]);
   const [dominantColor, setDominantColor] = useState("");
 
@@ -141,6 +140,7 @@ function UploadBox() {
   // =====================================================
   // IMAGE LOAD
   // =====================================================
+  // 💥
   const handleImageLoad = () => {
     const img = imageRef.current;
     const canvas = canvasRef.current;
@@ -150,7 +150,12 @@ function UploadBox() {
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
 
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
   };
 
@@ -296,64 +301,32 @@ function UploadBox() {
   // PIXEL MAGNIFIER EFFECT
   // =====================================================
   useEffect(() => {
-    if (!magnifier.visible) return;
+    const loadDefaultImage = async () => {
+      try {
+        const palette = await Vibrant.from(DEFAULT_IMAGE).getPalette();
 
-    const sourceCanvas = canvasRef.current;
-    const magnifierCanvas = magnifierCanvasRef.current;
+        const extractedColors = [
+          palette.Vibrant?.hex,
+          palette.LightVibrant?.hex,
+          palette.DarkVibrant?.hex,
+          palette.Muted?.hex,
+          palette.LightMuted?.hex,
+          palette.DarkMuted?.hex,
+        ].filter(Boolean);
 
-    if (!sourceCanvas || !magnifierCanvas) return;
+        setColors(extractedColors);
 
-    const ctx = magnifierCanvas.getContext("2d");
-    if (!ctx) return;
+        if (palette.Vibrant?.hex) {
+          setDominantColor(palette.Vibrant.hex);
+        } else if (extractedColors.length > 0) {
+          setDominantColor(extractedColors[0]);
+        }
+      } catch (error) {
+        console.error("Default image color extraction error:", error);
+      }
+    };
 
-    const size = 80;
-    const sourceSize = Math.max(10, Math.floor(size / zoom));
-
-    const sourceX = Math.max(
-      0,
-      Math.min(
-        sourceCanvas.width - sourceSize,
-        pixelPosition.x - Math.floor(sourceSize / 2),
-      ),
-    );
-    const sourceY = Math.max(
-      0,
-      Math.min(
-        sourceCanvas.height - sourceSize,
-        pixelPosition.y - Math.floor(sourceSize / 2),
-      ),
-    );
-
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, size, size);
-
-    ctx.drawImage(
-      sourceCanvas,
-      sourceX,
-      sourceY,
-      sourceSize,
-      sourceSize,
-      0,
-      0,
-      size,
-      size,
-    );
-
-    const centerX = size / 2;
-    const centerY = size / 2;
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.lineWidth = 1.5;
-
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
-    ctx.stroke();
-
-    ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 7, 0, 2 * Math.PI);
-    ctx.stroke();
+    loadDefaultImage();
   }, [magnifier.visible, pixelPosition.x, pixelPosition.y, zoom]);
 
   // =====================================================
@@ -402,14 +375,23 @@ function UploadBox() {
   };
 
   const removeImage = () => {
-    setImage(null);
-    setColors([]);
-    setDominantColor("");
+    setImage(DEFAULT_IMAGE);
+
     setHoverColor("");
     setHoverRGB("");
     setHoverHSL("");
-    setPixelPosition({ x: 0, y: 0 });
-    setMagnifier({ visible: false, x: 0, y: 0 });
+
+    setPixelPosition({
+      x: 0,
+      y: 0,
+    });
+
+    setMagnifier({
+      visible: false,
+      x: 0,
+      y: 0,
+    });
+
     setZoom(1.5);
   };
 
@@ -426,32 +408,6 @@ function UploadBox() {
       }}
     >
       <canvas ref={canvasRef} style={{ display: "none" }} />
-
-      {!image && (
-        <div
-          {...getRootProps()}
-          className={`upload-box ${isDragActive ? "active" : ""}`}
-          style={{
-            maxWidth: "700px",
-            margin: "60px auto",
-            padding: "70px 30px",
-            textAlign: "center",
-            border: "2px dashed #444",
-            borderRadius: "20px",
-            background: "#111317",
-            cursor: "pointer",
-          }}
-        >
-          <input {...getInputProps()} />
-          <div style={{ fontSize: "50px" }}>🖼️</div>
-          <h3 className="fw-bold mt-3">
-            {isDragActive ? "Drop your image here" : "Upload an Image"}
-          </h3>
-          <p style={{ color: "#8f969f" }}>
-            Drag & drop or click to select an image
-          </p>
-        </div>
-      )}
 
       {image && (
         <div
@@ -531,6 +487,39 @@ function UploadBox() {
               )}
             </div>
 
+            {/* UPLOAD BUTTON UNDER IMAGE */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "18px",
+              }}
+            >
+              {/* <button
+                type="button"
+                className="btn btn-light px-4 py-2"
+                onClick={() => {
+                  document.getElementById("main-image-input")?.click();
+                }}
+              >
+                🖼️ Upload Image
+              </button> */}
+
+              <input
+                id="main-image-input"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  onDrop([file]);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+
+            {/* HOVER / SELECTED COLOR INFO */}
             {hoverColor && (
               <div
                 className="mt-3"
@@ -671,7 +660,7 @@ function UploadBox() {
 
                                   toast.success(
                                     `Color Selected: ${variation}`,
-                                    { autoClose: 800 }
+                                    { autoClose: 800 },
                                   );
                                 }}
                                 style={{
@@ -684,7 +673,7 @@ function UploadBox() {
                                 }}
                                 title={variation}
                               />
-                            )
+                            ),
                           )}
                         </div>
                       )}
@@ -851,7 +840,7 @@ function UploadBox() {
               </button>
             </div>
 
-            {/* UPLOAD ANOTHER IMAGE / UNLOCK */}
+            {/* UPLOAD ANOTHER IMAGE / SIDEBAR */}
             <div
               style={{
                 marginTop: "20px",
@@ -868,14 +857,14 @@ function UploadBox() {
                 type="button"
                 className="btn btn-light w-100 mb-2"
                 onClick={() => {
-                  document.getElementById("another-image-input")?.click();
+                  document.getElementById("side-image-input")?.click();
                 }}
               >
                 🖼️ Upload Another Image
               </button>
 
               <input
-                id="another-image-input"
+                id="side-image-input"
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 style={{ display: "none" }}
@@ -896,6 +885,92 @@ function UploadBox() {
             >
               🗑️ Remove Image
             </button>
+
+            {/* ACTION BUTTONS */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+                marginTop: "16px",
+              }}
+            >
+              {/* DOWNLOAD BUTTON */}
+              <button
+                type="button"
+                onClick={downloadJSON}
+                className="action-btn download-btn"
+                style={{
+                  minHeight: "52px",
+                  borderRadius: "14px",
+                  border: "1px solid #343a40",
+                  background: "linear-gradient(135deg, #171c22, #111317)",
+                  color: "#fff",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "9px",
+                  cursor: "pointer",
+                  transition: "all 0.25s ease",
+                  boxShadow: "0 6px 18px rgba(0,0,0,0.25)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.borderColor = "#6c757d";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px rgba(0,0,0,0.35)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.borderColor = "#343a40";
+                  e.currentTarget.style.boxShadow =
+                    "0 6px 18px rgba(0,0,0,0.25)";
+                }}
+              >
+                <span style={{ fontSize: "20px" }}>📥</span>
+                <span>Download JSON</span>
+              </button>
+
+              {/* SAVE BUTTON */}
+              <button
+                type="button"
+                onClick={savePalette}
+                className="action-btn save-btn"
+                style={{
+                  minHeight: "52px",
+                  borderRadius: "14px",
+                  border: "1px solid #ffffff",
+                  background: "#ffffff",
+                  color: "#08090a",
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "9px",
+                  cursor: "pointer",
+                  transition: "all 0.25s ease",
+                  boxShadow: "0 6px 18px rgba(255,255,255,0.08)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.background = "#e9ecef";
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 25px rgba(255,255,255,0.12)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.background = "#ffffff";
+                  e.currentTarget.style.boxShadow =
+                    "0 6px 18px rgba(255,255,255,0.08)";
+                }}
+              >
+                <span style={{ fontSize: "20px" }}>💾</span>
+                <span>Save Palette</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
