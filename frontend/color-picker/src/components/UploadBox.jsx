@@ -1,4 +1,10 @@
+// ⚠️ একটি গুরুত্বপূর্ণ বিষয়: আপনার authentication system যদি token localStorage-এ অন্য কোনো key-তে রাখে, যেমন userToken, তাহলে "token"-এর জায়গায় সেই key দিতে হবে।
+
 import { useCallback, useEffect, useRef, useState } from "react";
+
+// 💥
+import { useNavigate } from "react-router-dom";
+
 import { useDropzone } from "react-dropzone";
 import { Vibrant } from "node-vibrant/browser";
 import { toast } from "react-toastify";
@@ -55,6 +61,9 @@ function UploadBox() {
   // STATE
   // =====================================================
   // 💥
+  const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem("token");
+
   const DEFAULT_IMAGE = "/default-image.jpg";
 
   const [image, setImage] = useState(DEFAULT_IMAGE);
@@ -332,7 +341,15 @@ function UploadBox() {
   // =====================================================
   // SAVE / DOWNLOAD / REMOVE ACTIONS
   // =====================================================
+
   const savePalette = async () => {
+    // Login check
+    if (!isLoggedIn) {
+      toast.warning("Please login to save your palette");
+      navigate("/login");
+      return;
+    }
+
     if (!colors.length) {
       toast.error("No colors available");
       return;
@@ -354,6 +371,18 @@ function UploadBox() {
   };
 
   const downloadJSON = () => {
+    // Login check
+    if (!isLoggedIn) {
+      toast.warning("Please login to download your color palette");
+      navigate("/login");
+      return;
+    }
+
+    if (!colors.length) {
+      toast.error("No colors available");
+      return;
+    }
+
     const data = {
       colors,
       dominantColor,
@@ -365,14 +394,20 @@ function UploadBox() {
     });
 
     const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
     link.href = url;
     link.download = "color-palette.json";
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
     URL.revokeObjectURL(url);
+
+    toast.success("Palette downloaded successfully!");
   };
+
 
   const removeImage = () => {
     setImage(DEFAULT_IMAGE);

@@ -218,7 +218,7 @@ function NavbarComponent() {
                 onClick={() => {
                   closeMenu();
                   logout();
-                  window.location.href = "/login";
+                  window.location.href = "/";
                 }}
               >
                 Logout
