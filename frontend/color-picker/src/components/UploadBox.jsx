@@ -306,11 +306,129 @@ function UploadBox() {
     return variations;
   };
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const magnifierCanvas = magnifierCanvasRef.current;
+
+    if (!canvas || !magnifierCanvas || !magnifier.visible) return;
+
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+
+    const magnifierCtx = magnifierCanvas.getContext("2d");
+
+    if (!magnifierCtx) return;
+
+    const lensSize = 120;
+
+    // Number of pixels visible inside the lens
+    // Lower value = more zoom
+    const pixelsPerSide = Math.max(3, Math.round(12 / zoom));
+
+    // Keep pixel grid centered
+    const sourceSize = Math.min(canvas.width, canvas.height, pixelsPerSide);
+
+    const half = Math.floor(sourceSize / 2);
+
+    let sx = pixelPosition.x - half;
+    let sy = pixelPosition.y - half;
+
+    // Prevent source area from going outside image
+    sx = Math.max(0, Math.min(canvas.width - sourceSize, sx));
+
+    sy = Math.max(0, Math.min(canvas.height - sourceSize, sy));
+
+    // Clear previous lens
+    magnifierCtx.clearRect(0, 0, lensSize, lensSize);
+
+    // Dark background
+    magnifierCtx.fillStyle = "#111";
+    magnifierCtx.fillRect(0, 0, lensSize, lensSize);
+
+    // Draw zoomed pixels
+    magnifierCtx.imageSmoothingEnabled = false;
+
+    magnifierCtx.drawImage(
+      canvas,
+      sx,
+      sy,
+      sourceSize,
+      sourceSize,
+      0,
+      0,
+      lensSize,
+      lensSize,
+    );
+
+    // ==========================================
+    // PIXEL GRID
+    // ==========================================
+    const cellSize = lensSize / sourceSize;
+
+    magnifierCtx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+
+    magnifierCtx.lineWidth = 1;
+
+    for (let i = 1; i < sourceSize; i++) {
+      const position = i * cellSize;
+
+      // Vertical grid
+      magnifierCtx.beginPath();
+      magnifierCtx.moveTo(position, 0);
+      magnifierCtx.lineTo(position, lensSize);
+      magnifierCtx.stroke();
+
+      // Horizontal grid
+      magnifierCtx.beginPath();
+      magnifierCtx.moveTo(0, position);
+      magnifierCtx.lineTo(lensSize, position);
+      magnifierCtx.stroke();
+    }
+
+    // ==========================================
+    // CENTER PIXEL
+    // ==========================================
+    const centerIndex = Math.floor(sourceSize / 2);
+
+    const centerX = centerIndex * cellSize;
+
+    const centerY = centerIndex * cellSize;
+
+    // Center pixel border
+    magnifierCtx.strokeStyle = "rgba(255, 255, 255, 0.95)";
+
+    magnifierCtx.lineWidth = 2;
+
+    magnifierCtx.strokeRect(
+      centerX + 1,
+      centerY + 1,
+      cellSize - 2,
+      cellSize - 2,
+    );
+
+    // Center pixel glow
+    magnifierCtx.shadowColor = "rgba(255, 255, 255, 0.8)";
+
+    magnifierCtx.shadowBlur = 8;
+
+    magnifierCtx.strokeRect(
+      centerX + 2,
+      centerY + 2,
+      cellSize - 4,
+      cellSize - 4,
+    );
+
+    magnifierCtx.shadowBlur = 0;
+  }, [magnifier.visible, pixelPosition.x, pixelPosition.y, zoom]);
+
   // =====================================================
-  // PIXEL MAGNIFIER EFFECT
+  // DEFAULT IMAGE COLOR PALETTE
   // =====================================================
   useEffect(() => {
-    const loadDefaultImage = async () => {
+    if (image !== DEFAULT_IMAGE) return;
+
+    const extractDefaultColors = async () => {
       try {
         const palette = await Vibrant.from(DEFAULT_IMAGE).getPalette();
 
@@ -327,16 +445,14 @@ function UploadBox() {
 
         if (palette.Vibrant?.hex) {
           setDominantColor(palette.Vibrant.hex);
-        } else if (extractedColors.length > 0) {
-          setDominantColor(extractedColors[0]);
         }
       } catch (error) {
-        console.error("Default image color extraction error:", error);
+        console.error("Default palette extraction failed:", error);
       }
     };
 
-    loadDefaultImage();
-  }, [magnifier.visible, pixelPosition.x, pixelPosition.y, zoom]);
+    extractDefaultColors();
+  }, [image]);
 
   // =====================================================
   // SAVE / DOWNLOAD / REMOVE ACTIONS
@@ -407,7 +523,6 @@ function UploadBox() {
 
     toast.success("Palette downloaded successfully!");
   };
-
 
   const removeImage = () => {
     setImage(DEFAULT_IMAGE);
@@ -490,32 +605,113 @@ function UploadBox() {
                 <div
                   style={{
                     position: "fixed",
-                    left: magnifier.x + 15,
-                    top: magnifier.y + 15,
-                    width: "80px",
-                    height: "80px",
+                    left: magnifier.x + 20,
+                    top: magnifier.y + 20,
+
+                    width: "120px",
+                    height: "120px",
+
                     borderRadius: "50%",
                     overflow: "hidden",
-                    background: "rgba(17, 17, 17, 0.55)",
-                    border: "2px solid rgba(255,255,255,0.75)",
-                    boxShadow: "0 8px 30px rgba(0,0,0,0.65)",
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
-                    filter: "blur(0.8px)",
+
+                    background: "rgba(10, 12, 15, 0.9)",
+
+                    border: "3px solid rgba(255, 255, 255, 0.95)",
+
+                    boxShadow: `
+        0 0 0 2px rgba(0, 0, 0, 0.75),
+        0 10px 35px rgba(0, 0, 0, 0.7),
+        0 0 25px rgba(255, 255, 255, 0.15)
+      `,
+
                     zIndex: 9999,
                     pointerEvents: "none",
+
+                    transition: "left 0.05s ease-out, top 0.05s ease-out",
                   }}
                 >
+                  {/* ZOOMED PIXEL CANVAS */}
                   <canvas
                     ref={magnifierCanvasRef}
-                    width={80}
-                    height={80}
+                    width={120}
+                    height={120}
                     style={{
-                      width: "80px",
-                      height: "80px",
+                      width: "120px",
+                      height: "120px",
+
                       display: "block",
+
                       imageRendering: "pixelated",
-                      opacity: 0.9,
+
+                      userSelect: "none",
+                    }}
+                  />
+
+                  {/* CENTER PIXEL FOCUS */}
+                  <div
+                    style={{
+                      position: "absolute",
+
+                      top: "50%",
+                      left: "50%",
+
+                      width: "28px",
+                      height: "28px",
+
+                      transform: "translate(-50%, -50%)",
+
+                      border: "2px solid rgba(255,255,255,0.95)",
+
+                      borderRadius: "4px",
+
+                      boxShadow: `
+          0 0 0 1px rgba(0,0,0,0.8),
+          0 0 10px rgba(255,255,255,0.7)
+        `,
+
+                      pointerEvents: "none",
+                    }}
+                  />
+
+                  {/* CENTER CROSSHAIR - VERTICAL */}
+                  <div
+                    style={{
+                      position: "absolute",
+
+                      top: "50%",
+                      left: "50%",
+
+                      width: "2px",
+                      height: "34px",
+
+                      transform: "translate(-50%, -50%)",
+
+                      background: "rgba(255,255,255,0.95)",
+
+                      boxShadow: "0 0 5px rgba(0,0,0,0.9)",
+
+                      pointerEvents: "none",
+                    }}
+                  />
+
+                  {/* CENTER CROSSHAIR - HORIZONTAL */}
+                  <div
+                    style={{
+                      position: "absolute",
+
+                      top: "50%",
+                      left: "50%",
+
+                      width: "34px",
+                      height: "2px",
+
+                      transform: "translate(-50%, -50%)",
+
+                      background: "rgba(255,255,255,0.95)",
+
+                      boxShadow: "0 0 5px rgba(0,0,0,0.9)",
+
+                      pointerEvents: "none",
                     }}
                   />
                 </div>
@@ -530,16 +726,6 @@ function UploadBox() {
                 marginTop: "18px",
               }}
             >
-              {/* <button
-                type="button"
-                className="btn btn-light px-4 py-2"
-                onClick={() => {
-                  document.getElementById("main-image-input")?.click();
-                }}
-              >
-                🖼️ Upload Image
-              </button> */}
-
               <input
                 id="main-image-input"
                 type="file"
