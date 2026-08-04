@@ -84,7 +84,7 @@ export const loginUser = async (req, res) => {
     //   maxAge: 7 * 24 * 60 * 60 * 1000,
     // });
 
-    //02/08/2026
+    //04/08/2026
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
@@ -112,7 +112,12 @@ export const loginUser = async (req, res) => {
 
 // Logout
 export const logoutUser = (req, res) => {
-  res.clearCookie("token");
+  //04/08/2026 {time:  PM}
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
 
   res.json({
     success: true,

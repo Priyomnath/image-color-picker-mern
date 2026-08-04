@@ -14,6 +14,7 @@ function Login() {
   const [password, setPassword] = useState("");
 
   // ফর্ম সাবমিট হ্যান্ডলার (নাম পরিবর্তন করে handleLogin করা হয়েছে)
+  //04/08/2026 {time:  PM}
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -25,20 +26,17 @@ function Login() {
 
       console.log("LOGIN RESPONSE:", data);
 
-      // AuthContext-এ ইউজার ডাটা দিয়ে আপডেট করা
-      const userData = data.user || data;
-      authLogin(userData);
-
-      // Token যদি আলাদাভাবে ব্যাকএন্ড পাঠায়
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
 
-      toast.success("Login Successful 🎉");
+      toast.success("Login Successful");
+
       navigate("/");
-    } catch (err) {
-      console.error("Login Error:", err);
-      toast.error(err.response?.data?.message || "Login Failed");
+    } catch (error) {
+      console.error("LOGIN ERROR:", error);
+
+      toast.error(error.response?.data?.message || "Login failed");
     }
   };
 
