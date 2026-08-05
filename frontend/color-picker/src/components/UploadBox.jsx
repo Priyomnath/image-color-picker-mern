@@ -560,22 +560,50 @@ function UploadBox() {
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
       {image && (
+        // <div
+        //   style={{
+        //     maxWidth: "1100px",
+        //     margin: "0 auto",
+        //     padding: "25px",
+        //     display: "grid",
+        //     gridTemplateColumns: "minmax(0, 1.5fr) minmax(300px, 0.8fr)",
+        //     gap: "45px",
+        //     background: "#08090a",
+        //   }}
+        // >
+
+        //04/08/2026 {time:  PM}
         <div
+          className="picker-main-layout"
           style={{
             maxWidth: "1100px",
             margin: "0 auto",
             padding: "25px",
             display: "grid",
-            gridTemplateColumns: "minmax(0, 1.5fr) minmax(300px, 0.8fr)",
+            gridTemplateColumns: "minmax(0, 1.5fr) minmax(0, 0.8fr)",
             gap: "45px",
             background: "#08090a",
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
           {/* LEFT SIDE — IMAGE & PALETTE */}
-          <div>
+          <div className="picker-left-section">
             <h5 style={{ fontWeight: 700, marginBottom: "18px" }}>Image</h5>
 
+            {/* <div
+              style={{
+                position: "relative",
+                width: "100%",
+                maxWidth: "650px",
+              }}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+            > */}
+
+            {/* //04/08/2026 {time:  PM} */}
             <div
+              className="image-magnifier-container"
               style={{
                 position: "relative",
                 width: "100%",
@@ -590,8 +618,11 @@ function UploadBox() {
                 alt="Uploaded"
                 onLoad={handleImageLoad}
                 onClick={handleImageClick}
+                //04/08/2026 {time:  PM}
                 style={{
                   width: "100%",
+                  maxWidth: "100%",
+                  height: "auto",
                   maxHeight: "500px",
                   objectFit: "contain",
                   display: "block",
@@ -776,16 +807,32 @@ function UploadBox() {
 
             {/* COLOR PALETTE */}
             {colors.length > 0 && (
-              <div style={{ marginTop: "28px", maxWidth: "650px" }}>
+              <div
+                className="color-palette-section"
+                style={{
+                  marginTop: "28px",
+                  maxWidth: "650px",
+                  width: "100%",
+                }}
+              >
                 <h5 style={{ fontWeight: 700, marginBottom: "15px" }}>
                   Color Palette
                 </h5>
 
                 <div
+                  // style={{
+                  //   display: "flex",
+                  //   flexDirection: "column",
+                  //   gap: "10px",
+                  // }}
+
+                  //04/08/2026 {time:  PM}
                   style={{
                     display: "flex",
-                    flexDirection: "column",
+                    alignItems: "center",
                     gap: "10px",
+                    width: "100%",
+                    minWidth: 0,
                   }}
                 >
                   {colors.map((color, index) => (
@@ -808,8 +855,23 @@ function UploadBox() {
                             setHoverRGB(`rgb(${r}, ${g}, ${b})`);
                             setHoverHSL(rgbToHsl(r, g, b));
                           }}
+                          // style={{
+                          //   flex: 1,
+                          //   height: "48px",
+                          //   backgroundColor: color,
+                          //   borderRadius: "10px",
+                          //   cursor: "pointer",
+                          //   border:
+                          //     hoverColor === color
+                          //       ? "3px solid white"
+                          //       : "1px solid rgba(255,255,255,0.15)",
+                          //   transition: "0.2s ease",
+                          // }}
+
+                          //04/08/2026 {time:  PM}
                           style={{
                             flex: 1,
+                            minWidth: 0,
                             height: "48px",
                             backgroundColor: color,
                             borderRadius: "10px",
@@ -825,6 +887,14 @@ function UploadBox() {
                         <span
                           style={{
                             width: "90px",
+                            //04/08/2026 {time:  PM}
+                            minWidth: "70px",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            color: "#ddd",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
                             fontSize: "13px",
                             fontWeight: 600,
                             color: "#ddd",
@@ -906,7 +976,8 @@ function UploadBox() {
           </div>
 
           {/* RIGHT SIDE — COLORS */}
-          <div>
+          {/* //04/08/2026 {time:  PM} */}
+          <div className="picker-right-section">
             <h5 style={{ fontWeight: 700, marginBottom: "18px" }}>Colors</h5>
 
             {/* Color Preview */}
