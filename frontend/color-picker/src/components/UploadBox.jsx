@@ -580,7 +580,7 @@ function UploadBox() {
             margin: "0 auto",
             padding: "25px",
             display: "grid",
-            gridTemplateColumns: "minmax(0, 1.5fr) minmax(0, 0.8fr)",
+            gridTemplateColumns: "repeat(auto-fit,minmax(35px,1fr))",
             gap: "45px",
             background: "#08090a",
             width: "100%",
@@ -827,149 +827,198 @@ function UploadBox() {
                   // }}
 
                   //04/08/2026 {time:  PM}
+                  // style={{
+                  //   display: "flex",
+                  //   alignItems: "center",
+                  //   gap: "10px",
+                  //   width: "100%",
+                  //   minWidth: 0,
+                  // }}
+
+                  //06/08/2026 {time:  PM}
+                  className="color-palette-section"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
+                    marginTop: "28px",
                     width: "100%",
-                    minWidth: 0,
+                    maxWidth: "100%",
                   }}
                 >
-                  {colors.map((color, index) => (
-                    <div key={index}>
-                      <div
+                  <div className="palette-list">
+                    {colors.map((color, index) => (
+                      <div key={index}>
+                        {/* <div
                         style={{
                           display: "flex",
                           alignItems: "center",
                           gap: "10px",
                         }}
-                      >
+                      > */}
+
+                        {/* //06/08/2026 {time:  PM} */}
                         <div
-                          onClick={() => {
-                            const clean = color.replace("#", "");
-                            const r = parseInt(clean.slice(0, 2), 16);
-                            const g = parseInt(clean.slice(2, 4), 16);
-                            const b = parseInt(clean.slice(4, 6), 16);
-
-                            setHoverColor(color);
-                            setHoverRGB(`rgb(${r}, ${g}, ${b})`);
-                            setHoverHSL(rgbToHsl(r, g, b));
-                          }}
-                          // style={{
-                          //   flex: 1,
-                          //   height: "48px",
-                          //   backgroundColor: color,
-                          //   borderRadius: "10px",
-                          //   cursor: "pointer",
-                          //   border:
-                          //     hoverColor === color
-                          //       ? "3px solid white"
-                          //       : "1px solid rgba(255,255,255,0.15)",
-                          //   transition: "0.2s ease",
-                          // }}
-
-                          //04/08/2026 {time:  PM}
+                          className="palette-row"
                           style={{
-                            flex: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            width: "100%",
                             minWidth: 0,
-                            height: "48px",
-                            backgroundColor: color,
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                            border:
-                              hoverColor === color
-                                ? "3px solid white"
-                                : "1px solid rgba(255,255,255,0.15)",
-                            transition: "0.2s ease",
+                            flexWrap: "nowrap",
                           }}
-                        />
+                        >
+                          <div
+                            onClick={() => {
+                              const clean = color.replace("#", "");
+                              const r = parseInt(clean.slice(0, 2), 16);
+                              const g = parseInt(clean.slice(2, 4), 16);
+                              const b = parseInt(clean.slice(4, 6), 16);
 
-                        <span
-                          style={{
-                            width: "90px",
+                              setHoverColor(color);
+                              setHoverRGB(`rgb(${r}, ${g}, ${b})`);
+                              setHoverHSL(rgbToHsl(r, g, b));
+                            }}
+                            // style={{
+                            //   flex: 1,
+                            //   height: "48px",
+                            //   backgroundColor: color,
+                            //   borderRadius: "10px",
+                            //   cursor: "pointer",
+                            //   border:
+                            //     hoverColor === color
+                            //       ? "3px solid white"
+                            //       : "1px solid rgba(255,255,255,0.15)",
+                            //   transition: "0.2s ease",
+                            // }}
+
                             //04/08/2026 {time:  PM}
-                            minWidth: "70px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            color: "#ddd",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            color: "#ddd",
-                          }}
-                        >
-                          {color}
-                        </span>
+                            // style={{
+                            //   flex: 1,
+                            //   minWidth: 0,
+                            //   height: "48px",
+                            //   backgroundColor: color,
+                            //   borderRadius: "10px",
+                            //   cursor: "pointer",
+                            //   border:
+                            //     hoverColor === color
+                            //       ? "3px solid white"
+                            //       : "1px solid rgba(255,255,255,0.15)",
+                            //   transition: "0.2s ease",
+                            // }}
 
-                        <button
-                          type="button"
-                          className="btn btn-outline-light"
-                          style={{
-                            width: "42px",
-                            height: "42px",
-                            borderRadius: "50%",
-                            fontSize: "20px",
-                            fontWeight: "bold",
-                            padding: 0,
-                          }}
-                          onClick={() => {
-                            setExpandedColors((prev) => ({
-                              ...prev,
-                              [index]: !prev[index],
-                            }));
-                          }}
-                        >
-                          {expandedColors[index] ? "−" : "+"}
-                        </button>
-                      </div>
+                            //06/08/2026 {time:  PM}
+                            style={{
+                              flex: 1,
+                              minWidth: 0,
+                              height: "48px",
+                              background: color,
+                              borderRadius: "10px",
+                            }}
+                          />
 
-                      {expandedColors[index] && (
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(6, 1fr)",
-                            gap: "8px",
-                            marginTop: "10px",
-                            paddingLeft: "10px",
-                          }}
-                        >
-                          {generateColorVariations(color).map(
-                            (variation, variationIndex) => (
-                              <div
-                                key={variationIndex}
-                                onClick={() => {
-                                  const clean = variation.replace("#", "");
-                                  const r = parseInt(clean.slice(0, 2), 16);
-                                  const g = parseInt(clean.slice(2, 4), 16);
-                                  const b = parseInt(clean.slice(4, 6), 16);
+                          <span
+                            // style={{
+                            //   width: "90px",
+                            //   //04/08/2026 {time:  PM}
+                            //   minWidth: "70px",
+                            //   fontSize: "13px",
+                            //   fontWeight: 600,
+                            //   color: "#ddd",
+                            //   overflow: "hidden",
+                            //   textOverflow: "ellipsis",
+                            //   whiteSpace: "nowrap",
+                            //   fontSize: "13px",
+                            //   fontWeight: 600,
+                            //   color: "#ddd",
+                            // }}
 
-                                  setHoverColor(variation);
-                                  setHoverRGB(`rgb(${r}, ${g}, ${b})`);
-                                  setHoverHSL(rgbToHsl(r, g, b));
+                            //06/08/2026 {time:  PM}
+                            style={{
+                              width: "80px",
+                              minWidth: "60px",
+                              fontSize: "13px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {color}
+                          </span>
 
-                                  toast.success(
-                                    `Color Selected: ${variation}`,
-                                    { autoClose: 800 },
-                                  );
-                                }}
-                                style={{
-                                  height: "42px",
-                                  backgroundColor: variation,
-                                  borderRadius: "8px",
-                                  cursor: "pointer",
-                                  border: "1px solid rgba(255,255,255,0.15)",
-                                  transition: "transform 0.2s ease",
-                                }}
-                                title={variation}
-                              />
-                            ),
-                          )}
+                          <button
+                            type="button"
+                            className="btn btn-outline-light"
+                            // style={{
+                            //   width: "42px",
+                            //   height: "42px",
+                            //   borderRadius: "50%",
+                            //   fontSize: "20px",
+                            //   fontWeight: "bold",
+                            //   padding: 0,
+                            // }}
+
+                            //06/08/2026 {time:  PM}
+                            style={{
+                              width: "36px",
+                              height: "36px",
+                              flexShrink: 0,
+                            }}
+                            onClick={() => {
+                              setExpandedColors((prev) => ({
+                                ...prev,
+                                [index]: !prev[index],
+                              }));
+                            }}
+                          >
+                            {expandedColors[index] ? "−" : "+"}
+                          </button>
                         </div>
-                      )}
-                    </div>
-                  ))}
+
+                        {expandedColors[index] && (
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "repeat(6, 1fr)",
+                              gap: "8px",
+                              marginTop: "10px",
+                              paddingLeft: "10px",
+                            }}
+                          >
+                            {generateColorVariations(color).map(
+                              (variation, variationIndex) => (
+                                <div
+                                  key={variationIndex}
+                                  onClick={() => {
+                                    const clean = variation.replace("#", "");
+                                    const r = parseInt(clean.slice(0, 2), 16);
+                                    const g = parseInt(clean.slice(2, 4), 16);
+                                    const b = parseInt(clean.slice(4, 6), 16);
+
+                                    setHoverColor(variation);
+                                    setHoverRGB(`rgb(${r}, ${g}, ${b})`);
+                                    setHoverHSL(rgbToHsl(r, g, b));
+
+                                    toast.success(
+                                      `Color Selected: ${variation}`,
+                                      { autoClose: 800 },
+                                    );
+                                  }}
+                                  style={{
+                                    height: "42px",
+                                    backgroundColor: variation,
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                    border: "1px solid rgba(255,255,255,0.15)",
+                                    transition: "transform 0.2s ease",
+                                  }}
+                                  title={variation}
+                                />
+                              ),
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
