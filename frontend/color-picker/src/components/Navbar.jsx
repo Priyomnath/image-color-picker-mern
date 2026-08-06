@@ -163,7 +163,7 @@ function NavbarComponent() {
             {/* Only show when logged out */}
             {/* ========================================= */}
 
-            {!isLoggedIn && (
+            {/* {!isLoggedIn && (
               <Nav.Link
                 as={Link}
                 to="/login"
@@ -174,6 +174,27 @@ function NavbarComponent() {
               >
                 Login
               </Nav.Link>
+            )} */}
+
+            {/* //06/08/2026 {time:  PM} */}
+            {!isLoggedIn && (
+              <>
+                <Link
+                  to="/login"
+                  className="btn btn-outline-primary rounded-pill px-3"
+                  onClick={closeMenu}
+                >
+                  Login
+                </Link>
+
+                <Link
+                  to="/register"
+                  className="btn btn-primary rounded-pill px-3 ms-lg-2"
+                  onClick={closeMenu}
+                >
+                  Register
+                </Link>
+              </>
             )}
 
             {/* ========================================= */}
@@ -215,10 +236,19 @@ function NavbarComponent() {
               <button
                 type="button"
                 className="btn btn-danger rounded-pill px-3 ms-lg-1"
+                // onClick={() => {
+                //   closeMenu();
+                //   logout();
+                //   window.location.href = "/";
+                // }}
+
+                //06/08/2026 {time:  PM}
                 onClick={() => {
                   closeMenu();
                   logout();
-                  window.location.href = "/";
+                  setTimeout(() => {
+                    window.location.href = "/";
+                  }, 100);
                 }}
               >
                 Logout

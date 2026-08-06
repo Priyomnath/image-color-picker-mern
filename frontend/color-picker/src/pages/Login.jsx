@@ -1,3 +1,6 @@
+//06/08/2026 {time:  PM}
+import { Link } from "react-router-dom";
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
@@ -26,8 +29,18 @@ function Login() {
 
       console.log("LOGIN RESPONSE:", data);
 
+      // if (data.token) {
+      //   localStorage.setItem("token", data.token);
+      // }
+
+      //06/08/2026 {time:  PM}
+      // if (data.token) {
+      //   authLogin(data.token);
+      // }
+
       if (data.token) {
         localStorage.setItem("token", data.token);
+        authLogin(data.token);
       }
 
       toast.success("Login Successful");
@@ -70,6 +83,11 @@ function Login() {
                 <button type="submit" className="btn btn-primary w-100">
                   Login
                 </button>
+
+                {/* //06/08/2026 {time:  PM} */}
+                <p className="text-center mt-3">
+                  Don't have an account? <Link to="/register">Register</Link>
+                </p>
               </form>
             </div>
           </div>

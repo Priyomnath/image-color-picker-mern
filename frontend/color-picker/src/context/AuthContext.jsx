@@ -29,8 +29,16 @@ export function AuthProvider({ children }) {
   // Login
   // =========================================
 
-  const login = (userData) => {
+  // const login = (userData) => {
+  //   localStorage.setItem("user", JSON.stringify(userData));
+  //   setUser(userData);
+  // };
+
+  //06/08/2026 {time:  PM}
+  const login = (userData, token) => {
     localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", token);
+
     setUser(userData);
   };
 
