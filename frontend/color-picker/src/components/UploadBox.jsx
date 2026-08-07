@@ -459,6 +459,12 @@ function UploadBox() {
   // =====================================================
 
   const savePalette = async () => {
+    console.log("Image:", image);
+    console.log("Colors:", colors);
+    console.log("Dominant:", dominantColor);
+    console.log("Token:", localStorage.getItem("token"));
+    console.log("User:", localStorage.getItem("user"));
+
     // Login check
     if (!isLoggedIn) {
       toast.warning("Please login to save your palette");
@@ -471,18 +477,38 @@ function UploadBox() {
       return;
     }
 
+    // try {
+    //   await api.post("/colors", {
+    //     colors,
+    //     dominantColor,
+    //     image,
+    //     title: "My Color Palette",
+    //   });
+
+    //   toast.success("Palette saved successfully!");
+    // } catch (error) {
+    //   console.error(error);
+    //   toast.error("Failed to save palette");
+    // }
+
+    //07/08/2026 {time:  PM}
     try {
-      await api.post("/colors", {
+      const res = await api.post("/colors", {
+        title: "My Color Palette",
         colors,
         dominantColor,
         image,
-        title: "My Color Palette",
       });
 
+      console.log("SAVE RESPONSE:", res.data);
       toast.success("Palette saved successfully!");
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to save palette");
+      console.error("Save Error:", error);
+
+      console.log("Status:", error.response?.status);
+      console.log("Data:", error.response?.data);
+
+      toast.error(error.response?.data?.message || "Failed to save palette");
     }
   };
 
@@ -630,6 +656,10 @@ function UploadBox() {
                   cursor: "crosshair",
                   userSelect: "none",
                 }}
+                //08/08/2026 {time:  PM}
+                // onTouchStart={handleTouchStart}
+                // onTouchMove={handleTouchMove}
+                // onTouchEnd={handleTouchEnd}
               />
 
               {magnifier.visible && (

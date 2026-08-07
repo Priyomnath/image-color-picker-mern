@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+// import jwt from "jsonwebtoken";
 
 // const auth = (req, res, next) => {
 //   //Add
@@ -34,34 +34,146 @@ import jwt from "jsonwebtoken";
 //   }
 // };
 
-//04/08/2026 {time:  PM}
+//07/08/2026 {time:  PM}
+// const auth = (req, res, next) => {
+//   try {
+//     //07/08/2026 {time:  PM}
+//     console.log("JWT_SECRET AUTH:", process.env.JWT_SECRET);
+//     // 📍 Console Debugging Logs
+//     console.log("Cookies:", req.cookies);
+//     console.log("Authorization Header:", req.headers.authorization);
+
+//     let token = req.cookies?.token;
+
+//     // Cookie-তে না থাকলে Authorization Header (Bearer token) থেকে নেবে
+//     if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+//       token = req.headers.authorization.split(" ")[1];
+//     }
+
+//     console.log("Extracted Token:", token);
+
+//     // টোকেন না থাকলে 401 Unauthorized দেবে
+//     if (!token) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Unauthorized: No token provided",
+//       });
+//     }
+
+//     // JWT Token ভ্যালিডেট করা
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+//     req.user = {
+//       id: decoded.id,
+//     };
+
+//     console.log("Authenticated User ID:", req.user.id);
+
+//     next(); // সফল হলে পরের রাউটে চলে যাবে
+//   } catch (error) {
+//     console.error("JWT ERROR:", error.name);
+//     console.error("JWT MESSAGE:", error.message);
+
+//     return res.status(401).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+// সেক্ষেত্রে auth.js-এ এই debug code যোগ করুন:
+//07/08/2026 {time:  PM}
+// try {
+//   let token = req.cookies.token;
+
+//   if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+//     token = req.headers.authorization.split(" ")[1];
+//   }
+
+//   console.log("TOKEN:", token);
+
+//   const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+//   console.log("DECODED:", decoded);
+
+//   req.user = { id: decoded.id };
+
+//   //07/08/2026 {time:  PM}
+//   console.log("Decoded:", decoded);
+//   console.log("req.user:", req.user);
+
+//   next();
+// } catch (error) {
+//   console.log("JWT ERROR:", error.name);
+//   console.log("JWT MESSAGE:", error.message);
+
+//   return res.status(401).json({
+//     success: false,
+//     message: error.message,
+//   });
+// }
+
+// export default auth;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import jwt from "jsonwebtoken";
+
 const auth = (req, res, next) => {
   try {
-    let token = req.cookies.token;
+    // 📍 Header priority given for strong cross-browser compatibility
+    const authHeader = req.headers.authorization;
+    let token = null;
 
-    // Cookie না থাকলে Authorization header থেকে token নেবে
-    if (!token && req.headers.authorization?.startsWith("Bearer ")) {
-      token = req.headers.authorization.split(" ")[1];
+    if (authHeader?.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    } else if (req.cookies?.token) {
+      token = req.cookies.token;
     }
+
+    // 📍 Console Debugging Logs
+    console.log("Authorization Header:", authHeader);
+    console.log("Cookies:", req.cookies);
+    console.log("Extracted TOKEN:", token);
 
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized",
+        message: "Unauthorized: No token provided",
       });
     }
 
+    // Verify JWT Token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    console.log("DECODED TOKEN:", decoded);
+
+    // Attach User ID to request object
     req.user = {
-      id: decoded.id,
+      id: decoded.id || decoded._id,
     };
 
-    next();
+    console.log("req.user set to:", req.user);
+
+    next(); // Proceed to next middleware or route
   } catch (error) {
+    console.error("JWT ERROR:", error.name);
+    console.error("JWT MESSAGE:", error.message);
+
     return res.status(401).json({
       success: false,
-      message: "Invalid or expired token",
+      message: error.message || "Invalid or Expired Token",
     });
   }
 };

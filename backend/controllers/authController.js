@@ -51,6 +51,8 @@ export const registerUser = async (req, res) => {
 // Login
 export const loginUser = async (req, res) => {
   try {
+    //07/08/2026 {time:  PM}
+    console.log("JWT_SECRET LOGIN:", process.env.JWT_SECRET);
     //SOME UPDATE
     console.log("NODE_ENV:", process.env.NODE_ENV);
 

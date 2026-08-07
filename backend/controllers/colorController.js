@@ -1,8 +1,14 @@
 import Color from "../models/Color.js";
 
 // Save Palette
+
+//07/08/2026 {time:  PM}
 export const savePalette = async (req, res) => {
   try {
+    console.log("========== SAVE PALETTE ==========");
+    console.log("USER:", req.user);
+    console.log("BODY:", req.body);
+
     const { colors, dominantColor, title, image } = req.body;
 
     const palette = await Color.create({
@@ -18,12 +24,38 @@ export const savePalette = async (req, res) => {
       palette,
     });
   } catch (error) {
+    console.error("SAVE ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
+
+// export const savePalette = async (req, res) => {
+//   try {
+//     const { colors, dominantColor, title, image } = req.body;
+
+//     const palette = await Color.create({
+//       user: req.user.id,
+//       colors,
+//       dominantColor,
+//       title,
+//       image,
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       palette,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 // 14/07/2026
 export const toggleFavorite = async (req, res) => {
