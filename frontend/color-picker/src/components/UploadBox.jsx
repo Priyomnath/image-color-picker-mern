@@ -168,18 +168,21 @@ function UploadBox() {
     ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
   };
 
+  //08/08/2026 {time:  PM}
   // =====================================================
-  // MOUSE MOVE
+  // COMMON MAGNIFIER POSITION
+  // Desktop + Mobile
   // =====================================================
-  const handleMouseMove = (e) => {
+  const updateMagnifierPosition = (clientX, clientY) => {
     const img = imageRef.current;
     const canvas = canvasRef.current;
 
     if (!img || !canvas) return;
 
     const rect = img.getBoundingClientRect();
-    const displayX = e.clientX - rect.left;
-    const displayY = e.clientY - rect.top;
+
+    const displayX = clientX - rect.left;
+    const displayY = clientY - rect.top;
 
     if (
       displayX < 0 ||
@@ -210,9 +213,113 @@ function UploadBox() {
 
     setMagnifier({
       visible: true,
-      x: e.clientX,
-      y: e.clientY,
+      x: clientX,
+      y: clientY,
     });
+  };
+
+  //08/08/2026 {time:  PM}
+  // =====================================================
+  // COMMON POINTER POSITION
+  // Desktop Mouse + Mobile Finger
+  // =====================================================
+  const updateMagnifier = (clientX, clientY) => {
+    const img = imageRef.current;
+    const canvas = canvasRef.current;
+
+    if (!img || !canvas) return;
+
+    const rect = img.getBoundingClientRect();
+
+    const displayX = clientX - rect.left;
+    const displayY = clientY - rect.top;
+
+    if (
+      displayX < 0 ||
+      displayY < 0 ||
+      displayX >= rect.width ||
+      displayY >= rect.height
+    ) {
+      return;
+    }
+
+    const scaleX = img.naturalWidth / rect.width;
+    const scaleY = img.naturalHeight / rect.height;
+
+    const pixelX = Math.min(
+      img.naturalWidth - 1,
+      Math.max(0, Math.floor(displayX * scaleX)),
+    );
+
+    const pixelY = Math.min(
+      img.naturalHeight - 1,
+      Math.max(0, Math.floor(displayY * scaleY)),
+    );
+
+    setPixelPosition({
+      x: pixelX,
+      y: pixelY,
+    });
+
+    setMagnifier({
+      visible: true,
+      x: clientX,
+      y: clientY,
+    });
+  };
+
+  // =====================================================
+  // MOUSE MOVE
+  // =====================================================
+  // const handleMouseMove = (e) => {
+  //   const img = imageRef.current;
+  //   const canvas = canvasRef.current;
+
+  //   if (!img || !canvas) return;
+
+  //   const rect = img.getBoundingClientRect();
+  //   const displayX = e.clientX - rect.left;
+  //   const displayY = e.clientY - rect.top;
+
+  //   if (
+  //     displayX < 0 ||
+  //     displayY < 0 ||
+  //     displayX >= rect.width ||
+  //     displayY >= rect.height
+  //   ) {
+  //     return;
+  //   }
+
+  //   const scaleX = img.naturalWidth / rect.width;
+  //   const scaleY = img.naturalHeight / rect.height;
+
+  //   const pixelX = Math.min(
+  //     img.naturalWidth - 1,
+  //     Math.max(0, Math.floor(displayX * scaleX)),
+  //   );
+
+  //   const pixelY = Math.min(
+  //     img.naturalHeight - 1,
+  //     Math.max(0, Math.floor(displayY * scaleY)),
+  //   );
+
+  //   setPixelPosition({
+  //     x: pixelX,
+  //     y: pixelY,
+  //   });
+
+  //   setMagnifier({
+  //     visible: true,
+  //     x: e.clientX,
+  //     y: e.clientY,
+  //   });
+  // };
+
+  // // =====================
+  // //MOUSE MOVE 2
+  // // =====================
+  const handleMouseMove = (e) => {
+    updateMagnifier(e.clientX, e.clientY);
   };
 
   // =====================================================
@@ -272,6 +379,37 @@ function UploadBox() {
 
   const handleMouseLeave = () => {
     setMagnifier((prev) => ({ ...prev, visible: false }));
+  };
+
+  //09/08/2026 {time:  PM}
+  // =====================================================
+  // MOBILE TOUCH MAGNIFIER
+  // Desktop Mouse-এর মতো continuous tracking
+  // =====================================================
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+
+    if (!touch) return;
+
+    updateMagnifier(touch.clientX, touch.clientY);
+  };
+
+  const handleTouchMove = (e) => {
+    e.preventDefault();
+
+    const touch = e.touches[0];
+
+    if (!touch) return;
+
+    updateMagnifier(touch.clientX, touch.clientY);
+  };
+
+  const handleTouchEnd = () => {
+    setMagnifier((prev) => ({
+      ...prev,
+      visible: false,
+    }));
   };
 
   // =====================================================
@@ -635,7 +773,6 @@ function UploadBox() {
                 width: "100%",
                 maxWidth: "650px",
               }}
-              onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             >
               <img
@@ -655,11 +792,20 @@ function UploadBox() {
                   borderRadius: "14px",
                   cursor: "crosshair",
                   userSelect: "none",
+
+                  //08/08/2026 {time:  PM}
+                  // Mobile touch
+                  touchAction: "none",
+                  WebkitUserSelect: "none",
+                  WebkitTouchCallout: "none",
                 }}
                 //08/08/2026 {time:  PM}
-                // onTouchStart={handleTouchStart}
-                // onTouchMove={handleTouchMove}
-                // onTouchEnd={handleTouchEnd}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onTouchCancel={handleTouchEnd}
               />
 
               {magnifier.visible && (
