@@ -326,6 +326,9 @@ function UploadBox() {
   // IMAGE CLICK
   // =====================================================
   const handleImageClick = (e) => {
+    //10/08/2026 {time:  PM}
+    if (e.pointerType === "touch") return;
+
     const img = imageRef.current;
     const canvas = canvasRef.current;
 
@@ -375,13 +378,21 @@ function UploadBox() {
     setPixelPosition({ x: pixelX, y: pixelY });
 
     toast.success(`Color Selected: ${hex}`, { autoClose: 800 });
+
+    // 🔥 IMPORTANT
+    //10/08/2026 {time:  PM}
+    // Color select হওয়ার সাথে সাথে magnifier hide
+    setMagnifier((prev) => ({
+      ...prev,
+      visible: false,
+    }));
   };
 
   const handleMouseLeave = () => {
     setMagnifier((prev) => ({ ...prev, visible: false }));
   };
 
-  //09/08/2026 {time:  PM}
+  //10/08/2026 {time:  PM}
   // =====================================================
   // MOBILE TOUCH MAGNIFIER
   // Desktop Mouse-এর মতো continuous tracking
@@ -396,8 +407,6 @@ function UploadBox() {
   };
 
   const handleTouchMove = (e) => {
-    e.preventDefault();
-
     const touch = e.touches[0];
 
     if (!touch) return;
@@ -406,10 +415,80 @@ function UploadBox() {
   };
 
   const handleTouchEnd = () => {
+    const img = imageRef.current;
+    const canvas = canvasRef.current;
+
+    if (!img || !canvas) {
+      setMagnifier((prev) => ({
+        ...prev,
+        visible: false,
+      }));
+      return;
+    }
+
+    // সর্বশেষ magnifier position
+    const { x, y } = magnifier;
+
+    const rect = img.getBoundingClientRect();
+
+    const displayX = x - rect.left;
+    const displayY = y - rect.top;
+
+    if (
+      displayX < 0 ||
+      displayY < 0 ||
+      displayX >= rect.width ||
+      displayY >= rect.height
+    ) {
+      setMagnifier((prev) => ({
+        ...prev,
+        visible: false,
+      }));
+      return;
+    }
+
+    const scaleX = img.naturalWidth / rect.width;
+    const scaleY = img.naturalHeight / rect.height;
+
+    const pixelX = Math.min(
+      img.naturalWidth - 1,
+      Math.max(0, Math.floor(displayX * scaleX)),
+    );
+
+    const pixelY = Math.min(
+      img.naturalHeight - 1,
+      Math.max(0, Math.floor(displayY * scaleY)),
+    );
+
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+
+    const pixel = ctx.getImageData(pixelX, pixelY, 1, 1).data;
+
+    const [r, g, b] = pixel;
+
+    const hex = rgbToHex(r, g, b);
+
+    // 🎨 Color select
+    setHoverColor(hex);
+    setHoverRGB(`rgb(${r}, ${g}, ${b})`);
+    setHoverHSL(rgbToHsl(r, g, b));
+
+    setPixelPosition({
+      x: pixelX,
+      y: pixelY,
+    });
+
+    // 🔍 Finger release → lens hide
     setMagnifier((prev) => ({
       ...prev,
       visible: false,
     }));
+
+    toast.success(`Color Selected: ${hex}`, {
+      autoClose: 800,
+    });
   };
 
   // =====================================================
@@ -793,9 +872,12 @@ function UploadBox() {
                   cursor: "crosshair",
                   userSelect: "none",
 
-                  //08/08/2026 {time:  PM}
+                  //10/08/2026 {time:  PM}
                   // Mobile touch
-                  touchAction: "none",
+                  // vertical page scrolling allow করবে
+                  touchAction: "pan-y",
+
+                  userSelect: "none",
                   WebkitUserSelect: "none",
                   WebkitTouchCallout: "none",
                 }}
