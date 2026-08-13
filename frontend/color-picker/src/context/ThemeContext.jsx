@@ -7,13 +7,37 @@ export function ThemeProvider({ children }) {
     return localStorage.getItem("theme") === "dark";
   });
 
+  // =====================================================
+  // APPLY THEME
+  // =====================================================
   useEffect(() => {
-    document.body.classList.toggle("bg-dark", darkMode);
-    document.body.classList.toggle("text-white", darkMode);
+    const root = document.documentElement;
+    const body = document.body;
+
+    if (darkMode) {
+      root.setAttribute("data-theme", "dark");
+
+      body.classList.remove("light-mode");
+      body.classList.add("dark-mode");
+
+      body.style.backgroundColor = "#08090a";
+      body.style.color = "#ffffff";
+    } else {
+      root.setAttribute("data-theme", "light");
+
+      body.classList.remove("dark-mode");
+      body.classList.add("light-mode");
+
+      body.style.backgroundColor = "#f8f9fa";
+      body.style.color = "#212529";
+    }
 
     localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
+  // =====================================================
+  // TOGGLE THEME
+  // =====================================================
   const toggleTheme = () => {
     setDarkMode((prev) => !prev);
   };
@@ -29,6 +53,10 @@ export function ThemeProvider({ children }) {
     </ThemeContext.Provider>
   );
 }
+
+// =====================================================
+// CUSTOM HOOK
+// =====================================================
 
 export function useTheme() {
   return useContext(ThemeContext);

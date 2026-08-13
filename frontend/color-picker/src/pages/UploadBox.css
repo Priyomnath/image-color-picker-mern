@@ -1,0 +1,782 @@
+/* =========================================================
+   PROFESSIONAL COLOR PICKER UI
+   ========================================================= */
+
+.picker-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(111, 66, 193, 0.12), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(13, 110, 253, 0.10), transparent 30%),
+    #08090a;
+  color: #fff;
+}
+
+/* =========================================================
+   MAIN LAYOUT
+   ========================================================= */
+
+.picker-main-layout {
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.75fr);
+  gap: 28px;
+}
+
+/* =========================================================
+   SECTION HEADINGS
+   ========================================================= */
+
+.picker-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.picker-section-title::before {
+  content: "";
+  width: 4px;
+  height: 20px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #6f42c1, #0d6efd);
+}
+
+/* =========================================================
+   IMAGE CARD
+   ========================================================= */
+
+.image-card {
+  position: relative;
+  padding: 12px;
+  border-radius: 20px;
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.07),
+    rgba(255,255,255,0.025)
+  );
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.image-magnifier-container {
+  position: relative;
+  overflow: visible;
+  border-radius: 14px;
+}
+
+.picker-image {
+  width: 100%;
+  max-width: 100%;
+  max-height: 560px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  border-radius: 14px;
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* =========================================
+   MAGNIFIER LENS
+========================================= */
+
+.magnifier-lens {
+  position: fixed;
+
+  width: 140px;
+  height: 140px;
+
+  border-radius: 50%;
+
+  overflow: hidden;
+
+  background: #111;
+
+  border: 3px solid rgba(255, 255, 255, 0.95);
+
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.8),
+    0 12px 35px rgba(0, 0, 0, 0.65),
+    0 0 25px rgba(255, 255, 255, 0.15);
+
+  z-index: 99999;
+
+  pointer-events: none;
+
+  box-sizing: border-box;
+
+  transform: translateZ(0);
+
+  will-change: left, top;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =========================================
+   MAGNIFIER CANVAS
+========================================= */
+
+.magnifier-canvas {
+  width: 140px !important;
+  height: 140px !important;
+
+  display: block;
+
+  image-rendering: pixelated;
+
+  pointer-events: none;
+
+  user-select: none;
+
+  -webkit-user-select: none;
+}
+
+
+/* =========================================
+   CENTER FOCUS
+========================================= */
+
+.magnifier-focus {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  width: 28px;
+  height: 28px;
+
+  transform: translate(-50%, -50%);
+
+  border: 2px solid #ffffff;
+
+  border-radius: 4px;
+
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 0 12px rgba(255, 255, 255, 0.75);
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+
+  .magnifier-lens {
+    width: 120px;
+    height: 120px;
+
+    border-width: 3px;
+  }
+
+  .magnifier-canvas {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+}
+
+/* =========================================================
+   COLOR INFO
+   ========================================================= */
+
+.selected-color-card {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 16px;
+
+  border: 1px solid rgba(255,255,255,0.1);
+
+  box-shadow:
+    0 12px 35px rgba(0,0,0,0.25);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.selected-color-content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 26px;
+}
+
+.selected-color-item small {
+  display: block;
+  opacity: 0.65;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 3px;
+}
+
+.selected-color-item strong {
+  font-size: 14px;
+}
+
+/* =========================================================
+   PALETTE CARD
+   ========================================================= */
+
+.palette-card {
+  margin-top: 22px;
+  padding: 20px;
+
+  border-radius: 20px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.055),
+    rgba(255,255,255,0.02)
+  );
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 15px 45px rgba(0,0,0,0.22);
+}
+
+.palette-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.palette-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.palette-color-preview {
+  flex: 1;
+  min-width: 0;
+  height: 50px;
+
+  border-radius: 11px;
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.palette-color-preview:hover {
+  transform: scaleY(1.06);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.palette-hex {
+  width: 82px;
+  min-width: 82px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #d8dce1;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette-expand-btn {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+
+  border-radius: 50% !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 20px !important;
+  line-height: 1;
+
+  padding: 0 !important;
+}
+
+/* =========================================================
+   VARIATIONS
+   ========================================================= */
+
+.color-variations {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+
+  margin: 8px 0 4px;
+  padding: 10px 0 4px 12px;
+}
+
+.color-variation {
+  height: 42px;
+
+  border-radius: 9px;
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.color-variation:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+}
+
+/* =========================================================
+   RIGHT INSPECTOR
+   ========================================================= */
+
+.inspector-card {
+  position: sticky;
+  top: 90px;
+
+  padding: 22px;
+  border-radius: 20px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(255,255,255,0.065),
+    rgba(255,255,255,0.025)
+  );
+
+  border: 1px solid rgba(255,255,255,0.09);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* =========================================================
+   COLOR PREVIEW
+   ========================================================= */
+
+.color-preview {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.color-preview-box {
+  height: 105px;
+  border-radius: 15px;
+
+  border: 1px solid rgba(255,255,255,0.1);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* =========================================================
+   VALUE ROW
+   ========================================================= */
+
+.color-value-row {
+  display: grid;
+  grid-template-columns: 65px minmax(0, 1fr) 45px;
+  align-items: center;
+
+  min-height: 56px;
+
+  margin-bottom: 10px;
+
+  border-radius: 13px;
+
+  border: 1px solid #292d32;
+
+  background: rgba(255,255,255,0.025);
+
+  overflow: hidden;
+}
+
+.color-value-label {
+  padding: 14px;
+  color: #8f969e;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+}
+
+.color-value-text {
+  padding: 14px;
+
+  border-left: 1px solid #292d32;
+
+  font-size: 14px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-button {
+  height: 100%;
+
+  border: none;
+  background: transparent;
+
+  color: #aeb4bb;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.copy-button:hover {
+  background: rgba(255,255,255,0.07);
+  color: #fff;
+}
+
+/* =========================================================
+   UPLOAD BOX
+   ========================================================= */
+
+.upload-own-card {
+  margin-top: 20px;
+  padding: 20px;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(111,66,193,0.12),
+      rgba(13,110,253,0.08)
+    );
+
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.upload-own-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 13px;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  margin-top: 15px;
+}
+
+.action-btn {
+  min-height: 52px;
+
+  border-radius: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.download-btn {
+  border: 1px solid #343a40;
+  background: #15191e;
+  color: #fff;
+
+  box-shadow: 0 7px 20px rgba(0,0,0,0.22);
+}
+
+.download-btn:hover {
+  background: #1d2228;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.35);
+}
+
+.save-btn {
+  border: 1px solid #fff;
+  background: #fff;
+  color: #08090a;
+
+  box-shadow: 0 7px 20px rgba(255,255,255,0.08);
+}
+
+.save-btn:hover {
+  background: #e9ecef;
+  box-shadow: 0 12px 28px rgba(255,255,255,0.12);
+}
+
+/* =========================================================
+   REMOVE BUTTON
+   ========================================================= */
+
+.remove-image-btn {
+  width: 100%;
+  margin-top: 12px;
+
+  min-height: 46px;
+
+  border-radius: 12px !important;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .picker-main-layout {
+    grid-template-columns: 1fr;
+    gap: 22px;
+
+    padding: 22px 16px 45px;
+  }
+
+  .inspector-card {
+    position: static;
+  }
+}
+
+@media (max-width: 575px) {
+  .picker-main-layout {
+    padding: 15px 10px 35px;
+  }
+
+  .image-card,
+  .palette-card,
+  .inspector-card {
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .picker-section-title {
+    font-size: 15px;
+  }
+
+  .selected-color-content {
+    gap: 16px;
+  }
+
+  .palette-color-preview {
+    height: 44px;
+  }
+
+  .palette-hex {
+    width: 70px;
+    min-width: 70px;
+    font-size: 12px;
+  }
+
+  .palette-expand-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .color-variations {
+    grid-template-columns: repeat(3, 1fr);
+    padding-left: 0;
+  }
+
+  .color-preview {
+    grid-template-columns: 1fr 80px;
+  }
+
+  .color-preview-box {
+    height: 85px;
+  }
+
+  .color-value-row {
+    grid-template-columns: 55px minmax(0, 1fr) 42px;
+  }
+
+  .color-value-label,
+  .color-value-text {
+    padding: 12px;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .magnifier-lens {
+    width: 115px;
+    height: 115px;
+  }
+
+  .magnifier-canvas {
+    width: 115px;
+    height: 115px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* //11/08/2026 {time:  PM} */
+
+
+/* =========================================
+   COLOR PICKER RESPONSIVE
+========================================= */
+
+.picker-main-layout {
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 991px) {
+  .picker-main-layout {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+    padding: 20px !important;
+  }
+
+  .picker-left-section,
+  .picker-right-section {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 576px) {
+  .picker-main-layout {
+    padding: 14px !important;
+    gap: 24px !important;
+  }
+
+  .image-magnifier-container {
+    width: 100% !important;
+  }
+
+  .image-magnifier-container img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .color-palette-section {
+    width: 100% !important;
+  }
+
+  .palette-row {
+    gap: 7px !important;
+  }
+
+  .palette-row span {
+    width: 68px !important;
+    min-width: 68px !important;
+    font-size: 11px !important;
+  }
+
+  .palette-row button {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .color-value {
+    grid-template-columns: 60px 1fr 42px !important;
+  }
+
+  .color-value strong {
+    font-size: 13px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .action-btn {
+    min-height: 48px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* =========================================
+   VERY SMALL PHONE
+========================================= */
+
+@media (max-width: 380px) {
+  .picker-main-layout {
+    padding: 10px !important;
+  }
+
+  .palette-row span {
+    width: 62px !important;
+    min-width: 62px !important;
+  }
+
+  .action-btn span:last-child {
+    font-size: 12px;
+  }
+}
