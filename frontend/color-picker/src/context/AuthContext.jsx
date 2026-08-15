@@ -7,43 +7,62 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   // =========================================
-  // Check Logged-in User
+  // CHECK LOGGED-IN USER
   // =========================================
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
 
-    if (storedUser) {
+    if (storedUser && storedToken && storedToken !== "undefined") {
       try {
         setUser(JSON.parse(storedUser));
       } catch (error) {
         console.error("Invalid user data:", error);
+
         localStorage.removeItem("user");
+        localStorage.removeItem("token");
       }
+    } else {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     }
 
     setLoading(false);
   }, []);
 
   // =========================================
-  // Login
+  // LOGIN
   // =========================================
 
-  // const login = (userData) => {
-  //   localStorage.setItem("user", JSON.stringify(userData));
-  //   setUser(userData);
-  // };
-
-  //06/08/2026 {time:  PM}
   const login = (userData, token) => {
+    if (!userData || !token) {
+      console.error("LOGIN ERROR: User data or token missing");
+
+      return false;
+    }
+
+    // Save user
     localStorage.setItem("user", JSON.stringify(userData));
+
+    // Save JWT token
     localStorage.setItem("token", token);
 
+    // Update React state
     setUser(userData);
+
+    console.log("AUTH CONTEXT USER:", userData);
+    console.log("AUTH CONTEXT TOKEN:", token);
+    console.log(
+      "TOKEN FROM LOCAL STORAGE:",
+      localStorage.getItem("token"),
+    );
+
+    return true;
   };
 
   // =========================================
-  // Logout
+  // LOGOUT
   // =========================================
 
   const logout = () => {
@@ -52,6 +71,10 @@ export function AuthProvider({ children }) {
 
     setUser(null);
   };
+
+  // =========================================
+  // PROVIDER
+  // =========================================
 
   return (
     <AuthContext.Provider
@@ -70,7 +93,7 @@ export function AuthProvider({ children }) {
 }
 
 // =========================================
-// Custom Hook
+// CUSTOM HOOK
 // =========================================
 
 export function useAuth() {
