@@ -2,121 +2,117 @@ import jwt from "jsonwebtoken";
 
 const auth = (req, res, next) => {
   try {
-    // =========================================
-    // GET AUTHORIZATION HEADER
-    // =========================================
+    console.log("====================================");
+    console.log("AUTH MIDDLEWARE");
+    console.log("Path:", req.originalUrl);
+    console.log("Method:", req.method);
+
+    // ==========================================
+    // CHECK AUTHORIZATION HEADER
+    // ==========================================
 
     const authHeader = req.headers.authorization;
 
-    // =========================================
-    // GET TOKEN
-    // =========================================
+    console.log("Authorization Header:", authHeader);
 
     let token = null;
 
-    // Header থেকে token
     if (
       authHeader &&
+      typeof authHeader === "string" &&
       authHeader.startsWith("Bearer ")
     ) {
-      const headerToken = authHeader.split(" ")[1];
+      const bearerToken = authHeader.split(" ")[1];
 
       if (
-        headerToken &&
-        headerToken !== "undefined" &&
-        headerToken !== "null"
+        bearerToken &&
+        bearerToken !== "undefined" &&
+        bearerToken !== "null"
       ) {
-        token = headerToken;
+        token = bearerToken;
       }
     }
 
-    // Cookie fallback
-    if (
-      !token &&
-      req.cookies?.token
-    ) {
+    // ==========================================
+    // IF HEADER TOKEN NOT FOUND
+    // CHECK COOKIE TOKEN
+    // ==========================================
+
+    if (!token && req.cookies?.token) {
       token = req.cookies.token;
+
+      console.log("Token found from Cookie");
     }
 
-    // =========================================
+    // ==========================================
     // DEBUG
-    // =========================================
+    // ==========================================
 
-    console.log(
-      "Authorization Header:",
-      authHeader,
-    );
+    console.log("Cookies:", req.cookies);
+    console.log("Extracted Token:", token ? "TOKEN FOUND" : "NO TOKEN");
 
-    console.log(
-      "Cookies:",
-      req.cookies,
-    );
-
-    console.log(
-      "Extracted TOKEN:",
-      token,
-    );
-
-    // =========================================
-    // TOKEN CHECK
-    // =========================================
+    // ==========================================
+    // NO TOKEN
+    // ==========================================
 
     if (!token) {
+      console.log("❌ NO TOKEN PROVIDED");
+
       return res.status(401).json({
         success: false,
         message: "Unauthorized: No token provided",
       });
     }
 
-    // =========================================
+    // ==========================================
     // VERIFY JWT
-    // =========================================
+    // ==========================================
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET,
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    console.log(
-      "DECODED TOKEN:",
-      decoded,
-    );
+    console.log("✅ JWT VERIFIED");
+    console.log("Decoded Token:", decoded);
 
-    // =========================================
-    // USER
-    // =========================================
+    // ==========================================
+    // SET USER
+    // ==========================================
 
     req.user = {
-      id: decoded.id || decoded._id,
+      id: decoded.id || decoded._id || decoded.userId,
     };
 
-    console.log(
-      "Authenticated User:",
-      req.user,
-    );
+    console.log("Authenticated User:", req.user);
 
-    // =========================================
-    // NEXT
-    // =========================================
+    // ==========================================
+    // CHECK USER ID
+    // ==========================================
+
+    if (!req.user.id) {
+      console.log("❌ USER ID NOT FOUND IN TOKEN");
+
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token: User ID not found",
+      });
+    }
+
+    console.log("✅ AUTH SUCCESS");
+    console.log("====================================");
+
+    // ==========================================
+    // NEXT ROUTE
+    // ==========================================
 
     next();
-
   } catch (error) {
-    console.error(
-      "JWT ERROR:",
-      error.name,
-    );
-
-    console.error(
-      "JWT MESSAGE:",
-      error.message,
-    );
+    console.error("====================================");
+    console.error("❌ JWT ERROR:", error.name);
+    console.error("❌ JWT MESSAGE:", error.message);
+    console.error("====================================");
 
     return res.status(401).json({
       success: false,
-      message:
-        error.message ||
-        "Invalid or Expired Token",
+      message: error.message || "Invalid or Expired Token",
     });
   }
 };
