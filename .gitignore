@@ -1,4 +1,7 @@
 .env
+.env.*
+!.env.example
+
 backend/.env
 dist/
 node_modules/

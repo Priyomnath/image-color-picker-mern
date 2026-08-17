@@ -6,26 +6,26 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 import App from "./App";
 
-// App CSS
 import "./App.css";
 
-// Theme Context
 import { ThemeProvider } from "./context/ThemeContext";
-
-// Auth Context
 import { AuthProvider } from "./context/AuthContext";
-
-// Helmet
 import { HelmetProvider } from "react-helmet-async";
+
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <HelmetProvider>
       <AuthProvider>
         <ThemeProvider>
-          <App />
+          <GoogleOAuthProvider clientId={clientId}>
+            <App />
+          </GoogleOAuthProvider>
 
           <ToastContainer
             position="top-right"
@@ -35,5 +35,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </ThemeProvider>
       </AuthProvider>
     </HelmetProvider>
-  </BrowserRouter>,
+  </BrowserRouter>
 );
