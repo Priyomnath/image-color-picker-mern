@@ -1,14 +1,15 @@
 import bcrypt from "bcrypt";
 import { generateToken } from "../utils/jwt.js";
 import User from "../models/User.js";
-
 import { OAuth2Client } from "google-auth-library";
 
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID
 );
 
-// Register
+// ==========================================
+// REGISTER
+// ==========================================
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -54,14 +55,11 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// Login
+// ==========================================
+// LOGIN
+// ==========================================
 export const loginUser = async (req, res) => {
   try {
-    //07/08/2026 {time:  PM}
-    console.log("JWT_SECRET LOGIN:", process.env.JWT_SECRET);
-    //SOME UPDATE
-    console.log("NODE_ENV:", process.env.NODE_ENV);
-
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -84,15 +82,6 @@ export const loginUser = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    //07/18/2026
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    //   maxAge: 7 * 24 * 60 * 60 * 1000,
-    // });
-
-    //04/08/2026
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
@@ -118,14 +107,9 @@ export const loginUser = async (req, res) => {
   }
 };
 
-const googleClient = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID
-);
-
-
-// ===============================
+// ==========================================
 // GOOGLE LOGIN
-// ===============================
+// ==========================================
 export const googleLogin = async (req, res) => {
   try {
     const { credential } = req.body;
@@ -137,7 +121,6 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    // Verify Google ID token
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -158,34 +141,41 @@ export const googleLogin = async (req, res) => {
       name,
     } = payload;
 
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Google account email not found",
+      });
+    }
+
     // Find existing user
     let user = await User.findOne({ email });
 
-    // Create user if doesn't exist
+    // Create Google user
     if (!user) {
       user = await User.create({
-        name,
+        name: name || "Google User",
         email,
         googleId,
       });
     } else {
-      // Existing account
+      // Link Google account to existing user
       if (!user.googleId) {
         user.googleId = googleId;
         await user.save();
       }
     }
 
-    // Create our JWT
-    const token = jwt.sign(
-      {
-        id: user._id,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
+    // Generate our JWT
+    const token = generateToken(user._id);
+
+    // Cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(200).json({
       success: true,
@@ -207,105 +197,44 @@ export const googleLogin = async (req, res) => {
   }
 };
 
+// ==========================================
+// LOGOUT
+// ==========================================
+export const logoutUser = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
 
+  res.json({
+    success: true,
+    message: "Logout Successful",
+  });
+};
 
+// ==========================================
+// CURRENT USER
+// ==========================================
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
 
-// ===============================
-// GOOGLE LOGIN
-// ===============================
-// export const googleLogin = async (req, res) => {
-//   try {
-//     const { credential } = req.body;
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
-//     if (!credential) {
-//       return res.status(400).json({
-//         message: "Google credential is required",
-//       });
-//     }
-
-//     const ticket = await googleClient.verifyIdToken({
-//       idToken: credential,
-//       audience: process.env.GOOGLE_CLIENT_ID,
-//     });
-
-//     const payload = ticket.getPayload();
-
-//     const {
-//       sub: googleId,
-//       email,
-//       name,
-//       picture,
-//     } = payload;
-
-//     if (!email) {
-//       return res.status(400).json({
-//         message: "Google account email not found",
-//       });
-//     }
-
-//     let user = await User.findOne({ email });
-
-//     // Existing user
-//     if (!user) {
-//       user = await User.create({
-//         name: name || "Google User",
-//         email,
-//         password: await bcrypt.hash(
-//           googleId + process.env.JWT_SECRET,
-//           10
-//         ),
-//       });
-//     }
-
-//     const token = jwt.sign(
-//       { id: user._id },
-//       process.env.JWT_SECRET,
-//       {
-//         expiresIn: "7d",
-//       }
-//     );
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Google login successful",
-//       token,
-//       user: {
-//         id: user._id,
-//         name: user.name,
-//         email: user.email,
-//         picture: picture || "",
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Google Login Error:", error);
-
-//     res.status(401).json({
-//       message: "Google authentication failed",
-//     });
-//   }
-// };
-
-// // Logout
-// export const logoutUser = (req, res) => {
-//   //04/08/2026 {time:  PM}
-//   res.clearCookie("token", {
-//     httpOnly: true,
-//     secure: true,
-//     sameSite: "none",
-//   });
-
-//   res.json({
-//     success: true,
-//     message: "Logout Successful",
-//   });
-// };
-
-// // Current User
-// export const getMe = async (req, res) => {
-//   const user = await User.findById(req.user.id).select("-password");
-
-//   res.json({
-//     success: true,
-//     user,
-//   });
-// };
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

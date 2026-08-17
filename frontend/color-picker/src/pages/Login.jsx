@@ -173,85 +173,129 @@ function Login() {
   // GOOGLE LOGIN
   // =========================================
 
+  // const handleGoogleSuccess = async (credentialResponse) => {
+  //   try {
+  //     setLoading(true);
+
+  //     console.log("GOOGLE RESPONSE:", credentialResponse);
+
+  //     if (!credentialResponse?.credential) {
+  //       toast.error("Google credential not received");
+
+  //       return;
+  //     }
+
+  //     // =======================================
+  //     // SEND GOOGLE CREDENTIAL TO BACKEND
+  //     // =======================================
+
+  //     const { data } = await api.post("/auth/google", {
+  //       credential: credentialResponse.credential,
+  //     });
+
+  //     console.log("GOOGLE LOGIN RESPONSE:", data);
+
+  //     // =======================================
+  //     // CHECK TOKEN
+  //     // =======================================
+
+  //     if (!data.token) {
+  //       console.error("GOOGLE TOKEN MISSING:", data);
+
+  //       toast.error("Token could not be received from server");
+
+  //       return;
+  //     }
+
+  //     // =======================================
+  //     // CHECK USER
+  //     // =======================================
+
+  //     if (!data.user) {
+  //       console.error("GOOGLE USER MISSING:", data);
+
+  //       toast.error("User data missing");
+
+  //       return;
+  //     }
+
+  //     // =======================================
+  //     // SAVE USER + TOKEN
+  //     // =======================================
+
+  //     authLogin(data.user, data.token);
+
+  //     // =======================================
+  //     // VERIFY
+  //     // =======================================
+
+  //     const savedToken = localStorage.getItem("token");
+  //     const savedUser = localStorage.getItem("user");
+
+  //     console.log("GOOGLE TOKEN SAVED:", savedToken);
+  //     console.log("GOOGLE USER SAVED:", savedUser);
+
+  //     if (!savedToken || savedToken === "undefined" || savedToken === "null") {
+  //       toast.error("Google token could not be saved");
+
+  //       return;
+  //     }
+
+  //     // =======================================
+  //     // SUCCESS
+  //     // =======================================
+
+  //     toast.success("Google Login Successful 🎉");
+
+  //     navigate("/");
+  //   } catch (error) {
+  //     console.error("GOOGLE LOGIN ERROR:", error);
+
+  //     console.error("GOOGLE ERROR RESPONSE:", error.response?.data);
+
+  //     toast.error(error.response?.data?.message || "Google login failed");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setLoading(true);
 
       console.log("GOOGLE RESPONSE:", credentialResponse);
 
-      if (!credentialResponse?.credential) {
-        toast.error("Google credential not received");
+      const credential = credentialResponse?.credential;
 
+      if (!credential) {
+        toast.error("Google credential পাওয়া যায়নি");
         return;
       }
-
-      // =======================================
-      // SEND GOOGLE CREDENTIAL TO BACKEND
-      // =======================================
 
       const { data } = await api.post("/auth/google", {
-        credential: credentialResponse.credential,
+        credential,
       });
 
-      console.log("GOOGLE LOGIN RESPONSE:", data);
+      console.log("GOOGLE BACKEND RESPONSE:", data);
 
-      // =======================================
-      // CHECK TOKEN
-      // =======================================
-
-      if (!data.token) {
-        console.error("GOOGLE TOKEN MISSING:", data);
-
-        toast.error("Token could not be received from server");
-
+      if (!data.success) {
+        toast.error(data.message || "Google login failed");
         return;
       }
 
-      // =======================================
-      // CHECK USER
-      // =======================================
+      const loginSuccess = authLogin(data.user, data.token);
 
-      if (!data.user) {
-        console.error("GOOGLE USER MISSING:", data);
-
-        toast.error("User data missing");
-
+      if (!loginSuccess) {
+        toast.error("Token could not be saved");
         return;
       }
-
-      // =======================================
-      // SAVE USER + TOKEN
-      // =======================================
-
-      authLogin(data.user, data.token);
-
-      // =======================================
-      // VERIFY
-      // =======================================
-
-      const savedToken = localStorage.getItem("token");
-      const savedUser = localStorage.getItem("user");
-
-      console.log("GOOGLE TOKEN SAVED:", savedToken);
-      console.log("GOOGLE USER SAVED:", savedUser);
-
-      if (!savedToken || savedToken === "undefined" || savedToken === "null") {
-        toast.error("Google token could not be saved");
-
-        return;
-      }
-
-      // =======================================
-      // SUCCESS
-      // =======================================
 
       toast.success("Google Login Successful 🎉");
 
       navigate("/");
     } catch (error) {
       console.error("GOOGLE LOGIN ERROR:", error);
-
-      console.error("GOOGLE ERROR RESPONSE:", error.response?.data);
+      console.error("GOOGLE BACKEND ERROR:", error.response?.data);
 
       toast.error(error.response?.data?.message || "Google login failed");
     } finally {
