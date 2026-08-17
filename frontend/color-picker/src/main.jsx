@@ -18,6 +18,8 @@ import { HelmetProvider } from "react-helmet-async";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+console.log("GOOGLE CLIENT ID:", clientId);
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <HelmetProvider>
