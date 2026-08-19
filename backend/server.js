@@ -24,12 +24,33 @@ app.use(cookieParser());
 //18/07/2026
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://image-color-picker-mern-lks9.vercel.app",
   "https://image-color-picker-mern-z72c-lilac.vercel.app",
 ];
 
+//19/08/2026 {time:  PM}
+// app.use(
+//   cors({
+//     origin: allowedOrigins,
+//     credentials: true,
+//   })
+// );
+
+//19/08/2026 {time:  PM}
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Postman / server-to-server request
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
