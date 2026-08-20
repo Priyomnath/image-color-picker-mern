@@ -27,14 +27,6 @@
 
 // export default User;
 
-
-
-
-
-
-
-
-
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -60,10 +52,15 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
+
+    picture: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const User = mongoose.model("User", userSchema);

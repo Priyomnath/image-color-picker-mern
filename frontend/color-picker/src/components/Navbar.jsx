@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Navbar, Container, Nav } from "react-bootstrap";
+import { Navbar, Container, Nav, Dropdown } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 
 function NavbarComponent() {
   const { darkMode, toggleTheme } = useTheme();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout, user } = useAuth();
   const location = useLocation();
 
   // Mobile menu state
@@ -26,6 +26,38 @@ function NavbarComponent() {
 
   const closeMenu = () => {
     setExpanded(false);
+  };
+
+  // =========================================
+  // USER INFORMATION
+  // =========================================
+
+  const userEmail = user?.email || "User";
+
+  // Google normally returns "picture"
+  // We also support other possible field names
+  const userPicture =
+    user?.picture ||
+    user?.profilePicture ||
+    user?.avatar ||
+    user?.image ||
+    null;
+
+  // Get first letter for fallback avatar
+  const userInitial = userEmail.charAt(0).toUpperCase();
+
+  // =========================================
+  // LOGOUT
+  // =========================================
+
+  const handleLogout = () => {
+    closeMenu();
+
+    logout();
+
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 100);
   };
 
   return (
@@ -159,24 +191,10 @@ function NavbarComponent() {
             )}
 
             {/* ========================================= */}
-            {/* LOGIN */}
+            {/* LOGIN / REGISTER */}
             {/* Only show when logged out */}
             {/* ========================================= */}
 
-            {/* {!isLoggedIn && (
-              <Nav.Link
-                as={Link}
-                to="/login"
-                onClick={closeMenu}
-                className={`navbar-link px-3 rounded-3 ${
-                  isActive("/login") ? "active fw-semibold" : ""
-                }`}
-              >
-                Login
-              </Nav.Link>
-            )} */}
-
-            {/* //06/08/2026 {time:  PM} */}
             {!isLoggedIn && (
               <>
                 <Link
@@ -228,31 +246,103 @@ function NavbarComponent() {
             </button>
 
             {/* ========================================= */}
-            {/* LOGOUT */}
+            {/* USER PROFILE */}
             {/* Only show when logged in */}
             {/* ========================================= */}
 
-            {isLoggedIn && (
-              <button
-                type="button"
-                className="btn btn-danger rounded-pill px-3 ms-lg-1"
-                // onClick={() => {
-                //   closeMenu();
-                //   logout();
-                //   window.location.href = "/";
-                // }}
+            {/* ========================================= */}
+            {/* PROFESSIONAL USER PROFILE */}
+            {/* ========================================= */}
 
-                //06/08/2026 {time:  PM}
-                onClick={() => {
-                  closeMenu();
-                  logout();
-                  setTimeout(() => {
-                    window.location.href = "/";
-                  }, 100);
-                }}
-              >
-                Logout
-              </button>
+            {isLoggedIn && (
+              <Dropdown align="end" className="profile-dropdown">
+                <Dropdown.Toggle
+                  as="button"
+                  className="profile-toggle"
+                  id="profile-dropdown"
+                >
+                  <div className="profile-avatar-wrapper">
+                    {userPicture ? (
+                      <img
+                        src={userPicture}
+                        alt="Profile"
+                        referrerPolicy="no-referrer"
+                        className="profile-avatar"
+                      />
+                    ) : (
+                      <div className="profile-avatar profile-fallback">
+                        {userInitial}
+                      </div>
+                    )}
+
+                    {/* Online indicator */}
+                    <span className="profile-online-dot"></span>
+                  </div>
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu className="profile-menu">
+                  {/* Profile Header */}
+
+                  <div className="profile-header">
+                    <div className="profile-large-avatar-wrapper">
+                      {userPicture ? (
+                        <img
+                          src={userPicture}
+                          alt="Profile"
+                          referrerPolicy="no-referrer"
+                          className="profile-large-avatar"
+                        />
+                      ) : (
+                        <div className="profile-large-avatar profile-fallback">
+                          {userInitial}
+                        </div>
+                      )}
+
+                      <span className="profile-large-online"></span>
+                    </div>
+
+                    <div className="profile-user-info">
+                      <div className="profile-name">
+                        {user?.name || user?.displayName || "User"}
+                      </div>
+
+                      <div className="profile-email" title={userEmail}>
+                        {userEmail}
+                      </div>
+
+                      <div className="profile-status">
+                        <span></span>
+                        Logged in
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="profile-divider"></div>
+
+                  {/* Email */}
+
+                  <div className="profile-email-box">
+                    <div className="profile-info-icon">✉</div>
+
+                    <div>
+                      <small>Email</small>
+                      <div>{userEmail}</div>
+                    </div>
+                  </div>
+
+                  <div className="profile-divider"></div>
+
+                  {/* Logout */}
+
+                  <Dropdown.Item
+                    onClick={handleLogout}
+                    className="profile-logout"
+                  >
+                    <span className="profile-logout-icon">↪</span>
+                    <span>Logout</span>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             )}
           </Nav>
         </Navbar.Collapse>

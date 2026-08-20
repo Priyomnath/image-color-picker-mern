@@ -3,9 +3,7 @@ import { generateToken } from "../utils/jwt.js";
 import User from "../models/User.js";
 import { OAuth2Client } from "google-auth-library";
 
-const googleClient = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID
-);
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ==========================================
 // REGISTER
@@ -112,7 +110,11 @@ export const loginUser = async (req, res) => {
 // ==========================================
 export const googleLogin = async (req, res) => {
   try {
+    console.log("🔥 GOOGLE LOGIN FUNCTION CALLED");
+
     const { credential } = req.body;
+
+    console.log("🔥 GOOGLE CREDENTIAL RECEIVED:", !!credential);
 
     if (!credential) {
       return res.status(400).json({
@@ -128,6 +130,9 @@ export const googleLogin = async (req, res) => {
 
     const payload = ticket.getPayload();
 
+    console.log("GOOGLE PAYLOAD:", payload);
+    console.log("GOOGLE PICTURE:", payload?.picture);
+
     if (!payload) {
       return res.status(401).json({
         success: false,
@@ -135,11 +140,8 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    const {
-      sub: googleId,
-      email,
-      name,
-    } = payload;
+    //20/08/2026 {time:  PM}
+    const { sub: googleId, email, name, picture } = payload;
 
     if (!email) {
       return res.status(400).json({
@@ -157,13 +159,20 @@ export const googleLogin = async (req, res) => {
         name: name || "Google User",
         email,
         googleId,
+        picture: picture || "",
       });
     } else {
       // Link Google account to existing user
       if (!user.googleId) {
         user.googleId = googleId;
-        await user.save();
       }
+
+      // Save / update Google profile picture
+      if (picture) {
+        user.picture = picture;
+      }
+
+      await user.save();
     }
 
     // Generate our JWT
@@ -185,6 +194,7 @@ export const googleLogin = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        picture: user.picture || picture || "",
       },
     });
   } catch (error) {
