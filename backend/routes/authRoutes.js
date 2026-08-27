@@ -5,6 +5,8 @@ import {
   googleLogin,
   logoutUser,
   getMe,
+  sendLoginOTP,
+  verifyLoginOTP,
 } from "../controllers/authController.js";
 
 import auth from "../middleware/auth.js";
@@ -15,6 +17,9 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/google", googleLogin);
+
+router.post("/login/send-otp", sendLoginOTP);
+router.post("/login/verify-otp", verifyLoginOTP);
 
 // Protected Routes
 router.get("/me", auth, getMe);
