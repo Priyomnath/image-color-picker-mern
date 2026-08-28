@@ -162,6 +162,10 @@ const generateOTP = () => {
   return crypto.randomInt(100000, 1000000).toString();
 };
 
+// =========================================
+// SEND LOGIN OTP
+// =========================================
+
 export const sendLoginOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -208,7 +212,9 @@ export const sendLoginOTP = async (req, res) => {
     // 90 SECOND EXPIRY
     // =========================================
 
-    const expiresAt = new Date(Date.now() + 90 * 1000);
+    const expiresAt = new Date(
+      Date.now() + 90 * 1000
+    );
 
     // =========================================
     // REMOVE OLD OTP
@@ -229,11 +235,22 @@ export const sendLoginOTP = async (req, res) => {
       attempts: 0,
     });
 
-    // 💥
-    //28/08/2026 {time:  PM}
+    // =========================================
+    // SEND EMAIL WITH RESEND
+    // =========================================
+
     try {
-      await sendOTPEmail(normalizedEmail, otp);
+      await sendOTPEmail(
+        normalizedEmail,
+        otp
+      );
     } catch (emailError) {
+      console.error(
+        "OTP EMAIL FAILED:",
+        emailError
+      );
+
+      // Remove OTP if email was not sent
       await OTP.deleteMany({
         email: normalizedEmail,
       });
@@ -241,48 +258,32 @@ export const sendLoginOTP = async (req, res) => {
       throw emailError;
     }
 
-//     // =========================================
-//     // SEND EMAIL
-//     // =========================================
+    // =========================================
+    // SUCCESS
+    // =========================================
 
-//     await sendOTPEmail(normalizedEmail, otp);
+    return res.status(200).json({
+      success: true,
+      message: "Verification code sent to your email",
+    });
 
-//     return res.status(200).json({
-//       success: true,
-//       message: "Verification code sent to your email",
-//     });
-//   } catch (error) {
-//     console.error("SEND OTP ERROR:", error);
+  } catch (error) {
+    console.error(
+      "SEND OTP ERROR:",
+      error
+    );
 
-//     return res.status(500).json({
-//       success: false,
-//       message: "Failed to send verification code",
-//     });
-//   }
-// };
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send verification code",
+    });
+  }
+};
+
 
 // =========================================
-// SEND EMAIL
+// VERIFY LOGIN OTP
 // =========================================
-
-try {
-  await sendOTPEmail(
-    normalizedEmail,
-    otp
-  );
-} catch (emailError) {
-
-  console.error(
-    "OTP EMAIL FAILED:",
-    emailError
-  );
-
-  await OTP.deleteMany({
-    email: normalizedEmail,
-  });
-
-  throw emailError;
-}
 
 export const verifyLoginOTP = async (req, res) => {
   try {
@@ -291,11 +292,13 @@ export const verifyLoginOTP = async (req, res) => {
     if (!email || !otp) {
       return res.status(400).json({
         success: false,
-        message: "Email and verification code are required",
+        message:
+          "Email and verification code are required",
       });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail =
+      email.trim().toLowerCase();
 
     // =========================================
     // FIND OTP
@@ -308,7 +311,8 @@ export const verifyLoginOTP = async (req, res) => {
     if (!otpRecord) {
       return res.status(400).json({
         success: false,
-        message: "Verification code expired or not found",
+        message:
+          "Verification code expired or not found",
       });
     }
 
@@ -316,14 +320,18 @@ export const verifyLoginOTP = async (req, res) => {
     // EXPIRY CHECK
     // =========================================
 
-    if (Date.now() > otpRecord.expiresAt.getTime()) {
+    if (
+      Date.now() >
+      otpRecord.expiresAt.getTime()
+    ) {
       await OTP.deleteOne({
         _id: otpRecord._id,
       });
 
       return res.status(400).json({
         success: false,
-        message: "Verification code expired",
+        message:
+          "Verification code expired",
       });
     }
 
@@ -338,7 +346,8 @@ export const verifyLoginOTP = async (req, res) => {
 
       return res.status(429).json({
         success: false,
-        message: "Too many incorrect attempts",
+        message:
+          "Too many incorrect attempts",
       });
     }
 
@@ -346,7 +355,11 @@ export const verifyLoginOTP = async (req, res) => {
     // CHECK OTP
     // =========================================
 
-    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
+    const isValid =
+      await bcrypt.compare(
+        otp,
+        otpRecord.otpHash
+      );
 
     if (!isValid) {
       otpRecord.attempts += 1;
@@ -355,7 +368,8 @@ export const verifyLoginOTP = async (req, res) => {
 
       return res.status(401).json({
         success: false,
-        message: "Invalid verification code",
+        message:
+          "Invalid verification code",
       });
     }
 
@@ -390,7 +404,9 @@ export const verifyLoginOTP = async (req, res) => {
     // GENERATE JWT
     // =========================================
 
-    const token = generateToken(user._id);
+    const token = generateToken(
+      user._id
+    );
 
     // =========================================
     // SECURE COOKIE
@@ -400,7 +416,8 @@ export const verifyLoginOTP = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge:
+        7 * 24 * 60 * 60 * 1000,
     });
 
     // =========================================
@@ -419,8 +436,12 @@ export const verifyLoginOTP = async (req, res) => {
         picture: user.picture || "",
       },
     });
+
   } catch (error) {
-    console.error("VERIFY OTP ERROR:", error);
+    console.error(
+      "VERIFY OTP ERROR:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
