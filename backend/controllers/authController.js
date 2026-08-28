@@ -208,9 +208,7 @@ export const sendLoginOTP = async (req, res) => {
     // 90 SECOND EXPIRY
     // =========================================
 
-    const expiresAt = new Date(
-      Date.now() + 90 * 1000
-    );
+    const expiresAt = new Date(Date.now() + 90 * 1000);
 
     // =========================================
     // REMOVE OLD OTP
@@ -231,28 +229,60 @@ export const sendLoginOTP = async (req, res) => {
       attempts: 0,
     });
 
-    // =========================================
-    // SEND EMAIL
-    // =========================================
+    // 💥
+    //28/08/2026 {time:  PM}
+    try {
+      await sendOTPEmail(normalizedEmail, otp);
+    } catch (emailError) {
+      await OTP.deleteMany({
+        email: normalizedEmail,
+      });
 
-    await sendOTPEmail(
-      normalizedEmail,
-      otp
-    );
+      throw emailError;
+    }
 
-    return res.status(200).json({
-      success: true,
-      message: "Verification code sent to your email",
-    });
-  } catch (error) {
-    console.error("SEND OTP ERROR:", error);
+//     // =========================================
+//     // SEND EMAIL
+//     // =========================================
 
-    return res.status(500).json({
-      success: false,
-      message: "Failed to send verification code",
-    });
-  }
-};
+//     await sendOTPEmail(normalizedEmail, otp);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Verification code sent to your email",
+//     });
+//   } catch (error) {
+//     console.error("SEND OTP ERROR:", error);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Failed to send verification code",
+//     });
+//   }
+// };
+
+// =========================================
+// SEND EMAIL
+// =========================================
+
+try {
+  await sendOTPEmail(
+    normalizedEmail,
+    otp
+  );
+} catch (emailError) {
+
+  console.error(
+    "OTP EMAIL FAILED:",
+    emailError
+  );
+
+  await OTP.deleteMany({
+    email: normalizedEmail,
+  });
+
+  throw emailError;
+}
 
 export const verifyLoginOTP = async (req, res) => {
   try {
@@ -316,10 +346,7 @@ export const verifyLoginOTP = async (req, res) => {
     // CHECK OTP
     // =========================================
 
-    const isValid = await bcrypt.compare(
-      otp,
-      otpRecord.otpHash
-    );
+    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
 
     if (!isValid) {
       otpRecord.attempts += 1;
