@@ -177,6 +177,7 @@ export const sendLoginOTP = async (req, res) => {
       });
     }
 
+    //this is
     const normalizedEmail = email.trim().toLowerCase();
 
     // =========================================
