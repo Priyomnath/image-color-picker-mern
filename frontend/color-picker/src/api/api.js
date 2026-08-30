@@ -5,21 +5,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-//04/08/2026 {time:  PM}
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem("token");
-
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-
-//     return config;
-//   },
-//   (error) => Promise.reject(error),
-// );
-
-
 //08/08/2026 {time:  PM}
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");

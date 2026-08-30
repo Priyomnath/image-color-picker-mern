@@ -213,9 +213,7 @@ export const sendLoginOTP = async (req, res) => {
     // 90 SECOND EXPIRY
     // =========================================
 
-    const expiresAt = new Date(
-      Date.now() + 90 * 1000
-    );
+    const expiresAt = new Date(Date.now() + 90 * 1000);
 
     // =========================================
     // REMOVE OLD OTP
@@ -241,15 +239,9 @@ export const sendLoginOTP = async (req, res) => {
     // =========================================
 
     try {
-      await sendOTPEmail(
-        normalizedEmail,
-        otp
-      );
+      await sendOTPEmail(normalizedEmail, otp);
     } catch (emailError) {
-      console.error(
-        "OTP EMAIL FAILED:",
-        emailError
-      );
+      console.error("OTP EMAIL FAILED:", emailError);
 
       // Remove OTP if email was not sent
       await OTP.deleteMany({
@@ -267,12 +259,8 @@ export const sendLoginOTP = async (req, res) => {
       success: true,
       message: "Verification code sent to your email",
     });
-
   } catch (error) {
-    console.error(
-      "SEND OTP ERROR:",
-      error
-    );
+    console.error("SEND OTP ERROR:", error);
 
     return res.status(500).json({
       success: false,
@@ -280,7 +268,6 @@ export const sendLoginOTP = async (req, res) => {
     });
   }
 };
-
 
 // =========================================
 // VERIFY LOGIN OTP
@@ -293,13 +280,11 @@ export const verifyLoginOTP = async (req, res) => {
     if (!email || !otp) {
       return res.status(400).json({
         success: false,
-        message:
-          "Email and verification code are required",
+        message: "Email and verification code are required",
       });
     }
 
-    const normalizedEmail =
-      email.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
 
     // =========================================
     // FIND OTP
@@ -312,8 +297,7 @@ export const verifyLoginOTP = async (req, res) => {
     if (!otpRecord) {
       return res.status(400).json({
         success: false,
-        message:
-          "Verification code expired or not found",
+        message: "Verification code expired or not found",
       });
     }
 
@@ -321,18 +305,14 @@ export const verifyLoginOTP = async (req, res) => {
     // EXPIRY CHECK
     // =========================================
 
-    if (
-      Date.now() >
-      otpRecord.expiresAt.getTime()
-    ) {
+    if (Date.now() > otpRecord.expiresAt.getTime()) {
       await OTP.deleteOne({
         _id: otpRecord._id,
       });
 
       return res.status(400).json({
         success: false,
-        message:
-          "Verification code expired",
+        message: "Verification code expired",
       });
     }
 
@@ -347,8 +327,7 @@ export const verifyLoginOTP = async (req, res) => {
 
       return res.status(429).json({
         success: false,
-        message:
-          "Too many incorrect attempts",
+        message: "Too many incorrect attempts",
       });
     }
 
@@ -356,11 +335,7 @@ export const verifyLoginOTP = async (req, res) => {
     // CHECK OTP
     // =========================================
 
-    const isValid =
-      await bcrypt.compare(
-        otp,
-        otpRecord.otpHash
-      );
+    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
 
     if (!isValid) {
       otpRecord.attempts += 1;
@@ -369,8 +344,7 @@ export const verifyLoginOTP = async (req, res) => {
 
       return res.status(401).json({
         success: false,
-        message:
-          "Invalid verification code",
+        message: "Invalid verification code",
       });
     }
 
@@ -405,9 +379,7 @@ export const verifyLoginOTP = async (req, res) => {
     // GENERATE JWT
     // =========================================
 
-    const token = generateToken(
-      user._id
-    );
+    const token = generateToken(user._id);
 
     // =========================================
     // SECURE COOKIE
@@ -417,8 +389,7 @@ export const verifyLoginOTP = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge:
-        7 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     // =========================================
@@ -437,12 +408,8 @@ export const verifyLoginOTP = async (req, res) => {
         picture: user.picture || "",
       },
     });
-
   } catch (error) {
-    console.error(
-      "VERIFY OTP ERROR:",
-      error
-    );
+    console.error("VERIFY OTP ERROR:", error);
 
     return res.status(500).json({
       success: false,
@@ -456,38 +423,50 @@ export const verifyLoginOTP = async (req, res) => {
 // ==========================================
 export const googleLogin = async (req, res) => {
   try {
-    // console.log("🔥 GOOGLE LOGIN FUNCTION CALLED");
+    const { access_token } = req.body;
 
-    const { credential } = req.body;
+    // =========================================
+    // CHECK ACCESS TOKEN
+    // =========================================
 
-    // console.log("🔥 GOOGLE CREDENTIAL RECEIVED:", !!credential);
-
-    if (!credential) {
+    if (!access_token) {
       return res.status(400).json({
         success: false,
-        message: "Google credential is required",
+        message: "Google access token is required",
       });
     }
 
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+    // =========================================
+    // GET GOOGLE USER INFORMATION
+    // =========================================
 
-    const payload = ticket.getPayload();
+    const googleResponse = await fetch(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    );
 
-    // console.log("GOOGLE PAYLOAD:", payload);
-    // console.log("GOOGLE PICTURE:", payload?.picture);
-
-    if (!payload) {
+    if (!googleResponse.ok) {
       return res.status(401).json({
         success: false,
-        message: "Invalid Google token",
+        message: "Invalid Google access token",
       });
     }
 
-    //20/08/2026 {time:  PM}
-    const { sub: googleId, email, name, picture } = payload;
+    const payload = await googleResponse.json();
+
+    // =========================================
+    // GOOGLE USER DATA
+    // =========================================
+
+    const { sub: googleId, email, name, picture, email_verified } = payload;
+
+    // =========================================
+    // CHECK EMAIL
+    // =========================================
 
     if (!email) {
       return res.status(400).json({
@@ -496,24 +475,51 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    // Find existing user
-    let user = await User.findOne({ email });
+    // =========================================
+    // CHECK EMAIL VERIFICATION
+    // =========================================
 
-    // Create Google user
+    if (email_verified !== true) {
+      return res.status(401).json({
+        success: false,
+        message: "Google email is not verified",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // =========================================
+    // FIND EXISTING USER
+    // =========================================
+
+    let user = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    // =========================================
+    // CREATE USER
+    // =========================================
+
     if (!user) {
       user = await User.create({
         name: name || "Google User",
-        email,
+        email: normalizedEmail,
         googleId,
         picture: picture || "",
       });
     } else {
-      // Link Google account to existing user
+      // =======================================
+      // LINK GOOGLE ACCOUNT
+      // =======================================
+
       if (!user.googleId) {
         user.googleId = googleId;
       }
 
-      // Save / update Google profile picture
+      // =======================================
+      // UPDATE PROFILE PICTURE
+      // =======================================
+
       if (picture) {
         user.picture = picture;
       }
@@ -521,10 +527,16 @@ export const googleLogin = async (req, res) => {
       await user.save();
     }
 
-    // Generate our JWT
+    // =========================================
+    // GENERATE JWT
+    // =========================================
+
     const token = generateToken(user._id);
 
-    // Cookie
+    // =========================================
+    // SECURE COOKIE
+    // =========================================
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
@@ -532,15 +544,22 @@ export const googleLogin = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    // =========================================
+    // RESPONSE
+    // =========================================
+
     return res.status(200).json({
       success: true,
+
       message: "Google login successful",
+
       token,
+
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        picture: user.picture || picture || "",
+        picture: user.picture || "",
       },
     });
   } catch (error) {
