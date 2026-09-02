@@ -1,6 +1,8 @@
 import express from "express";
 import {
   registerUser,
+  verifyRegisterOTP,
+  resendRegisterOTP,
   loginUser,
   googleLogin,
   logoutUser,
@@ -15,6 +17,9 @@ const router = express.Router();
 
 // Public Routes
 router.post("/register", registerUser);
+router.post("/register/verify-otp", verifyRegisterOTP);
+router.post("/register/resend-otp", resendRegisterOTP);
+
 router.post("/login", loginUser);
 router.post("/google", googleLogin);
 

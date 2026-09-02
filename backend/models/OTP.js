@@ -23,6 +23,23 @@ const otpSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    purpose: {
+      type: String,
+      enum: ["login", "register"],
+      default: "login",
+    },
+
+    // Temporary registration information
+    name: {
+      type: String,
+      default: null,
+    },
+
+    passwordHash: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

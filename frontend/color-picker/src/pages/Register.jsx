@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 
 import api from "../api/api";
@@ -9,80 +10,423 @@ import { useTheme } from "../context/ThemeContext";
 function Register() {
   const navigate = useNavigate();
 
-  const { login: authLogin } = useAuth();
+  const { login } = useAuth();
   const { darkMode } = useTheme();
+
+  // =========================================
+  // REGISTER FORM
+  // =========================================
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [showPassword, setShowPassword] = useState(false);
+  // =========================================
+  // OTP
+  // =========================================
+
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
+  const otpRefs = useRef([]);
+
+  // =========================================
+  // STEP
+  // =========================================
+
+  const [step, setStep] = useState("register");
+
+  // =========================================
+  // LOADING
+  // =========================================
+
   const [loading, setLoading] = useState(false);
+
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  // =========================================
+  // TIMER
+  // =========================================
+
+  const [timer, setTimer] = useState(0);
+
+  // =========================================
+  // PASSWORD VISIBILITY
+  // =========================================
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  // =========================================
+  // COUNTDOWN
+  // =========================================
+
+  useEffect(() => {
+    if (timer <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimer((previous) => {
+        if (previous <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+
+        return previous - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  // =========================================
+  // FORMAT TIMER
+  // =========================================
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+
+    const remainingSeconds = seconds % 60;
+
+    return `${String(minutes).padStart(2, "0")}:${String(
+      remainingSeconds,
+    ).padStart(2, "0")}`;
+  };
+
+  // =========================================
+  // SEND REGISTER OTP
+  // =========================================
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    const cleanName = name.trim();
-    const cleanEmail = email.trim().toLowerCase();
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
 
-    if (!cleanName) {
+    // =========================================
+    // FRONTEND VALIDATION
+    // =========================================
+
+    if (!normalizedName) {
       toast.error("Please enter your full name");
       return;
     }
 
-    if (!cleanEmail) {
+    if (normalizedName.length < 2) {
+      toast.error("Name must be at least 2 characters");
+      return;
+    }
+
+    if (!normalizedEmail) {
       toast.error("Please enter your email address");
       return;
     }
 
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(normalizedEmail)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (!password) {
+      toast.error("Please enter a password");
+      return;
+    }
+
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
+    // =========================================
+    // API
+    // =========================================
+
+    try {
+      setLoading(true);
+
+      const response = await api.post("/auth/register", {
+        name: normalizedName,
+        email: normalizedEmail,
+        password,
+      });
+
+      if (response.data?.success) {
+        setName(normalizedName);
+        setEmail(normalizedEmail);
+
+        setOtp(["", "", "", "", "", ""]);
+
+        setStep("otp");
+
+        setTimer(90);
+
+        toast.success(
+          response.data.message || "Verification code sent to your email",
+        );
+
+        // Focus first OTP input
+        setTimeout(() => {
+          otpRefs.current[0]?.focus();
+        }, 150);
+      } else {
+        toast.error(response.data?.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error("REGISTER ERROR:", error);
+
+      toast.error(
+        error.response?.data?.message || "Failed to start registration",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================================
+  // OTP CHANGE
+  // =========================================
+
+  const handleOtpChange = (index, value) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+
+    const newOtp = [...otp];
+
+    newOtp[index] = digit;
+
+    setOtp(newOtp);
+
+    if (digit && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  // =========================================
+  // OTP KEYBOARD
+  // =========================================
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace") {
+      if (otp[index]) {
+        const newOtp = [...otp];
+
+        newOtp[index] = "";
+
+        setOtp(newOtp);
+
+        return;
+      }
+
+      if (index > 0) {
+        otpRefs.current[index - 1]?.focus();
+      }
+    }
+
+    if (e.key === "ArrowLeft" && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+
+    if (e.key === "ArrowRight" && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  // =========================================
+  // OTP PASTE
+  // =========================================
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+
+    if (!pasted) return;
+
+    const newOtp = ["", "", "", "", "", ""];
+
+    pasted.split("").forEach((digit, index) => {
+      newOtp[index] = digit;
+    });
+
+    setOtp(newOtp);
+
+    const focusIndex = Math.min(pasted.length, 5);
+
+    setTimeout(() => {
+      otpRefs.current[focusIndex]?.focus();
+    }, 0);
+  };
+
+  // =========================================
+  // VERIFY REGISTER OTP
+  // =========================================
+
+  const verifyRegisterOTP = async (e) => {
+    e.preventDefault();
+
+    const finalOtp = otp.join("");
+
+    if (finalOtp.length !== 6) {
+      toast.error("Please enter the complete 6-digit code");
+      return;
+    }
+
+    if (timer <= 0) {
+      toast.error("Verification code has expired");
       return;
     }
 
     try {
       setLoading(true);
 
-      // =========================================
-      // REGISTER
-      // =========================================
-
-      await api.post("/auth/register", {
-        name: cleanName,
-        email: cleanEmail,
-        password,
+      const response = await api.post("/auth/register/verify-otp", {
+        email,
+        otp: finalOtp,
       });
 
-      // =========================================
-      // AUTO LOGIN
-      // =========================================
+      if (response.data?.success) {
+        const userData = response.data.user;
 
-      const { data } = await api.post("/auth/login", {
-        email: cleanEmail,
-        password,
-      });
+        const token = response.data.token;
 
-      if (data?.success) {
-        authLogin(data.user, data.token);
+        // =====================================
+        // AUTO LOGIN
+        // =====================================
 
-        toast.success("Account created successfully 🎉");
+        const loginSuccess = login(userData, token);
+
+        if (!loginSuccess) {
+          toast.error("Account created, but automatic login failed.");
+          return;
+        }
+
+        toast.success("Account created successfully! 🎉");
 
         navigate("/");
       } else {
-        toast.success("Account created successfully");
-
-        navigate("/login");
+        toast.error(response.data?.message || "Verification failed");
       }
     } catch (error) {
-      console.error("REGISTER ERROR:", error);
+      console.error("VERIFY REGISTER OTP ERROR:", error);
+
+      const message = error.response?.data?.message || "Verification failed";
+
+      toast.error(message);
+
+      if (
+        error.response?.status === 400 &&
+        message.toLowerCase().includes("expired")
+      ) {
+        setTimer(0);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================================
+  // RESEND REGISTER OTP
+  // =========================================
+
+  const resendOTP = async () => {
+    if (timer > 0 || loading) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await api.post("/auth/register/resend-otp", {
+        email,
+      });
+
+      if (response.data?.success) {
+        setOtp(["", "", "", "", "", ""]);
+
+        setTimer(90);
+
+        toast.success(response.data.message || "New verification code sent");
+
+        setTimeout(() => {
+          otpRefs.current[0]?.focus();
+        }, 100);
+      } else {
+        toast.error(response.data?.message || "Failed to resend code");
+      }
+    } catch (error) {
+      console.error("RESEND REGISTER OTP ERROR:", error);
 
       toast.error(
-        error.response?.data?.message ||
-          "Registration failed. Please try again."
+        error.response?.data?.message || "Failed to resend verification code",
       );
     } finally {
       setLoading(false);
     }
+  };
+
+  // =========================================
+  // CHANGE EMAIL
+  // =========================================
+
+  const changeEmail = () => {
+    setStep("register");
+
+    setOtp(["", "", "", "", "", ""]);
+
+    setTimer(0);
+  };
+
+  // =========================================
+  // GOOGLE LOGIN
+  // =========================================
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      setGoogleLoading(true);
+
+      if (!credentialResponse?.credential) {
+        toast.error("Google login failed");
+        return;
+      }
+
+      const response = await api.post("/auth/google", {
+        access_token: credentialResponse.credential,
+      });
+
+      if (response.data?.success) {
+        const userData = response.data.user;
+
+        const token = response.data.token;
+
+        const loginSuccess = login(userData, token);
+
+        if (!loginSuccess) {
+          toast.error("Google login failed");
+          return;
+        }
+
+        toast.success("Google login successful!");
+
+        navigate("/");
+      } else {
+        toast.error(response.data?.message || "Google login failed");
+      }
+    } catch (error) {
+      console.error("GOOGLE REGISTER ERROR:", error);
+
+      toast.error(error.response?.data?.message || "Google login failed");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  // =========================================
+  // GOOGLE ERROR
+  // =========================================
+
+  const handleGoogleError = () => {
+    toast.error("Google login failed. Please try again.");
   };
 
   // =========================================
@@ -91,149 +435,90 @@ function Register() {
 
   const pageStyle = {
     minHeight: "calc(100vh - 70px)",
+
     display: "flex",
+
     alignItems: "center",
+
     justifyContent: "center",
+
     padding: "40px 20px",
 
     background: darkMode
-      ? "radial-gradient(circle at top left, #172554 0%, #0f172a 40%, #020617 100%)"
-      : "radial-gradient(circle at top left, #eef2ff 0%, #f8fafc 45%, #ffffff 100%)",
-
-    position: "relative",
-    overflow: "hidden",
+      ? "linear-gradient(135deg,#0f172a,#111827)"
+      : "linear-gradient(135deg,#f8fafc,#eef2ff)",
   };
 
   const cardStyle = {
     width: "100%",
-    maxWidth: "470px",
 
-    padding: "38px",
+    maxWidth: "460px",
 
-    borderRadius: "28px",
+    borderRadius: "24px",
 
-    background: darkMode
-      ? "rgba(15, 23, 42, 0.88)"
-      : "rgba(255, 255, 255, 0.92)",
+    padding: "36px",
 
-    border: darkMode
-      ? "1px solid rgba(148,163,184,0.18)"
-      : "1px solid rgba(226,232,240,0.9)",
+    background: darkMode ? "rgba(30,41,59,.96)" : "rgba(255,255,255,.98)",
+
+    border: darkMode ? "1px solid #334155" : "1px solid #e5e7eb",
 
     boxShadow: darkMode
-      ? "0 30px 80px rgba(0,0,0,0.45)"
-      : "0 30px 80px rgba(15,23,42,0.12)",
-
-    backdropFilter: "blur(18px)",
-  };
-
-  const inputWrapperStyle = {
-    position: "relative",
-    marginBottom: "18px",
+      ? "0 25px 60px rgba(0,0,0,.35)"
+      : "0 25px 60px rgba(15,23,42,.10)",
   };
 
   const inputStyle = {
     width: "100%",
-    height: "54px",
 
-    borderRadius: "15px",
+    height: "52px",
 
-    border: darkMode
-      ? "1px solid #334155"
-      : "1px solid #dbe1ea",
+    borderRadius: "14px",
 
-    background: darkMode
-      ? "rgba(2,6,23,0.7)"
-      : "#ffffff",
+    border: darkMode ? "1px solid #475569" : "1px solid #d1d5db",
 
-    color: darkMode
-      ? "#f8fafc"
-      : "#111827",
+    background: darkMode ? "#111827" : "#fff",
+
+    color: darkMode ? "#fff" : "#111827",
 
     padding: "0 16px",
 
     fontSize: "15px",
 
     outline: "none",
-
-    transition: "all 0.2s ease",
-
-    boxSizing: "border-box",
   };
 
-  const labelStyle = {
-    display: "block",
-
-    marginBottom: "8px",
-
-    fontSize: "13px",
-
-    fontWeight: "700",
-
-    color: darkMode
-      ? "#cbd5e1"
-      : "#374151",
-  };
+  // =========================================
+  // RENDER
+  // =========================================
 
   return (
     <div style={pageStyle}>
-
-      {/* Decorative circles */}
-
-      <div
-        style={{
-          position: "absolute",
-          width: "280px",
-          height: "280px",
-          borderRadius: "50%",
-          background: "rgba(99,102,241,0.10)",
-          top: "-120px",
-          left: "-100px",
-          filter: "blur(10px)",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          width: "320px",
-          height: "320px",
-          borderRadius: "50%",
-          background: "rgba(14,165,233,0.08)",
-          bottom: "-150px",
-          right: "-100px",
-          filter: "blur(10px)",
-        }}
-      />
-
       <div style={cardStyle}>
+        {/* ================================= */}
+        {/* HEADER */}
+        {/* ================================= */}
 
-        {/* ========================================= */}
-        {/* BRAND */}
-        {/* ========================================= */}
-
-        <div className="text-center">
-
+        <div className="text-center mb-4">
           <div
             style={{
-              width: "68px",
-              height: "68px",
+              width: "64px",
+              height: "64px",
 
               margin: "0 auto 18px",
 
-              borderRadius: "20px",
+              borderRadius: "18px",
 
               display: "flex",
+
               alignItems: "center",
+
               justifyContent: "center",
 
-              fontSize: "32px",
+              fontSize: "30px",
 
-              background:
-                "linear-gradient(135deg, #7c3aed, #2563eb)",
+              background: "linear-gradient(135deg,#6f42c1,#0d6efd)",
 
-              boxShadow:
-                "0 15px 35px rgba(37,99,235,0.28)",
+              boxShadow: "0 10px 30px rgba(13,110,253,.25)",
             }}
           >
             🎨
@@ -242,230 +527,486 @@ function Register() {
           <h2
             className="fw-bold mb-2"
             style={{
-              color: darkMode ? "#f8fafc" : "#111827",
-              fontSize: "28px",
+              color: darkMode ? "#fff" : "#111827",
             }}
           >
-            Create your account
+            {step === "register" ? "Create Your Account" : "Verify Your Email"}
           </h2>
 
           <p
+            className="mb-0"
             style={{
               color: darkMode ? "#94a3b8" : "#6b7280",
+
               fontSize: "14px",
-              marginBottom: "30px",
             }}
           >
-            Start creating beautiful color palettes
+            {step === "register"
+              ? "Create your Image Color Picker account"
+              : `We sent a 6-digit verification code to ${email}`}
           </p>
         </div>
 
-        {/* ========================================= */}
-        {/* FORM */}
-        {/* ========================================= */}
+        {/* ================================= */}
+        {/* REGISTER STEP */}
+        {/* ================================= */}
 
-        <form onSubmit={handleRegister}>
+        {step === "register" && (
+          <>
+            <form onSubmit={handleRegister}>
+              {/* NAME */}
 
-          {/* NAME */}
+              <div className="mb-3">
+                <label
+                  className="fw-semibold mb-2 d-block"
+                  style={{
+                    color: darkMode ? "#e5e7eb" : "#374151",
 
-          <div style={inputWrapperStyle}>
+                    fontSize: "14px",
+                  }}
+                >
+                  Full Name
+                </label>
 
-            <label style={labelStyle}>
-              Full Name
-            </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                  autoComplete="name"
+                  disabled={loading}
+                  style={inputStyle}
+                />
+              </div>
 
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your full name"
-              autoComplete="name"
-              disabled={loading}
-              style={inputStyle}
-            />
+              {/* EMAIL */}
 
-          </div>
+              <div className="mb-3">
+                <label
+                  className="fw-semibold mb-2 d-block"
+                  style={{
+                    color: darkMode ? "#e5e7eb" : "#374151",
 
-          {/* EMAIL */}
+                    fontSize: "14px",
+                  }}
+                >
+                  Email Address
+                </label>
 
-          <div style={inputWrapperStyle}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  autoComplete="email"
+                  disabled={loading}
+                  style={inputStyle}
+                />
+              </div>
 
-            <label style={labelStyle}>
-              Email Address
-            </label>
+              {/* PASSWORD */}
 
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              autoComplete="email"
-              disabled={loading}
-              style={inputStyle}
-            />
+              <div className="mb-4">
+                <label
+                  className="fw-semibold mb-2 d-block"
+                  style={{
+                    color: darkMode ? "#e5e7eb" : "#374151",
 
-          </div>
+                    fontSize: "14px",
+                  }}
+                >
+                  Password
+                </label>
 
-          {/* PASSWORD */}
+                <div
+                  style={{
+                    position: "relative",
+                  }}
+                >
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Create a password"
+                    autoComplete="new-password"
+                    disabled={loading}
+                    style={{
+                      ...inputStyle,
+                      paddingRight: "52px",
+                    }}
+                  />
 
-          <div style={inputWrapperStyle}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                    style={{
+                      position: "absolute",
 
-            <label style={labelStyle}>
-              Password
-            </label>
+                      right: "14px",
 
-            <div style={{ position: "relative" }}>
+                      top: "50%",
 
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
-                placeholder="Create a password"
-                autoComplete="new-password"
-                disabled={loading}
-                style={{
-                  ...inputStyle,
-                  paddingRight: "52px",
-                }}
-              />
+                      transform: "translateY(-50%)",
+
+                      border: "none",
+
+                      background: "transparent",
+
+                      color: darkMode ? "#94a3b8" : "#6b7280",
+
+                      fontSize: "18px",
+
+                      cursor: "pointer",
+                    }}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+
+                <small
+                  style={{
+                    color: darkMode ? "#94a3b8" : "#6b7280",
+
+                    fontSize: "12px",
+                  }}
+                >
+                  Use at least 8 characters
+                </small>
+              </div>
+
+              {/* CREATE ACCOUNT */}
 
               <button
-                type="button"
-                onClick={() =>
-                  setShowPassword((previous) => !previous)
-                }
+                type="submit"
                 disabled={loading}
-                aria-label={
-                  showPassword
-                    ? "Hide password"
-                    : "Show password"
-                }
+                className="btn w-100 rounded-3 py-3 fw-semibold"
                 style={{
-                  position: "absolute",
-
-                  right: "10px",
-                  top: "50%",
-
-                  transform: "translateY(-50%)",
-
-                  width: "38px",
-                  height: "38px",
+                  background: "linear-gradient(135deg,#6f42c1,#0d6efd)",
 
                   border: "none",
 
-                  borderRadius: "10px",
+                  color: "#fff",
 
-                  background: "transparent",
-
-                  color: darkMode
-                    ? "#94a3b8"
-                    : "#64748b",
-
-                  fontSize: "18px",
-
-                  cursor: "pointer",
+                  boxShadow: "0 8px 20px rgba(13,110,253,.22)",
                 }}
               >
-                {showPassword ? "🙈" : "👁️"}
+                {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" />
+                    Sending Verification Code...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
               </button>
+            </form>
 
+            {/* ================================= */}
+            {/* DIVIDER */}
+            {/* ================================= */}
+
+            <div className="d-flex align-items-center my-4">
+              <div
+                style={{
+                  flex: 1,
+                  height: "1px",
+
+                  background: darkMode ? "#374151" : "#e5e7eb",
+                }}
+              />
+
+              <span
+                className="px-3"
+                style={{
+                  color: darkMode ? "#94a3b8" : "#9ca3af",
+
+                  fontSize: "13px",
+                }}
+              >
+                OR
+              </span>
+
+              <div
+                style={{
+                  flex: 1,
+                  height: "1px",
+
+                  background: darkMode ? "#374151" : "#e5e7eb",
+                }}
+              />
             </div>
+
+            {/* ================================= */}
+            {/* GOOGLE */}
+            {/* ================================= */}
 
             <div
               style={{
-                marginTop: "8px",
-                fontSize: "12px",
-                color: darkMode
-                  ? "#64748b"
-                  : "#94a3b8",
+                position: "relative",
+
+                minHeight: "44px",
+
+                display: "flex",
+
+                justifyContent: "center",
               }}
             >
-              Use at least 6 characters.
+              <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={handleGoogleError}
+                theme={darkMode ? "filled_black" : "outline"}
+                size="large"
+                shape="pill"
+                text="continue_with"
+                width="100%"
+              />
+
+              {googleLoading && (
+                <div
+                  style={{
+                    position: "absolute",
+
+                    inset: 0,
+
+                    display: "flex",
+
+                    alignItems: "center",
+
+                    justifyContent: "center",
+
+                    background: darkMode ? "#1e293b" : "#fff",
+
+                    borderRadius: "24px",
+                  }}
+                >
+                  <span className="spinner-border spinner-border-sm me-2" />
+                  Signing in...
+                </div>
+              )}
             </div>
 
-          </div>
+            {/* ================================= */}
+            {/* LOGIN */}
+            {/* ================================= */}
 
-          {/* SUBMIT */}
+            <p
+              className="text-center mt-4 mb-0"
+              style={{
+                color: darkMode ? "#94a3b8" : "#6b7280",
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn w-100"
-            style={{
-              height: "54px",
+                fontSize: "14px",
+              }}
+            >
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="fw-semibold text-decoration-none"
+                style={{
+                  color: "#0d6efd",
+                }}
+              >
+                Login
+              </Link>
+            </p>
+          </>
+        )}
 
-              border: "none",
+        {/* ================================= */}
+        {/* OTP STEP */}
+        {/* ================================= */}
 
-              borderRadius: "15px",
+        {step === "otp" && (
+          <>
+            {/* EMAIL */}
 
-              background:
-                "linear-gradient(135deg, #7c3aed, #2563eb)",
+            <div
+              className="text-center mb-4"
+              style={{
+                padding: "12px 16px",
 
-              color: "#fff",
+                borderRadius: "12px",
 
-              fontSize: "15px",
+                background: darkMode ? "rgba(59,130,246,.10)" : "#eff6ff",
 
-              fontWeight: "700",
+                color: darkMode ? "#93c5fd" : "#2563eb",
 
-              boxShadow:
-                "0 12px 25px rgba(37,99,235,0.22)",
+                fontSize: "14px",
+              }}
+            >
+              📧 <strong>{email}</strong>
+            </div>
 
-              opacity: loading ? 0.7 : 1,
-            }}
-          >
-            {loading ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                />
+            {/* OTP FORM */}
 
-                Creating Account...
-              </>
-            ) : (
-              "Create Account"
-            )}
-          </button>
+            <form onSubmit={verifyRegisterOTP}>
+              {/* OTP BOXES */}
 
-        </form>
+              <div
+                className="d-flex justify-content-center gap-2 mb-4"
+                onPaste={handleOtpPaste}
+              >
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(element) => {
+                      otpRefs.current[index] = element;
+                    }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                    style={{
+                      width: "48px",
 
-        {/* ========================================= */}
-        {/* LOGIN LINK */}
-        {/* ========================================= */}
+                      height: "58px",
 
-        <div
-          className="text-center"
-          style={{
-            marginTop: "26px",
+                      textAlign: "center",
 
-            paddingTop: "22px",
+                      fontSize: "22px",
 
-            borderTop: darkMode
-              ? "1px solid #1e293b"
-              : "1px solid #eef2f7",
+                      fontWeight: "700",
 
-            color: darkMode
-              ? "#94a3b8"
-              : "#6b7280",
+                      borderRadius: "13px",
 
-            fontSize: "14px",
-          }}
-        >
-          Already have an account?{" "}
+                      border: digit
+                        ? "2px solid #0d6efd"
+                        : darkMode
+                          ? "1px solid #475569"
+                          : "1px solid #d1d5db",
 
-          <Link
-            to="/login"
-            className="fw-bold text-decoration-none"
-            style={{
-              color: "#2563eb",
-            }}
-          >
-            Sign in
-          </Link>
-        </div>
+                      background: darkMode ? "#111827" : "#fff",
 
+                      color: darkMode ? "#fff" : "#111827",
+
+                      outline: "none",
+                    }}
+                    disabled={loading || timer <= 0}
+                    aria-label={`OTP digit ${index + 1}`}
+                  />
+                ))}
+              </div>
+
+              {/* TIMER */}
+
+              <div className="text-center mb-4">
+                {timer > 0 ? (
+                  <>
+                    <div
+                      style={{
+                        color: darkMode ? "#cbd5e1" : "#6b7280",
+
+                        fontSize: "13px",
+                      }}
+                    >
+                      Code expires in
+                    </div>
+
+                    <div
+                      className="fw-bold mt-1"
+                      style={{
+                        fontSize: "20px",
+
+                        color: timer <= 20 ? "#dc3545" : "#0d6efd",
+                      }}
+                    >
+                      {formatTime(timer)}
+                    </div>
+                  </>
+                ) : (
+                  <div
+                    className="fw-semibold"
+                    style={{
+                      color: "#dc3545",
+
+                      fontSize: "14px",
+                    }}
+                  >
+                    Verification code expired
+                  </div>
+                )}
+              </div>
+
+              {/* VERIFY */}
+
+              <button
+                type="submit"
+                disabled={loading || otp.join("").length !== 6 || timer <= 0}
+                className="btn w-100 rounded-3 py-3 fw-semibold"
+                style={{
+                  background: "linear-gradient(135deg,#6f42c1,#0d6efd)",
+
+                  border: "none",
+
+                  color: "#fff",
+
+                  opacity:
+                    loading || otp.join("").length !== 6 || timer <= 0
+                      ? 0.55
+                      : 1,
+                }}
+              >
+                {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" />
+                    Creating Account...
+                  </>
+                ) : (
+                  "Verify & Create Account"
+                )}
+              </button>
+            </form>
+
+            {/* RESEND */}
+
+            <div className="text-center mt-4">
+              <span
+                style={{
+                  color: darkMode ? "#94a3b8" : "#6b7280",
+
+                  fontSize: "14px",
+                }}
+              >
+                Didn't receive the code?{" "}
+              </span>
+
+              <button
+                type="button"
+                onClick={resendOTP}
+                disabled={timer > 0 || loading}
+                className="btn btn-link p-0 fw-semibold text-decoration-none"
+                style={{
+                  color:
+                    timer > 0 ? (darkMode ? "#64748b" : "#9ca3af") : "#0d6efd",
+
+                  fontSize: "14px",
+                }}
+              >
+                {timer > 0 ? `Resend in ${formatTime(timer)}` : "Resend Code"}
+              </button>
+            </div>
+
+            {/* CHANGE EMAIL */}
+
+            <div className="text-center mt-3">
+              <button
+                type="button"
+                onClick={changeEmail}
+                disabled={loading}
+                className="btn btn-link p-0 text-decoration-none"
+                style={{
+                  color: darkMode ? "#94a3b8" : "#6b7280",
+
+                  fontSize: "13px",
+                }}
+              >
+                ← Back to Registration
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
