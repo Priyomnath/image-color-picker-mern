@@ -1,13 +1,43 @@
+import jwt from "jsonwebtoken";
+
 import bcrypt from "bcrypt";
-import { generateToken } from "../utils/jwt.js";
-import User from "../models/User.js";
+import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 
-import crypto from "crypto";
+import User from "../models/User.js";
 import OTP from "../models/OTP.js";
+
+import { generateToken } from "../utils/jwt.js";
 import { sendOTPEmail } from "../utils/email.js";
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+// ==========================================
+// GOOGLE CLIENT
+// ==========================================
+
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+);
+
+// ==========================================
+// COOKIE OPTIONS
+// ==========================================
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+// ==========================================
+// GENERATE OTP
+// ==========================================
+
+const generateOTP = () => {
+  return crypto
+    .randomInt(100000, 1000000)
+    .toString();
+};
 
 // ==========================================
 // REGISTER - SEND OTP
@@ -24,23 +54,41 @@ export const registerUser = async (req, res) => {
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Name, email and password are required",
+        message:
+          "Name, email and password are required",
       });
     }
 
     const normalizedName = name.trim();
-    const normalizedEmail = email.trim().toLowerCase();
+
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
 
     // =========================================
-    // EMAIL FORMAT VALIDATION
+    // EMAIL VALIDATION
     // =========================================
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({
         success: false,
-        message: "Please enter a valid email address",
+        message:
+          "Please enter a valid email address",
+      });
+    }
+
+    // =========================================
+    // NAME VALIDATION
+    // =========================================
+
+    if (normalizedName.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Name must be at least 2 characters",
       });
     }
 
@@ -51,7 +99,8 @@ export const registerUser = async (req, res) => {
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters",
+        message:
+          "Password must be at least 8 characters",
       });
     }
 
@@ -66,7 +115,8 @@ export const registerUser = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: "An account already exists with this email",
+        message:
+          "An account already exists with this email",
       });
     }
 
@@ -80,22 +130,30 @@ export const registerUser = async (req, res) => {
     // HASH PASSWORD
     // =========================================
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(
+      password,
+      10,
+    );
 
     // =========================================
     // HASH OTP
     // =========================================
 
-    const otpHash = await bcrypt.hash(otp, 10);
+    const otpHash = await bcrypt.hash(
+      otp,
+      10,
+    );
 
     // =========================================
     // OTP EXPIRY
     // =========================================
 
-    const expiresAt = new Date(Date.now() + 90 * 1000);
+    const expiresAt = new Date(
+      Date.now() + 90 * 1000,
+    );
 
     // =========================================
-    // REMOVE OLD REGISTER OTP
+    // DELETE OLD REGISTER OTP
     // =========================================
 
     await OTP.deleteMany({
@@ -105,26 +163,42 @@ export const registerUser = async (req, res) => {
 
     // =========================================
     // SAVE PENDING REGISTRATION
+    //
+    // IMPORTANT:
+    // User collection-এ এখনো user create
+    // করা হচ্ছে না.
     // =========================================
 
     await OTP.create({
       email: normalizedEmail,
+
       otpHash,
+
       expiresAt,
+
       attempts: 0,
+
       purpose: "register",
+
       name: normalizedName,
+
       passwordHash,
     });
 
     // =========================================
-    // SEND OTP
+    // SEND OTP EMAIL
     // =========================================
 
     try {
-      await sendOTPEmail(normalizedEmail, otp);
+      await sendOTPEmail(
+        normalizedEmail,
+        otp,
+      );
     } catch (emailError) {
-      console.error("REGISTER OTP EMAIL FAILED:", emailError);
+      console.error(
+        "REGISTER OTP EMAIL FAILED:",
+        emailError,
+      );
 
       await OTP.deleteMany({
         email: normalizedEmail,
@@ -140,260 +214,34 @@ export const registerUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+
+      message:
+        "Verification code sent to your email",
+
       requiresVerification: true,
-      message: "Verification code sent to your email",
     });
   } catch (error) {
-    console.error("REGISTER ERROR:", error);
+    console.error(
+      "REGISTER ERROR:",
+      error,
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Failed to start registration",
+      message:
+        "Failed to start registration",
     });
   }
 };
 
-// ==========================================
-// LOGIN
-// ==========================================
-export const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    // =========================================
-    // VALIDATE INPUT
-    // =========================================
-
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and Password are required",
-      });
-    }
-
-    // =========================================
-    // FIND USER
-    // =========================================
-
-    const user = await User.findOne({
-      email: email.trim().toLowerCase(),
-    });
-
-    // User doesn't exist
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Email or Password",
-      });
-    }
-
-    // =========================================
-    // GOOGLE-ONLY ACCOUNT CHECK
-    // =========================================
-
-    if (!user.password) {
-      return res.status(401).json({
-        success: false,
-        message: "This account uses Google Login. Please continue with Google.",
-      });
-    }
-
-    // =========================================
-    // PASSWORD CHECK
-    // =========================================
-
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Email or Password",
-      });
-    }
-
-    // =========================================
-    // GENERATE JWT
-    // =========================================
-
-    const token = generateToken(user._id);
-
-    // =========================================
-    // SECURE COOKIE
-    // =========================================
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    // =========================================
-    // RESPONSE
-    // =========================================
-
-    return res.status(200).json({
-      success: true,
-      message: "Login Successful",
-      token,
-
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        picture: user.picture || "",
-      },
-    });
-  } catch (error) {
-    console.error("LOGIN ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Login failed",
-    });
-  }
-};
-
-const generateOTP = () => {
-  return crypto.randomInt(100000, 1000000).toString();
-};
-
-// =========================================
-// SEND LOGIN OTP
-// =========================================
-
-export const sendLoginOTP = async (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is required",
-      });
-    }
-
-    //this is
-    const normalizedEmail = email.trim().toLowerCase();
-
-    // =========================================
-    // FIND USER
-    // =========================================
-
-    // 💥
-    // const user = await User.findOne({
-    //   email: normalizedEmail,
-    // });
-
-    // // Don't reveal whether account exists
-    // if (!user) {
-    //   return res.status(200).json({
-    //     success: true,
-    //     message:
-    //       "If an account exists with this email, a verification code has been sent.",
-    //   });
-    // }
-
-    //1/09/2026 {time:  PM}
-    const user = await User.findOne({ email: normalizedEmail });
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "No account found with this email",
-      });
-    }
-
-    if (user.isVerified !== true) {
-      await OTP.deleteOne({
-        _id: otpRecord._id,
-      });
-
-      return res.status(403).json({
-        success: false,
-        message: "Please verify your email before logging in.",
-      });
-    }
-
-    // =========================================
-    // GENERATE OTP
-    // =========================================
-
-    const otp = generateOTP();
-
-    // =========================================
-    // HASH OTP
-    // =========================================
-
-    const otpHash = await bcrypt.hash(otp, 10);
-
-    // =========================================
-    // 90 SECOND EXPIRY
-    // =========================================
-
-    const expiresAt = new Date(Date.now() + 90 * 1000);
-
-    // =========================================
-    // REMOVE OLD OTP
-    // =========================================
-
-    await OTP.deleteMany({
-      email: normalizedEmail,
-    });
-
-    // =========================================
-    // SAVE OTP
-    // =========================================
-
-    await OTP.create({
-      email: normalizedEmail,
-      otpHash,
-      expiresAt,
-      attempts: 0,
-      purpose: "login",
-    });
-
-    // =========================================
-    // SEND EMAIL WITH RESEND
-    // =========================================
-
-    try {
-      await sendOTPEmail(normalizedEmail, otp);
-    } catch (emailError) {
-      console.error("OTP EMAIL FAILED:", emailError);
-
-      // Remove OTP if email was not sent
-      await OTP.deleteMany({
-        email: normalizedEmail,
-      });
-
-      throw emailError;
-    }
-
-    // =========================================
-    // SUCCESS
-    // =========================================
-
-    return res.status(200).json({
-      success: true,
-      message: "Verification code sent to your email",
-    });
-  } catch (error) {
-    console.error("SEND OTP ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Failed to send verification code",
-    });
-  }
-};
-
-//31/08/2026 {time:  PM}
 // ==========================================
 // VERIFY REGISTER OTP
 // ==========================================
 
-export const verifyRegisterOTP = async (req, res) => {
+export const verifyRegisterOTP = async (
+  req,
+  res,
+) => {
   try {
     const { email, otp } = req.body;
 
@@ -404,11 +252,24 @@ export const verifyRegisterOTP = async (req, res) => {
     if (!email || !otp) {
       return res.status(400).json({
         success: false,
-        message: "Email and verification code are required",
+        message:
+          "Email and verification code are required",
       });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
+
+    const normalizedOTP = String(otp).trim();
+
+    if (!/^\d{6}$/.test(normalizedOTP)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Verification code must be 6 digits",
+      });
+    }
 
     // =========================================
     // FIND REGISTER OTP
@@ -422,7 +283,8 @@ export const verifyRegisterOTP = async (req, res) => {
     if (!otpRecord) {
       return res.status(400).json({
         success: false,
-        message: "Verification code expired or not found",
+        message:
+          "Verification code expired or not found",
       });
     }
 
@@ -430,14 +292,21 @@ export const verifyRegisterOTP = async (req, res) => {
     // EXPIRY CHECK
     // =========================================
 
-    if (Date.now() > otpRecord.expiresAt.getTime()) {
+    if (
+      !otpRecord.expiresAt ||
+      Date.now() >
+        new Date(
+          otpRecord.expiresAt,
+        ).getTime()
+    ) {
       await OTP.deleteOne({
         _id: otpRecord._id,
       });
 
       return res.status(400).json({
         success: false,
-        message: "Verification code expired",
+        message:
+          "Verification code expired",
       });
     }
 
@@ -452,7 +321,8 @@ export const verifyRegisterOTP = async (req, res) => {
 
       return res.status(429).json({
         success: false,
-        message: "Too many incorrect attempts. Please register again.",
+        message:
+          "Too many incorrect attempts",
       });
     }
 
@@ -460,7 +330,10 @@ export const verifyRegisterOTP = async (req, res) => {
     // VERIFY OTP
     // =========================================
 
-    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
+    const isValid = await bcrypt.compare(
+      normalizedOTP,
+      otpRecord.otpHash,
+    );
 
     if (!isValid) {
       otpRecord.attempts += 1;
@@ -469,12 +342,13 @@ export const verifyRegisterOTP = async (req, res) => {
 
       return res.status(401).json({
         success: false,
-        message: "Invalid verification code",
+        message:
+          "Invalid verification code",
       });
     }
 
     // =========================================
-    // CHECK USER AGAIN
+    // CHECK AGAINST EXISTING USER
     // =========================================
 
     const existingUser = await User.findOne({
@@ -488,19 +362,27 @@ export const verifyRegisterOTP = async (req, res) => {
 
       return res.status(409).json({
         success: false,
-        message: "An account already exists with this email",
+        message:
+          "An account already exists with this email",
       });
     }
 
     // =========================================
-    // CREATE VERIFIED USER
+    // CREATE USER ONLY AFTER OTP SUCCESS
     // =========================================
 
     const user = await User.create({
-      name: otpRecord.name,
+      name:
+        otpRecord.name ||
+        "User",
+
       email: normalizedEmail,
+
       password: otpRecord.passwordHash,
+
       isVerified: true,
+
+      picture: "",
     });
 
     // =========================================
@@ -515,42 +397,53 @@ export const verifyRegisterOTP = async (req, res) => {
     // GENERATE JWT
     // =========================================
 
-    const token = generateToken(user._id);
+    const token = generateToken(
+      user._id,
+    );
 
     // =========================================
-    // SECURE COOKIE
+    // COOKIE
     // =========================================
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie(
+      "token",
+      token,
+      cookieOptions,
+    );
 
     // =========================================
-    // SUCCESS
+    // RESPONSE
     // =========================================
 
     return res.status(201).json({
       success: true,
-      message: "Email verified and account created successfully",
+
+      message:
+        "Account created successfully",
 
       token,
 
       user: {
         id: user._id,
+
         name: user.name,
+
         email: user.email,
-        picture: user.picture || "",
+
+        picture:
+          user.picture || "",
       },
     });
   } catch (error) {
-    console.error("VERIFY REGISTER OTP ERROR:", error);
+    console.error(
+      "VERIFY REGISTER OTP ERROR:",
+      error,
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Registration verification failed",
+      message:
+        "Registration verification failed",
     });
   }
 };
@@ -559,7 +452,10 @@ export const verifyRegisterOTP = async (req, res) => {
 // RESEND REGISTER OTP
 // ==========================================
 
-export const resendRegisterOTP = async (req, res) => {
+export const resendRegisterOTP = async (
+  req,
+  res,
+) => {
   try {
     const { email } = req.body;
 
@@ -570,23 +466,9 @@ export const resendRegisterOTP = async (req, res) => {
       });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-
-    // =========================================
-    // FIND PENDING REGISTRATION
-    // =========================================
-
-    const pendingRegistration = await OTP.findOne({
-      email: normalizedEmail,
-      purpose: "register",
-    });
-
-    if (!pendingRegistration) {
-      return res.status(400).json({
-        success: false,
-        message: "Registration session expired. Please register again.",
-      });
-    }
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
 
     // =========================================
     // CHECK USER
@@ -597,103 +479,431 @@ export const resendRegisterOTP = async (req, res) => {
     });
 
     if (existingUser) {
-      await OTP.deleteMany({
-        email: normalizedEmail,
-        purpose: "register",
-      });
-
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
-        message: "An account already exists with this email",
+        message:
+          "An account already exists with this email",
       });
     }
 
     // =========================================
-    // NEW OTP
+    // FIND PENDING REGISTRATION
+    // =========================================
+
+    const otpRecord = await OTP.findOne({
+      email: normalizedEmail,
+      purpose: "register",
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Registration session expired. Please register again.",
+      });
+    }
+
+    // =========================================
+    // GENERATE NEW OTP
     // =========================================
 
     const otp = generateOTP();
 
-    const otpHash = await bcrypt.hash(otp, 10);
+    const otpHash = await bcrypt.hash(
+      otp,
+      10,
+    );
 
-    const expiresAt = new Date(Date.now() + 90 * 1000);
+    const expiresAt = new Date(
+      Date.now() + 90 * 1000,
+    );
+
+    otpRecord.otpHash = otpHash;
+
+    otpRecord.expiresAt = expiresAt;
+
+    otpRecord.attempts = 0;
+
+    await otpRecord.save();
 
     // =========================================
-    // UPDATE OTP
+    // SEND NEW OTP
     // =========================================
 
-    pendingRegistration.otpHash = otpHash;
+    try {
+      await sendOTPEmail(
+        normalizedEmail,
+        otp,
+      );
+    } catch (emailError) {
+      console.error(
+        "RESEND REGISTER OTP EMAIL FAILED:",
+        emailError,
+      );
 
-    pendingRegistration.expiresAt = expiresAt;
+      await OTP.deleteOne({
+        _id: otpRecord._id,
+      });
 
-    pendingRegistration.attempts = 0;
+      throw emailError;
+    }
 
-    await pendingRegistration.save();
+    return res.status(200).json({
+      success: true,
+
+      message:
+        "New verification code sent to your email",
+    });
+  } catch (error) {
+    console.error(
+      "RESEND REGISTER OTP ERROR:",
+      error,
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Failed to resend verification code",
+    });
+  }
+};
+
+// ==========================================
+// LOGIN WITH EMAIL + PASSWORD
+// ==========================================
+
+export const loginUser = async (
+  req,
+  res,
+) => {
+  try {
+    const { email, password } = req.body;
+
+    // =========================================
+    // VALIDATION
+    // =========================================
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Email and Password are required",
+      });
+    }
+
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
+
+    // =========================================
+    // FIND USER
+    // =========================================
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "Invalid Email or Password",
+      });
+    }
+
+    // =========================================
+    // VERIFY ACCOUNT
+    // =========================================
+
+    if (
+      user.isVerified === false
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Please verify your email before logging in.",
+      });
+    }
+
+    // =========================================
+    // GOOGLE-ONLY ACCOUNT
+    // =========================================
+
+    if (!user.password) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "This account uses Google Login. Please continue with Google.",
+      });
+    }
+
+    // =========================================
+    // PASSWORD CHECK
+    // =========================================
+
+    const match = await bcrypt.compare(
+      password,
+      user.password,
+    );
+
+    if (!match) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "Invalid Email or Password",
+      });
+    }
+
+    // =========================================
+    // JWT
+    // =========================================
+
+    const token = generateToken(
+      user._id,
+    );
+
+    // =========================================
+    // COOKIE
+    // =========================================
+
+    res.cookie(
+      "token",
+      token,
+      cookieOptions,
+    );
+
+    // =========================================
+    // RESPONSE
+    // =========================================
+
+    return res.status(200).json({
+      success: true,
+
+      message: "Login successful",
+
+      token,
+
+      user: {
+        id: user._id,
+
+        name: user.name,
+
+        email: user.email,
+
+        picture:
+          user.picture || "",
+      },
+    });
+  } catch (error) {
+    console.error(
+      "LOGIN ERROR:",
+      error,
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Login failed",
+    });
+  }
+};
+
+// ==========================================
+// SEND LOGIN OTP
+// ==========================================
+
+export const sendLoginOTP = async (
+  req,
+  res,
+) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
+
+    // =========================================
+    // FIND USER
+    // =========================================
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        message:
+          "If an account exists with this email, a verification code has been sent.",
+      });
+    }
+
+    // =========================================
+    // VERIFY USER
+    // =========================================
+
+    if (
+      user.isVerified === false
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Please verify your email first.",
+      });
+    }
+
+    // =========================================
+    // GENERATE OTP
+    // =========================================
+
+    const otp = generateOTP();
+
+    const otpHash = await bcrypt.hash(
+      otp,
+      10,
+    );
+
+    const expiresAt = new Date(
+      Date.now() + 90 * 1000,
+    );
+
+    // =========================================
+    // DELETE OLD LOGIN OTP
+    // =========================================
+
+    await OTP.deleteMany({
+      email: normalizedEmail,
+      purpose: "login",
+    });
+
+    // =========================================
+    // SAVE LOGIN OTP
+    // =========================================
+
+    await OTP.create({
+      email: normalizedEmail,
+
+      otpHash,
+
+      expiresAt,
+
+      attempts: 0,
+
+      purpose: "login",
+    });
 
     // =========================================
     // SEND EMAIL
     // =========================================
 
-    await sendOTPEmail(normalizedEmail, otp);
+    try {
+      await sendOTPEmail(
+        normalizedEmail,
+        otp,
+      );
+    } catch (emailError) {
+      console.error(
+        "LOGIN OTP EMAIL FAILED:",
+        emailError,
+      );
+
+      await OTP.deleteMany({
+        email: normalizedEmail,
+        purpose: "login",
+      });
+
+      throw emailError;
+    }
 
     return res.status(200).json({
       success: true,
-      message: "A new verification code has been sent",
+
+      message:
+        "Verification code sent to your email",
     });
   } catch (error) {
-    console.error("RESEND REGISTER OTP ERROR:", error);
+    console.error(
+      "SEND LOGIN OTP ERROR:",
+      error,
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Failed to resend verification code",
+      message:
+        "Failed to send verification code",
     });
   }
 };
 
-// =========================================
+// ==========================================
 // VERIFY LOGIN OTP
-// =========================================
+// ==========================================
 
-export const verifyLoginOTP = async (req, res) => {
+export const verifyLoginOTP = async (
+  req,
+  res,
+) => {
   try {
     const { email, otp } = req.body;
 
     if (!email || !otp) {
       return res.status(400).json({
         success: false,
-        message: "Email and verification code are required",
+        message:
+          "Email and verification code are required",
       });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
+
+    const normalizedOTP =
+      String(otp).trim();
 
     // =========================================
-    // FIND OTP
+    // FIND LOGIN OTP ONLY
     // =========================================
 
     const otpRecord = await OTP.findOne({
       email: normalizedEmail,
+      purpose: "login",
     });
 
     if (!otpRecord) {
       return res.status(400).json({
         success: false,
-        message: "Verification code expired or not found",
+        message:
+          "Verification code expired or not found",
       });
     }
 
     // =========================================
-    // EXPIRY CHECK
+    // EXPIRY
     // =========================================
 
-    if (Date.now() > otpRecord.expiresAt.getTime()) {
+    if (
+      !otpRecord.expiresAt ||
+      Date.now() >
+        new Date(
+          otpRecord.expiresAt,
+        ).getTime()
+    ) {
       await OTP.deleteOne({
         _id: otpRecord._id,
       });
 
       return res.status(400).json({
         success: false,
-        message: "Verification code expired",
+        message:
+          "Verification code expired",
       });
     }
 
@@ -708,7 +918,8 @@ export const verifyLoginOTP = async (req, res) => {
 
       return res.status(429).json({
         success: false,
-        message: "Too many incorrect attempts",
+        message:
+          "Too many incorrect attempts",
       });
     }
 
@@ -716,7 +927,10 @@ export const verifyLoginOTP = async (req, res) => {
     // CHECK OTP
     // =========================================
 
-    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
+    const isValid = await bcrypt.compare(
+      normalizedOTP,
+      otpRecord.otpHash,
+    );
 
     if (!isValid) {
       otpRecord.attempts += 1;
@@ -725,7 +939,8 @@ export const verifyLoginOTP = async (req, res) => {
 
       return res.status(401).json({
         success: false,
-        message: "Invalid verification code",
+        message:
+          "Invalid verification code",
       });
     }
 
@@ -749,6 +964,24 @@ export const verifyLoginOTP = async (req, res) => {
     }
 
     // =========================================
+    // VERIFY ACCOUNT
+    // =========================================
+
+    if (
+      user.isVerified === false
+    ) {
+      await OTP.deleteOne({
+        _id: otpRecord._id,
+      });
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "Please verify your account first.",
+      });
+    }
+
+    // =========================================
     // DELETE USED OTP
     // =========================================
 
@@ -757,21 +990,22 @@ export const verifyLoginOTP = async (req, res) => {
     });
 
     // =========================================
-    // GENERATE JWT
+    // JWT
     // =========================================
 
-    const token = generateToken(user._id);
+    const token = generateToken(
+      user._id,
+    );
 
     // =========================================
-    // SECURE COOKIE
+    // COOKIE
     // =========================================
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie(
+      "token",
+      token,
+      cookieOptions,
+    );
 
     // =========================================
     // RESPONSE
@@ -779,74 +1013,85 @@ export const verifyLoginOTP = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Login successful",
+
+      message:
+        "Login successful",
+
       token,
 
       user: {
         id: user._id,
+
         name: user.name,
+
         email: user.email,
-        picture: user.picture || "",
+
+        picture:
+          user.picture || "",
       },
     });
   } catch (error) {
-    console.error("VERIFY OTP ERROR:", error);
+    console.error(
+      "VERIFY LOGIN OTP ERROR:",
+      error,
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Verification failed",
+      message:
+        "Verification failed",
     });
   }
 };
 
 // ==========================================
-// GOOGLE LOGIN
+// GOOGLE LOGIN / REGISTER
 // ==========================================
+
 export const googleLogin = async (req, res) => {
   try {
-    const { access_token } = req.body;
-
     // =========================================
-    // CHECK ACCESS TOKEN
+    // GET GOOGLE CREDENTIAL
     // =========================================
 
-    if (!access_token) {
+    const { credential } = req.body;
+
+    if (!credential) {
       return res.status(400).json({
         success: false,
-        message: "Google access token is required",
+        message: "Google credential is required",
       });
     }
 
     // =========================================
-    // GET GOOGLE USER INFORMATION
+    // VERIFY GOOGLE ID TOKEN
     // =========================================
 
-    const googleResponse = await fetch(
-      "https://www.googleapis.com/oauth2/v3/userinfo",
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      },
-    );
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-    if (!googleResponse.ok) {
-      return res.status(401).json({
+    const payload = ticket.getPayload();
+
+    if (!payload) {
+      return res.status(400).json({
         success: false,
-        message: "Invalid Google access token",
+        message: "Invalid Google credential",
       });
     }
-
-    const payload = await googleResponse.json();
 
     // =========================================
     // GOOGLE USER DATA
     // =========================================
 
-    const { sub: googleId, email, name, picture, email_verified } = payload;
+    const googleId = payload.sub;
+    const email = payload.email?.toLowerCase().trim();
+    const name = payload.name || "Google User";
+    const picture = payload.picture || "";
 
     // =========================================
-    // CHECK EMAIL
+    // EMAIL CHECK
     // =========================================
 
     if (!email) {
@@ -857,62 +1102,67 @@ export const googleLogin = async (req, res) => {
     }
 
     // =========================================
-    // CHECK EMAIL VERIFICATION
+    // EMAIL VERIFIED CHECK
     // =========================================
 
-    if (email_verified !== true) {
-      return res.status(401).json({
+    if (payload.email_verified !== true) {
+      return res.status(400).json({
         success: false,
         message: "Google email is not verified",
       });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-
     // =========================================
-    // FIND EXISTING USER
+    // FIND USER
     // =========================================
 
     let user = await User.findOne({
-      email: normalizedEmail,
+      email,
     });
 
     // =========================================
-    // CREATE USER
+    // CREATE USER IF NOT EXISTS
     // =========================================
 
     if (!user) {
       user = await User.create({
-        name: name || "Google User",
-        email: normalizedEmail,
+        name,
+        email,
         googleId,
-        picture: picture || "",
+        picture,
+        isVerified: true,
       });
     } else {
       // =======================================
-      // LINK GOOGLE ACCOUNT
+      // UPDATE GOOGLE INFORMATION
       // =======================================
 
-      if (!user.googleId) {
-        user.googleId = googleId;
-      }
+      user.googleId = googleId;
+      user.picture = picture || user.picture;
+      user.isVerified = true;
 
-      // =======================================
-      // UPDATE PROFILE PICTURE
-      // =======================================
-
-      if (picture) {
-        user.picture = picture;
+      // যদি পুরোনো account-এর name না থাকে
+      if (!user.name) {
+        user.name = name;
       }
 
       await user.save();
     }
 
     // =========================================
-    // GENERATE JWT
+    // CREATE JWT
     // =========================================
 
-    const token = generateToken(user._id);
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     // =========================================
     // SECURE COOKIE
@@ -926,29 +1176,30 @@ export const googleLogin = async (req, res) => {
     });
 
     // =========================================
-    // RESPONSE
+    // RESPONSE USER
     // =========================================
 
     return res.status(200).json({
       success: true,
-
       message: "Google login successful",
-
-      token,
-
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        picture: user.picture || "",
+        picture: user.picture,
       },
+      token,
     });
   } catch (error) {
-    console.error("GOOGLE LOGIN ERROR:", error);
+    console.error("GOOGLE BACKEND ERROR:", error);
 
     return res.status(500).json({
       success: false,
-      message: "Google login failed",
+      message: "Google authentication failed",
+      error:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : undefined,
     });
   }
 };
@@ -956,41 +1207,64 @@ export const googleLogin = async (req, res) => {
 // ==========================================
 // LOGOUT
 // ==========================================
-export const logoutUser = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-  });
 
-  res.json({
+export const logoutUser = (
+  req,
+  res,
+) => {
+  res.clearCookie(
+    "token",
+    {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    },
+  );
+
+  return res.status(200).json({
     success: true,
-    message: "Logout Successful",
+
+    message:
+      "Logout successful",
   });
 };
 
 // ==========================================
 // CURRENT USER
 // ==========================================
-export const getMe = async (req, res) => {
+
+export const getMe = async (
+  req,
+  res,
+) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user =
+      await User.findById(
+        req.user.id,
+      ).select("-password");
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message:
+          "User not found",
       });
     }
 
-    res.json({
+    return res.status(200).json({
       success: true,
       user,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error(
+      "GET ME ERROR:",
+      error,
+    );
+
+    return res.status(500).json({
       success: false,
-      message: error.message,
+      message:
+        "Failed to get current user",
     });
   }
 };

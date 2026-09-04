@@ -30,7 +30,10 @@ const otpSchema = new mongoose.Schema(
       default: "login",
     },
 
-    // Temporary registration information
+    // =========================================
+    // TEMPORARY REGISTRATION DATA
+    // =========================================
+
     name: {
       type: String,
       default: null,
@@ -43,7 +46,10 @@ const otpSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-export default mongoose.model("OTP", otpSchema);
+export default mongoose.model(
+  "OTP",
+  otpSchema,
+);

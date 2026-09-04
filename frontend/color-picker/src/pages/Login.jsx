@@ -707,15 +707,7 @@ function Login() {
                 justifyContent: "center",
               }}
             >
-              {/* <GoogleLogin
-                onSuccess={handleGoogleLogin}
-                onError={handleGoogleError}
-                theme={darkMode ? "filled_black" : "outline"}
-                size="large"
-                shape="pill"
-                text="continue_with"
-                width="100%"
-              /> */}
+              
 
               <button
                 type="button"
