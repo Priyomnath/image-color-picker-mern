@@ -1,5 +1,3 @@
-import jwt from "jsonwebtoken";
-
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
@@ -1153,16 +1151,20 @@ export const googleLogin = async (req, res) => {
     // CREATE JWT
     // =========================================
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
+    // 💥💥
+    // const token = jwt.sign(
+    //   {
+    //     id: user._id,
+    //     email: user.email,
+    //   },
+    //   process.env.JWT_SECRET,
+    //   {
+    //     expiresIn: "7d",
+    //   }
+    // );
+
+    // 💥💥
+    const token = generateToken(user._id);
 
     // =========================================
     // SECURE COOKIE
