@@ -597,7 +597,7 @@ function Login() {
                     Sending code...
                   </>
                 ) : (
-                  "Continue with Email"
+                  "Log in"
                 )}
               </button>
             </form>

@@ -14,18 +14,24 @@ function Register() {
   const { darkMode } = useTheme();
 
   // =========================================
-  // REGISTER FORM
+  // EMAIL
   // =========================================
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   // =========================================
   // OTP
   // =========================================
 
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
+
   const otpRefs = useRef([]);
 
   // =========================================
@@ -46,12 +52,6 @@ function Register() {
   // =========================================
 
   const [timer, setTimer] = useState(0);
-
-  // =========================================
-  // PASSWORD VISIBILITY
-  // =========================================
-
-  const [showPassword, setShowPassword] = useState(false);
 
   // =========================================
   // COUNTDOWN
@@ -83,13 +83,17 @@ function Register() {
 
     const remainingSeconds = seconds % 60;
 
-    return `${String(minutes).padStart(2, "0")}:${String(
-      remainingSeconds,
-    ).padStart(2, "0")}`;
+    return `${String(minutes).padStart(
+      2,
+      "0",
+    )}:${String(remainingSeconds).padStart(
+      2,
+      "0",
+    )}`;
   };
 
   // =========================================
-  // REGISTER
+  // SEND REGISTER OTP
   // =========================================
 
   const handleRegister = async (e) => {
@@ -97,75 +101,60 @@ function Register() {
 
     if (loading || googleLoading) return;
 
-    const normalizedName = name.trim();
-    const normalizedEmail = email.trim().toLowerCase();
-
-    // =========================================
-    // NAME VALIDATION
-    // =========================================
-
-    if (!normalizedName) {
-      toast.error("Please enter your full name");
-      return;
-    }
-
-    if (normalizedName.length < 2) {
-      toast.error("Name must be at least 2 characters");
-      return;
-    }
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
 
     // =========================================
     // EMAIL VALIDATION
     // =========================================
 
     if (!normalizedEmail) {
-      toast.error("Please enter your email address");
+      toast.error(
+        "Please enter your email address",
+      );
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(normalizedEmail)) {
-      toast.error("Please enter a valid email address");
+      toast.error(
+        "Please enter a valid email address",
+      );
       return;
     }
-
-    // =========================================
-    // PASSWORD VALIDATION
-    // =========================================
-
-    if (!password) {
-      toast.error("Please enter a password");
-      return;
-    }
-
-    if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      return;
-    }
-
-    // =========================================
-    // API
-    // =========================================
 
     try {
       setLoading(true);
 
-      const response = await api.post("/auth/register", {
-        name: normalizedName,
-        email: normalizedEmail,
-        password,
-      });
+      const response = await api.post(
+        "/auth/register",
+        {
+          email: normalizedEmail,
+        },
+      );
 
       if (response.data?.success) {
-        setName(normalizedName);
         setEmail(normalizedEmail);
 
-        setOtp(["", "", "", "", "", ""]);
+        setOtp([
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+        ]);
 
         setStep("otp");
 
-        setTimer(90);
+        // =====================================
+        // 30 SECOND OTP
+        // =====================================
+
+        setTimer(30);
 
         toast.success(
           response.data.message ||
@@ -177,11 +166,16 @@ function Register() {
         }, 150);
       } else {
         toast.error(
-          response.data?.message || "Registration failed",
+          response.data?.message ||
+            "Registration failed",
         );
       }
     } catch (error) {
-      console.error("REGISTER ERROR:", error);
+      console.error(
+        "REGISTER ERROR:",
+        error,
+      );
+
       console.error(
         "REGISTER BACKEND ERROR:",
         error.response?.data,
@@ -189,7 +183,7 @@ function Register() {
 
       toast.error(
         error.response?.data?.message ||
-          "Failed to start registration",
+          "Failed to send verification code",
       );
     } finally {
       setLoading(false);
@@ -200,8 +194,13 @@ function Register() {
   // OTP CHANGE
   // =========================================
 
-  const handleOtpChange = (index, value) => {
-    const digit = value.replace(/\D/g, "").slice(-1);
+  const handleOtpChange = (
+    index,
+    value,
+  ) => {
+    const digit = value
+      .replace(/\D/g, "")
+      .slice(-1);
 
     const newOtp = [...otp];
 
@@ -210,7 +209,9 @@ function Register() {
     setOtp(newOtp);
 
     if (digit && index < 5) {
-      otpRefs.current[index + 1]?.focus();
+      otpRefs.current[
+        index + 1
+      ]?.focus();
     }
   };
 
@@ -218,7 +219,10 @@ function Register() {
   // OTP KEYBOARD
   // =========================================
 
-  const handleOtpKeyDown = (index, e) => {
+  const handleOtpKeyDown = (
+    index,
+    e,
+  ) => {
     if (e.key === "Backspace") {
       if (otp[index]) {
         const newOtp = [...otp];
@@ -231,16 +235,28 @@ function Register() {
       }
 
       if (index > 0) {
-        otpRefs.current[index - 1]?.focus();
+        otpRefs.current[
+          index - 1
+        ]?.focus();
       }
     }
 
-    if (e.key === "ArrowLeft" && index > 0) {
-      otpRefs.current[index - 1]?.focus();
+    if (
+      e.key === "ArrowLeft" &&
+      index > 0
+    ) {
+      otpRefs.current[
+        index - 1
+      ]?.focus();
     }
 
-    if (e.key === "ArrowRight" && index < 5) {
-      otpRefs.current[index + 1]?.focus();
+    if (
+      e.key === "ArrowRight" &&
+      index < 5
+    ) {
+      otpRefs.current[
+        index + 1
+      ]?.focus();
     }
   };
 
@@ -258,18 +274,32 @@ function Register() {
 
     if (!pasted) return;
 
-    const newOtp = ["", "", "", "", "", ""];
+    const newOtp = [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ];
 
-    pasted.split("").forEach((digit, index) => {
-      newOtp[index] = digit;
-    });
+    pasted
+      .split("")
+      .forEach((digit, index) => {
+        newOtp[index] = digit;
+      });
 
     setOtp(newOtp);
 
-    const focusIndex = Math.min(pasted.length, 5);
+    const focusIndex = Math.min(
+      pasted.length,
+      5,
+    );
 
     setTimeout(() => {
-      otpRefs.current[focusIndex]?.focus();
+      otpRefs.current[
+        focusIndex
+      ]?.focus();
     }, 0);
   };
 
@@ -280,17 +310,22 @@ function Register() {
   const verifyRegisterOTP = async (e) => {
     e.preventDefault();
 
-    if (loading || googleLoading) return;
+    if (loading || googleLoading)
+      return;
 
     const finalOtp = otp.join("");
 
     if (finalOtp.length !== 6) {
-      toast.error("Please enter the complete 6-digit code");
+      toast.error(
+        "Please enter the complete 6-digit code",
+      );
       return;
     }
 
     if (timer <= 0) {
-      toast.error("Verification code has expired");
+      toast.error(
+        "Verification code has expired",
+      );
       return;
     }
 
@@ -300,20 +335,25 @@ function Register() {
       const response = await api.post(
         "/auth/register/verify-otp",
         {
-          email: email.trim().toLowerCase(),
+          email: email
+            .trim()
+            .toLowerCase(),
+
           otp: finalOtp,
         },
       );
 
       if (response.data?.success) {
-        const userData = response.data.user;
-        const token = response.data.token;
+        const userData =
+          response.data.user;
 
-        // =====================================
-        // AUTO LOGIN
-        // =====================================
+        const token =
+          response.data.token;
 
-        const loginSuccess = login(userData, token);
+        const loginSuccess = login(
+          userData,
+          token,
+        );
 
         if (!loginSuccess) {
           toast.error(
@@ -340,14 +380,18 @@ function Register() {
       );
 
       const message =
-        error.response?.data?.message ||
+        error.response?.data
+          ?.message ||
         "Verification failed";
 
       toast.error(message);
 
       if (
-        error.response?.status === 400 &&
-        message.toLowerCase().includes("expired")
+        error.response?.status ===
+          400 &&
+        message
+          .toLowerCase()
+          .includes("expired")
       ) {
         setTimer(0);
       }
@@ -357,11 +401,15 @@ function Register() {
   };
 
   // =========================================
-  // RESEND REGISTER OTP
+  // RESEND OTP
   // =========================================
 
   const resendOTP = async () => {
-    if (timer > 0 || loading || googleLoading) {
+    if (
+      timer > 0 ||
+      loading ||
+      googleLoading
+    ) {
       return;
     }
 
@@ -371,14 +419,27 @@ function Register() {
       const response = await api.post(
         "/auth/register/resend-otp",
         {
-          email: email.trim().toLowerCase(),
+          email: email
+            .trim()
+            .toLowerCase(),
         },
       );
 
       if (response.data?.success) {
-        setOtp(["", "", "", "", "", ""]);
+        setOtp([
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+        ]);
 
-        setTimer(90);
+        // =====================================
+        // RESET TO 30 SECONDS
+        // =====================================
+
+        setTimer(30);
 
         toast.success(
           response.data.message ||
@@ -414,11 +475,19 @@ function Register() {
   // =========================================
 
   const changeEmail = () => {
-    if (loading || googleLoading) return;
+    if (loading || googleLoading)
+      return;
 
     setStep("register");
 
-    setOtp(["", "", "", "", "", ""]);
+    setOtp([
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ]);
 
     setTimer(0);
   };
@@ -430,25 +499,20 @@ function Register() {
   const handleGoogleRegister = async (
     credentialResponse,
   ) => {
-    if (loading || googleLoading) return;
+    if (loading || googleLoading)
+      return;
 
     try {
       setGoogleLoading(true);
 
-      // =====================================
-      // CHECK GOOGLE CREDENTIAL
-      // =====================================
-
-      if (!credentialResponse?.credential) {
+      if (
+        !credentialResponse?.credential
+      ) {
         toast.error(
           "Google authorization failed",
         );
         return;
       }
-
-      // =====================================
-      // SEND GOOGLE ID TOKEN TO BACKEND
-      // =====================================
 
       const response = await api.post(
         "/auth/google",
@@ -458,15 +522,6 @@ function Register() {
         },
       );
 
-      console.log(
-        "GOOGLE REGISTER RESPONSE:",
-        response.data,
-      );
-
-      // =====================================
-      // RESPONSE CHECK
-      // =====================================
-
       if (!response.data?.success) {
         toast.error(
           response.data?.message ||
@@ -475,8 +530,11 @@ function Register() {
         return;
       }
 
-      const userData = response.data.user;
-      const token = response.data.token;
+      const userData =
+        response.data.user;
+
+      const token =
+        response.data.token;
 
       if (!userData || !token) {
         toast.error(
@@ -484,10 +542,6 @@ function Register() {
         );
         return;
       }
-
-      // =====================================
-      // SAVE LOGIN SESSION
-      // =====================================
 
       const loginSuccess = login(
         userData,
@@ -500,10 +554,6 @@ function Register() {
         );
         return;
       }
-
-      // =====================================
-      // SUCCESS
-      // =====================================
 
       toast.success(
         "Google registration successful! 🎉",
@@ -521,11 +571,6 @@ function Register() {
         error.response?.data,
       );
 
-      console.error(
-        "GOOGLE STATUS:",
-        error.response?.status,
-      );
-
       toast.error(
         error.response?.data?.message ||
           "Google registration failed",
@@ -539,13 +584,14 @@ function Register() {
   // GOOGLE ERROR
   // =========================================
 
-  const handleGoogleRegisterError = () => {
-    setGoogleLoading(false);
+  const handleGoogleRegisterError =
+    () => {
+      setGoogleLoading(false);
 
-    toast.error(
-      "Google registration failed. Please try again.",
-    );
-  };
+      toast.error(
+        "Google registration failed. Please try again.",
+      );
+    };
 
   // =========================================
   // STYLES
@@ -563,54 +609,85 @@ function Register() {
     padding: "40px 20px",
 
     background: darkMode
-      ? "radial-gradient(circle at top, #1e293b 0%, #0f172a 45%, #020617 100%)"
-      : "radial-gradient(circle at top, #eef2ff 0%, #f8fafc 45%, #ffffff 100%)",
+      ? "#050505"
+      : "#f7f8fa",
   };
 
   const cardStyle = {
     width: "100%",
 
-    maxWidth: "470px",
+    maxWidth: "670px",
 
-    padding: "38px",
+    padding: "25px 30px",
 
-    borderRadius: "28px",
+    background:
+      "transparent",
 
-    background: darkMode
-      ? "rgba(15, 23, 42, 0.96)"
-      : "rgba(255, 255, 255, 0.97)",
-
-    border: darkMode
-      ? "1px solid rgba(148,163,184,0.18)"
-      : "1px solid rgba(15,23,42,0.08)",
-
-    boxShadow: darkMode
-      ? "0 30px 80px rgba(0,0,0,0.45)"
-      : "0 30px 80px rgba(15,23,42,0.12)",
-
-    backdropFilter: "blur(20px)",
+    color: darkMode
+      ? "#ffffff"
+      : "#111827",
   };
 
   const inputStyle = {
     width: "100%",
 
-    height: "54px",
+    height: "70px",
 
-    padding: "0 17px",
+    padding: "0 26px",
 
-    borderRadius: "14px",
+    borderRadius: "22px",
 
     border: darkMode
-      ? "1px solid #475569"
-      : "1px solid #d1d5db",
+      ? "2px solid #292929"
+      : "2px solid #d9dce1",
 
-    background: darkMode ? "#111827" : "#fff",
+    background: darkMode
+      ? "#080808"
+      : "#ffffff",
 
-    color: darkMode ? "#fff" : "#111827",
+    color: darkMode
+      ? "#ffffff"
+      : "#111827",
 
-    fontSize: "15px",
+    fontSize: "17px",
 
     outline: "none",
+
+    transition:
+      "all .2s ease",
+  };
+
+  const primaryButtonStyle = {
+    width: "100%",
+
+    height: "70px",
+
+    border: "none",
+
+    borderRadius: "40px",
+
+    background: darkMode
+      ? "#f8fafc"
+      : "#111827",
+
+    color: darkMode
+      ? "#080808"
+      : "#ffffff",
+
+    fontSize: "19px",
+
+    fontWeight: "600",
+
+    cursor:
+      loading ||
+      googleLoading
+        ? "not-allowed"
+        : "pointer",
+
+    opacity: loading ? 0.65 : 1,
+
+    transition:
+      "all .2s ease",
   };
 
   // =========================================
@@ -625,13 +702,21 @@ function Register() {
         {/* HEADER */}
         {/* ================================= */}
 
-        <div className="text-center mb-4">
+        <div
+          style={{
+            textAlign: "center",
+
+            marginBottom: "35px",
+          }}
+        >
           <div
             style={{
-              width: "64px",
-              height: "64px",
+              width: "60px",
 
-              margin: "0 auto 18px",
+              height: "60px",
+
+              margin:
+                "0 auto 18px",
 
               borderRadius: "18px",
 
@@ -641,255 +726,145 @@ function Register() {
 
               justifyContent: "center",
 
-              fontSize: "30px",
+              fontSize: "29px",
 
               background:
                 "linear-gradient(135deg,#6f42c1,#0d6efd)",
 
               boxShadow:
-                "0 10px 30px rgba(13,110,253,.25)",
+                "0 12px 35px rgba(13,110,253,.20)",
             }}
           >
             🎨
           </div>
 
-          <h2
-            className="fw-bold mb-2"
+          <h1
             style={{
+              margin: 0,
+
+              fontSize: "30px",
+
+              fontWeight: "700",
+
               color: darkMode
-                ? "#fff"
+                ? "#ffffff"
                 : "#111827",
             }}
           >
             {step === "register"
-              ? "Create Your Account"
-              : "Verify Your Email"}
-          </h2>
+              ? "Create your account"
+              : "Verify your email"}
+          </h1>
 
           <p
-            className="mb-0"
             style={{
-              color: darkMode
-                ? "#94a3b8"
-                : "#6b7280",
+              margin:
+                "10px 0 0",
 
-              fontSize: "14px",
+              fontSize: "15px",
+
+              color: darkMode
+                ? "#888888"
+                : "#6b7280",
             }}
           >
             {step === "register"
-              ? "Create your Image Color Picker account"
-              : `We sent a 6-digit verification code to ${email}`}
+              ? "Enter your email to get started"
+              : `We sent a 6-digit code to ${email}`}
           </p>
         </div>
 
         {/* ================================= */}
-        {/* REGISTER STEP */}
+        {/* REGISTER */}
         {/* ================================= */}
 
         {step === "register" && (
           <>
-            <form onSubmit={handleRegister}>
+            <form
+              onSubmit={
+                handleRegister
+              }
+            >
+              <label
+                style={{
+                  display: "block",
 
-              {/* NAME */}
+                  marginBottom: "10px",
 
-              <div className="mb-3">
-                <label
-                  className="fw-semibold mb-2 d-block"
-                  style={{
-                    color: darkMode
-                      ? "#e5e7eb"
-                      : "#374151",
+                  fontSize: "16px",
 
-                    fontSize: "14px",
-                  }}
-                >
-                  Full Name
-                </label>
+                  fontWeight: "600",
 
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) =>
-                    setName(e.target.value)
-                  }
-                  placeholder="Enter your full name"
-                  autoComplete="name"
-                  disabled={
-                    loading || googleLoading
-                  }
-                  style={inputStyle}
-                />
-              </div>
+                  color: darkMode
+                    ? "#f1f5f9"
+                    : "#1f2937",
+                }}
+              >
+                Email
+              </label>
 
-              {/* EMAIL */}
+              <input
+                type="email"
+                value={email}
+                onChange={(e) =>
+                  setEmail(
+                    e.target.value,
+                  )
+                }
+                placeholder="Enter your email"
+                autoComplete="email"
+                disabled={
+                  loading ||
+                  googleLoading
+                }
+                style={inputStyle}
+                onFocus={(e) => {
+                  e.target.style.borderColor =
+                    "#0d6efd";
 
-              <div className="mb-3">
-                <label
-                  className="fw-semibold mb-2 d-block"
-                  style={{
-                    color: darkMode
-                      ? "#e5e7eb"
-                      : "#374151",
+                  e.target.style.boxShadow =
+                    "0 0 0 4px rgba(13,110,253,.10)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor =
+                    darkMode
+                      ? "#292929"
+                      : "#d9dce1";
 
-                    fontSize: "14px",
-                  }}
-                >
-                  Email Address
-                </label>
-
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) =>
-                    setEmail(e.target.value)
-                  }
-                  placeholder="Enter your email"
-                  autoComplete="email"
-                  disabled={
-                    loading || googleLoading
-                  }
-                  style={inputStyle}
-                />
-              </div>
-
-              {/* PASSWORD */}
-
-              <div className="mb-4">
-                <label
-                  className="fw-semibold mb-2 d-block"
-                  style={{
-                    color: darkMode
-                      ? "#e5e7eb"
-                      : "#374151",
-
-                    fontSize: "14px",
-                  }}
-                >
-                  Password
-                </label>
-
-                <div
-                  style={{
-                    position: "relative",
-                  }}
-                >
-                  <input
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
-                    value={password}
-                    onChange={(e) =>
-                      setPassword(
-                        e.target.value,
-                      )
-                    }
-                    placeholder="Create a password"
-                    autoComplete="new-password"
-                    disabled={
-                      loading ||
-                      googleLoading
-                    }
-                    style={{
-                      ...inputStyle,
-                      paddingRight: "70px",
-                    }}
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowPassword(
-                        !showPassword,
-                      )
-                    }
-                    disabled={
-                      loading ||
-                      googleLoading
-                    }
-                    style={{
-                      position: "absolute",
-
-                      right: "14px",
-
-                      top: "50%",
-
-                      transform:
-                        "translateY(-50%)",
-
-                      border: "none",
-
-                      background:
-                        "transparent",
-
-                      color: darkMode
-                        ? "#94a3b8"
-                        : "#6b7280",
-
-                      fontSize: "13px",
-
-                      fontWeight: "600",
-
-                      cursor: "pointer",
-                    }}
-                  >
-                    {showPassword
-                      ? "Hide"
-                      : "Show"}
-                  </button>
-                </div>
-
-                <small
-                  style={{
-                    color: darkMode
-                      ? "#94a3b8"
-                      : "#6b7280",
-
-                    fontSize: "12px",
-                  }}
-                >
-                  Use at least 8 characters
-                </small>
-              </div>
-
-              {/* CREATE ACCOUNT */}
+                  e.target.style.boxShadow =
+                    "none";
+                }}
+              />
 
               <button
                 type="submit"
                 disabled={
-                  loading || googleLoading
+                  loading ||
+                  googleLoading
                 }
-                className="btn w-100 rounded-3 py-3 fw-semibold"
                 style={{
-                  background:
-                    "linear-gradient(135deg,#6f42c1,#0d6efd)",
+                  ...primaryButtonStyle,
 
-                  border: "none",
-
-                  color: "#fff",
-
-                  boxShadow:
-                    "0 8px 20px rgba(13,110,253,.22)",
-
-                  opacity:
-                    loading ? 0.7 : 1,
+                  marginTop: "25px",
                 }}
               >
                 {loading ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2" />
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                    />
 
-                    Sending Verification Code...
+                    Sending code...
                   </>
                 ) : (
-                  "Create Account"
+                  "Sign up"
                 )}
               </button>
             </form>
 
             {/* ================================= */}
-            {/* OR DIVIDER */}
+            {/* DIVIDER */}
             {/* ================================= */}
 
             <div
@@ -898,9 +873,9 @@ function Register() {
 
                 alignItems: "center",
 
-                gap: "14px",
+                gap: "15px",
 
-                margin: "26px 0",
+                margin: "30px 0",
               }}
             >
               <div
@@ -909,9 +884,10 @@ function Register() {
 
                   height: "1px",
 
-                  background: darkMode
-                    ? "#1e293b"
-                    : "#e5e7eb",
+                  background:
+                    darkMode
+                      ? "#252525"
+                      : "#e5e7eb",
                 }}
               />
 
@@ -919,11 +895,12 @@ function Register() {
                 style={{
                   fontSize: "12px",
 
-                  fontWeight: "700",
+                  fontWeight: "600",
 
-                  color: darkMode
-                    ? "#64748b"
-                    : "#9ca3af",
+                  color:
+                    darkMode
+                      ? "#777"
+                      : "#9ca3af",
                 }}
               >
                 OR
@@ -935,24 +912,25 @@ function Register() {
 
                   height: "1px",
 
-                  background: darkMode
-                    ? "#1e293b"
-                    : "#e5e7eb",
+                  background:
+                    darkMode
+                      ? "#252525"
+                      : "#e5e7eb",
                 }}
               />
             </div>
 
             {/* ================================= */}
-            {/* CONTINUE WITH GOOGLE */}
+            {/* GOOGLE */}
             {/* ================================= */}
 
             <div
               style={{
                 position: "relative",
 
-                minHeight: "54px",
-
                 width: "100%",
+
+                height: "70px",
               }}
             >
               {/* REAL GOOGLE BUTTON */}
@@ -965,15 +943,11 @@ function Register() {
 
                   zIndex: 2,
 
-                  opacity:
-                    loading ||
-                    googleLoading
-                      ? 0
-                      : 0,
+                  opacity: 0,
 
                   overflow: "hidden",
 
-                  borderRadius: "14px",
+                  borderRadius: "22px",
 
                   pointerEvents:
                     loading ||
@@ -1002,48 +976,49 @@ function Register() {
                 />
               </div>
 
-              {/* CUSTOM GOOGLE UI */}
+              {/* CUSTOM BUTTON */}
 
               <button
                 type="button"
                 disabled={
-                  googleLoading ||
-                  loading
+                  loading ||
+                  googleLoading
                 }
                 style={{
                   width: "100%",
 
-                  height: "54px",
+                  height: "70px",
 
-                  borderRadius: "14px",
+                  borderRadius: "22px",
 
                   border: darkMode
-                    ? "1px solid #475569"
-                    : "1px solid #d1d5db",
+                    ? "2px solid #292929"
+                    : "2px solid #d9dce1",
 
                   background: darkMode
-                    ? "#111827"
+                    ? "#080808"
                     : "#ffffff",
 
                   color: darkMode
-                    ? "#ffffff"
+                    ? "#f1f5f9"
                     : "#1f2937",
 
                   display: "flex",
 
                   alignItems: "center",
 
-                  justifyContent: "center",
+                  justifyContent:
+                    "center",
 
                   gap: "12px",
 
-                  fontSize: "15px",
+                  fontSize: "18px",
 
                   fontWeight: "600",
 
                   cursor:
-                    googleLoading ||
-                    loading
+                    loading ||
+                    googleLoading
                       ? "not-allowed"
                       : "pointer",
 
@@ -1052,36 +1027,20 @@ function Register() {
                     loading
                       ? 0.65
                       : 1,
-
-                  transition:
-                    "all 0.2s ease",
-
-                  boxShadow: darkMode
-                    ? "0 6px 18px rgba(0,0,0,0.20)"
-                    : "0 6px 18px rgba(0,0,0,0.07)",
                 }}
               >
                 {googleLoading ? (
                   <>
-                    <span
-                      className="spinner-border spinner-border-sm"
-                      role="status"
-                      aria-hidden="true"
-                    />
+                    <span className="spinner-border spinner-border-sm" />
 
-                    <span>
-                      Signing up with Google...
-                    </span>
+                    Signing up with Google...
                   </>
                 ) : (
                   <>
-                    {/* GOOGLE LOGO */}
-
                     <svg
-                      width="20"
-                      height="20"
+                      width="21"
+                      height="21"
                       viewBox="0 0 24 24"
-                      aria-hidden="true"
                     >
                       <path
                         fill="#4285F4"
@@ -1104,9 +1063,7 @@ function Register() {
                       />
                     </svg>
 
-                    <span>
-                      Continue with Google
-                    </span>
+                    Continue with Google
                   </>
                 )}
               </button>
@@ -1117,168 +1074,242 @@ function Register() {
             {/* ================================= */}
 
             <p
-              className="text-center mt-4 mb-0"
               style={{
-                color: darkMode
-                  ? "#94a3b8"
-                  : "#6b7280",
+                textAlign: "center",
 
-                fontSize: "14px",
+                marginTop: "30px",
+
+                fontSize: "15px",
+
+                color: darkMode
+                  ? "#888"
+                  : "#6b7280",
               }}
             >
               Already have an account?{" "}
 
               <Link
                 to="/login"
-                className="fw-semibold text-decoration-none"
                 style={{
-                  color: "#0d6efd",
+                  color:
+                    darkMode
+                      ? "#ffffff"
+                      : "#111827",
+
+                  fontWeight: "700",
+
+                  textDecoration:
+                    "none",
                 }}
               >
-                Login
+                Log in
               </Link>
             </p>
           </>
         )}
 
         {/* ================================= */}
-        {/* OTP STEP */}
+        {/* OTP */}
         {/* ================================= */}
 
         {step === "otp" && (
           <>
-            {/* EMAIL */}
-
             <div
-              className="text-center mb-4"
               style={{
-                padding: "12px 16px",
+                textAlign: "center",
 
-                borderRadius: "12px",
+                marginBottom: "28px",
 
-                background: darkMode
-                  ? "rgba(59,130,246,.10)"
-                  : "#eff6ff",
+                padding:
+                  "15px 18px",
 
-                color: darkMode
-                  ? "#93c5fd"
-                  : "#2563eb",
+                borderRadius: "17px",
+
+                background:
+                  darkMode
+                    ? "#0d0d0d"
+                    : "#f3f6fa",
+
+                border:
+                  darkMode
+                    ? "1px solid #242424"
+                    : "1px solid #e5e7eb",
 
                 fontSize: "14px",
+
+                color: darkMode
+                  ? "#cbd5e1"
+                  : "#374151",
+
+                wordBreak:
+                  "break-word",
               }}
             >
-              📧 <strong>{email}</strong>
+              📧{" "}
+              <strong>
+                {email}
+              </strong>
             </div>
 
-            {/* OTP FORM */}
+            <form
+              onSubmit={
+                verifyRegisterOTP
+              }
+            >
+              {/* OTP INPUTS */}
 
-            <form onSubmit={verifyRegisterOTP}>
               <div
-                className="d-flex justify-content-center gap-2 mb-4"
-                onPaste={handleOtpPaste}
+                style={{
+                  display: "flex",
+
+                  justifyContent:
+                    "center",
+
+                  gap: "10px",
+
+                  marginBottom: "28px",
+                }}
+                onPaste={
+                  handleOtpPaste
+                }
               >
-                {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={(element) => {
-                      otpRefs.current[index] =
-                        element;
-                    }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) =>
-                      handleOtpChange(
-                        index,
-                        e.target.value,
-                      )
-                    }
-                    onKeyDown={(e) =>
-                      handleOtpKeyDown(
-                        index,
-                        e,
-                      )
-                    }
-                    disabled={
-                      loading ||
-                      googleLoading ||
-                      timer <= 0
-                    }
-                    aria-label={`OTP digit ${
-                      index + 1
-                    }`}
-                    style={{
-                      width: "48px",
+                {otp.map(
+                  (
+                    digit,
+                    index,
+                  ) => (
+                    <input
+                      key={index}
+                      ref={(element) => {
+                        otpRefs.current[
+                          index
+                        ] =
+                          element;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) =>
+                        handleOtpChange(
+                          index,
+                          e.target
+                            .value,
+                        )
+                      }
+                      onKeyDown={(e) =>
+                        handleOtpKeyDown(
+                          index,
+                          e,
+                        )
+                      }
+                      disabled={
+                        loading ||
+                        timer <= 0
+                      }
+                      aria-label={`OTP digit ${
+                        index + 1
+                      }`}
+                      style={{
+                        width: "54px",
 
-                      height: "58px",
+                        height: "64px",
 
-                      textAlign: "center",
+                        textAlign:
+                          "center",
 
-                      fontSize: "22px",
+                        fontSize:
+                          "23px",
 
-                      fontWeight: "700",
+                        fontWeight:
+                          "700",
 
-                      borderRadius: "13px",
+                        borderRadius:
+                          "17px",
 
-                      border: digit
-                        ? "2px solid #0d6efd"
-                        : darkMode
-                          ? "1px solid #475569"
-                          : "1px solid #d1d5db",
+                        border: digit
+                          ? "2px solid #0d6efd"
+                          : darkMode
+                            ? "2px solid #292929"
+                            : "2px solid #d9dce1",
 
-                      background: darkMode
-                        ? "#111827"
-                        : "#fff",
+                        background:
+                          darkMode
+                            ? "#080808"
+                            : "#ffffff",
 
-                      color: darkMode
-                        ? "#fff"
-                        : "#111827",
+                        color:
+                          darkMode
+                            ? "#ffffff"
+                            : "#111827",
 
-                      outline: "none",
-                    }}
-                  />
-                ))}
+                        outline:
+                          "none",
+                      }}
+                    />
+                  ),
+                )}
               </div>
 
               {/* TIMER */}
 
-              <div className="text-center mb-4">
+              <div
+                style={{
+                  textAlign: "center",
+
+                  marginBottom:
+                    "28px",
+                }}
+              >
                 {timer > 0 ? (
                   <>
                     <div
                       style={{
-                        color: darkMode
-                          ? "#cbd5e1"
-                          : "#6b7280",
+                        fontSize:
+                          "13px",
 
-                        fontSize: "13px",
+                        color:
+                          darkMode
+                            ? "#777"
+                            : "#6b7280",
                       }}
                     >
                       Code expires in
                     </div>
 
                     <div
-                      className="fw-bold mt-1"
                       style={{
-                        fontSize: "20px",
+                        marginTop:
+                          "6px",
+
+                        fontSize:
+                          "22px",
+
+                        fontWeight:
+                          "700",
 
                         color:
-                          timer <= 20
-                            ? "#dc3545"
+                          timer <= 10
+                            ? "#ef4444"
                             : "#0d6efd",
                       }}
                     >
-                      {formatTime(timer)}
+                      {formatTime(
+                        timer,
+                      )}
                     </div>
                   </>
                 ) : (
                   <div
-                    className="fw-semibold"
                     style={{
-                      color: "#dc3545",
+                      color:
+                        "#ef4444",
 
-                      fontSize: "14px",
+                      fontSize:
+                        "14px",
+
+                      fontWeight:
+                        "600",
                     }}
                   >
                     Verification code expired
@@ -1292,24 +1323,19 @@ function Register() {
                 type="submit"
                 disabled={
                   loading ||
-                  googleLoading ||
-                  otp.join("").length !== 6 ||
+                  otp.join("")
+                    .length !== 6 ||
                   timer <= 0
                 }
-                className="btn w-100 rounded-3 py-3 fw-semibold"
                 style={{
-                  background:
-                    "linear-gradient(135deg,#6f42c1,#0d6efd)",
-
-                  border: "none",
-
-                  color: "#fff",
+                  ...primaryButtonStyle,
 
                   opacity:
                     loading ||
-                    otp.join("").length !== 6 ||
+                    otp.join("")
+                      .length !== 6 ||
                     timer <= 0
-                      ? 0.55
+                      ? 0.5
                       : 1,
                 }}
               >
@@ -1317,7 +1343,7 @@ function Register() {
                   <>
                     <span className="spinner-border spinner-border-sm me-2" />
 
-                    Creating Account...
+                    Creating account...
                   </>
                 ) : (
                   "Verify & Create Account"
@@ -1327,14 +1353,23 @@ function Register() {
 
             {/* RESEND */}
 
-            <div className="text-center mt-4">
+            <div
+              style={{
+                textAlign:
+                  "center",
+
+                marginTop: "28px",
+              }}
+            >
               <span
                 style={{
-                  color: darkMode
-                    ? "#94a3b8"
-                    : "#6b7280",
+                  fontSize:
+                    "14px",
 
-                  fontSize: "14px",
+                  color:
+                    darkMode
+                      ? "#777"
+                      : "#6b7280",
                 }}
               >
                 Didn't receive the code?{" "}
@@ -1345,19 +1380,33 @@ function Register() {
                 onClick={resendOTP}
                 disabled={
                   timer > 0 ||
-                  loading ||
-                  googleLoading
+                  loading
                 }
-                className="btn btn-link p-0 fw-semibold text-decoration-none"
                 style={{
+                  border: "none",
+
+                  background:
+                    "transparent",
+
+                  padding: 0,
+
                   color:
                     timer > 0
                       ? darkMode
-                        ? "#64748b"
+                        ? "#555"
                         : "#9ca3af"
                       : "#0d6efd",
 
-                  fontSize: "14px",
+                  fontSize:
+                    "14px",
+
+                  fontWeight:
+                    "600",
+
+                  cursor:
+                    timer > 0
+                      ? "not-allowed"
+                      : "pointer",
                 }}
               >
                 {timer > 0
@@ -1370,20 +1419,36 @@ function Register() {
 
             {/* CHANGE EMAIL */}
 
-            <div className="text-center mt-3">
+            <div
+              style={{
+                textAlign:
+                  "center",
+
+                marginTop: "15px",
+              }}
+            >
               <button
                 type="button"
-                onClick={changeEmail}
-                disabled={
-                  loading || googleLoading
+                onClick={
+                  changeEmail
                 }
-                className="btn btn-link p-0 text-decoration-none"
+                disabled={loading}
                 style={{
-                  color: darkMode
-                    ? "#94a3b8"
-                    : "#6b7280",
+                  border: "none",
 
-                  fontSize: "14px",
+                  background:
+                    "transparent",
+
+                  color:
+                    darkMode
+                      ? "#888"
+                      : "#6b7280",
+
+                  fontSize:
+                    "14px",
+
+                  cursor:
+                    "pointer",
                 }}
               >
                 ← Change Email

@@ -1,42 +1,34 @@
-// import nodemailer from "nodemailer";
-
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 465,
-//   secure: true,
-
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-
-//   connectionTimeout: 10000,
-//   greetingTimeout: 10000,
-//   socketTimeout: 10000,
-// });
-
 import { Resend } from "resend";
 
-const resend = new Resend(
-  process.env.RESEND_API_KEY
-);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const sendOTPEmail = async (email, otp) => {
-  const { data, error } =
-    await resend.emails.send({
+export const sendOTPEmail = async (email, otp, purpose = "login") => {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY is missing");
+    }
+
+    if (!email || !otp) {
+      throw new Error("Email and OTP are required");
+    }
+
+    const isRegister = purpose === "register";
+
+    const { data, error } = await resend.emails.send({
       from: "Image Color Picker <onboarding@resend.dev>",
 
       to: [email],
 
-      subject:
-        "Your Image Color Picker Login Verification Code",
+      subject: isRegister
+        ? "Verify your Image Color Picker account"
+        : "Your Image Color Picker Login Verification Code",
 
       html: `
         <div style="
           max-width:600px;
           margin:40px auto;
           padding:35px;
-          font-family:Arial, sans-serif;
+          font-family:Arial,sans-serif;
           background:#ffffff;
           border:1px solid #e5e7eb;
           border-radius:16px;
@@ -46,6 +38,7 @@ export const sendOTPEmail = async (email, otp) => {
             text-align:center;
             margin-bottom:25px;
           ">
+
             <div style="
               display:inline-block;
               width:55px;
@@ -73,8 +66,9 @@ export const sendOTPEmail = async (email, otp) => {
               color:#777;
               margin:0;
             ">
-              Login Verification
+              ${isRegister ? "Account Verification" : "Login Verification"}
             </p>
+
           </div>
 
           <p style="
@@ -89,8 +83,11 @@ export const sendOTPEmail = async (email, otp) => {
             color:#555;
             line-height:1.6;
           ">
-            Use the verification code below to
-            complete your login.
+            ${
+              isRegister
+                ? "Use the verification code below to complete your account registration."
+                : "Use the verification code below to complete your login."
+            }
           </p>
 
           <div style="
@@ -117,7 +114,7 @@ export const sendOTPEmail = async (email, otp) => {
             color:#555;
           ">
             This verification code expires in
-            <strong>1 minute 30 seconds</strong>.
+            <strong>30 seconds</strong>.
           </p>
 
           <p style="
@@ -148,21 +145,25 @@ export const sendOTPEmail = async (email, otp) => {
       `,
     });
 
-  if (error) {
+    if (error) {
+      console.error("RESEND EMAIL ERROR:", error);
+
+      throw new Error(
+        error.message || "Failed to send verification email"
+      );
+    }
+
+    console.log("OTP EMAIL SENT:", data);
+
+    return data;
+
+  } catch (error) {
+
     console.error(
-      "RESEND EMAIL ERROR:",
+      "SEND OTP EMAIL FAILED:",
       error
     );
 
-    throw new Error(
-      "Failed to send verification email"
-    );
+    throw error;
   }
-
-  console.log(
-    "OTP EMAIL SENT:",
-    data
-  );
-
-  return data;
 };
