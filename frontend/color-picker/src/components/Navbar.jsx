@@ -87,7 +87,7 @@ function NavbarComponent() {
         >
           {/* Logo */}
 
-          <div
+          {/* <div
             className="navbar-logo rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
             style={{
               width: "42px",
@@ -97,7 +97,19 @@ function NavbarComponent() {
             }}
           >
             🎨
-          </div>
+          </div> */}
+
+          <img
+            src="/image-color-picker-logo.png"
+            alt="Image Color Picker"
+            style={{
+              width: "52px",
+              height: "52px",
+              objectFit: "contain",
+              display: "block",
+              margin: "0 auto 12px",
+            }}
+          />
 
           {/* Brand Text */}
 

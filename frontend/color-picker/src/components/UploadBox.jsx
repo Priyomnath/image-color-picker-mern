@@ -1,3 +1,8 @@
+//14/09/2026 {time:  PM}
+// const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+// const [uploading, setUploading] = useState(false);
+
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import "../pages/UploadBox.css";
 
@@ -2853,7 +2858,7 @@ function UploadBox() {
 
             .palette-row span {
               width: 62px !important;
-              font-size: 10px !important;
+              font-size: 10px !important; 
             }
 
             .palette-row button {
