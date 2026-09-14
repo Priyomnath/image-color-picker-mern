@@ -1816,19 +1816,24 @@ function Login() {
                 )}
               </button>
 
+              {/* //14/09/2026 {time:  PM} */}
               <div
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  opacity: 0,
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
                   overflow: "hidden",
-                  zIndex: 2,
                 }}
               >
                 <GoogleLogin
                   onSuccess={handleGoogleLogin}
                   onError={handleGoogleError}
                   useOneTap={false}
+                  theme={darkMode ? "filled_black" : "outline"}
+                  size="large"
+                  shape="rectangular"
+                  text="continue_with"
+                  logo_alignment="left"
                   width="100%"
                   locale="en"
                 />
