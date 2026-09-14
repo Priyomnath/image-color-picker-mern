@@ -1817,7 +1817,7 @@ function Login() {
               </button>
 
               {/* //14/09/2026 {time:  PM} */}
-              <div
+              {/* <div
                 style={{
                   width: "100%",
                   display: "flex",
@@ -1837,7 +1837,7 @@ function Login() {
                   width="100%"
                   locale="en"
                 />
-              </div>
+              </div> */}
             </div>
 
             {/* ================================= */}
