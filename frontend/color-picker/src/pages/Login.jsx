@@ -2448,16 +2448,44 @@ function Login() {
       : "radial-gradient(circle at 8% 8%, rgba(111,66,193,.20), transparent 25%), radial-gradient(circle at 92% 88%, rgba(13,110,253,.18), transparent 28%), radial-gradient(circle at 55% 45%, #ffffff 0%, #f7f9fc 55%, #eef2ff 100%)",
   };
 
+  // const cardStyle = {
+  //   width: "100%",
+
+  //   maxWidth: "520px",
+  //   padding: "22px 26px",
+  //   borderRadius: "24px",
+
+  //   background: darkMode
+  //     ? "rgba(15, 23, 42, 0.96)"
+  //     : "rgba(255, 255, 255, 0.97)",
+
+  //   border: darkMode
+  //     ? "1px solid rgba(148,163,184,0.18)"
+  //     : "1px solid rgba(15,23,42,0.08)",
+
+  //   boxShadow: darkMode
+  //     ? "0 30px 80px rgba(0,0,0,0.45)"
+  //     : "0 30px 80px rgba(15,23,42,0.12)",
+
+  //   backdropFilter: "blur(20px)",
+  // };
+
+
+  //16/09/2026 {time:  PM}
   const cardStyle = {
     width: "100%",
+    maxWidth: "438px",
 
-    maxWidth: "520px",
-    padding: "22px 26px",
-    borderRadius: "24px",
+    boxSizing: "border-box",
 
-    background: darkMode
-      ? "rgba(15, 23, 42, 0.96)"
-      : "rgba(255, 255, 255, 0.97)",
+    padding: "24px",
+
+    borderRadius: "26px",
+
+    position: "relative",
+    zIndex: 2,
+
+    background: darkMode ? "rgba(15,23,42,0.96)" : "rgba(255,255,255,0.97)",
 
     border: darkMode
       ? "1px solid rgba(148,163,184,0.18)"
@@ -2468,6 +2496,7 @@ function Login() {
       : "0 30px 80px rgba(15,23,42,0.12)",
 
     backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
   };
 
   const inputStyle = {
