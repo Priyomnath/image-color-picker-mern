@@ -639,7 +639,7 @@ export const sendLoginOTP = async (req, res) => {
 
       await OTP.deleteMany({
         email: normalizedEmail,
-        purpose: "login",
+        purpose: "register",
       });
 
       throw emailError;
