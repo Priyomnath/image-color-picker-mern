@@ -45,10 +45,6 @@ export const registerUser = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // =========================================
-    // VALIDATION
-    // =========================================
-
     if (!email) {
       return res.status(400).json({
         success: false,
@@ -58,10 +54,6 @@ export const registerUser = async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // =========================================
-    // EMAIL VALIDATION
-    // =========================================
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(normalizedEmail)) {
@@ -70,10 +62,6 @@ export const registerUser = async (req, res) => {
         message: "Please enter a valid email address",
       });
     }
-
-    // =========================================
-    // CHECK EXISTING USER
-    // =========================================
 
     const existingUser = await User.findOne({
       email: normalizedEmail,
@@ -86,46 +74,29 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // =========================================
-    // GENERATE OTP
-    // =========================================
-
+    // Generate OTP
     const otp = generateOTP();
 
-    // =========================================
-    // HASH OTP
-    // =========================================
-
+    // Hash OTP
     const otpHash = await bcrypt.hash(otp, 10);
 
-    // =========================================
-    // 30 SECOND EXPIRY
-    // =========================================
+    // IMPORTANT: 30 seconds
+    const expiresAt = new Date(
+      Date.now() + 30 * 1000
+    );
 
-    const expiresAt = new Date(Date.now() + 30 * 1000);
-
-    // =========================================
-    // DELETE OLD REGISTER OTP
-    // =========================================
-
+    // Remove old register OTP
     await OTP.deleteMany({
       email: normalizedEmail,
       purpose: "register",
     });
 
-    // =========================================
-    // SAVE OTP
-    // =========================================
-
+    // Save OTP
     await OTP.create({
       email: normalizedEmail,
-
       otpHash,
-
       expiresAt,
-
       attempts: 0,
-
       purpose: "register",
 
       name: normalizedEmail.split("@")[0],
@@ -133,14 +104,17 @@ export const registerUser = async (req, res) => {
       passwordHash: null,
     });
 
-    // =========================================
-    // SEND EMAIL
-    // =========================================
-
+    // Send email
     try {
-      await sendOTPEmail(normalizedEmail, otp, "register");
+      await sendOTPEmail(
+        normalizedEmail,
+        otp
+      );
     } catch (emailError) {
-      console.error("REGISTER OTP EMAIL FAILED:", emailError);
+      console.error(
+        "REGISTER OTP EMAIL FAILED:",
+        emailError
+      );
 
       await OTP.deleteMany({
         email: normalizedEmail,
@@ -150,23 +124,20 @@ export const registerUser = async (req, res) => {
       throw emailError;
     }
 
-    // =========================================
-    // SUCCESS
-    // =========================================
-
     return res.status(200).json({
       success: true,
-
       message: "Verification code sent to your email",
-
       requiresVerification: true,
     });
+
   } catch (error) {
-    console.error("REGISTER ERROR:", error);
+    console.error(
+      "REGISTER ERROR:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
-
       message: "Failed to start registration",
     });
   }
@@ -423,7 +394,7 @@ export const resendRegisterOTP = async (req, res) => {
 
     const otpHash = await bcrypt.hash(otp, 10);
 
-    const expiresAt = new Date(Date.now() + 90 * 1000);
+    const expiresAt = new Date(Date.now() + 30 * 1000);
 
     otpRecord.otpHash = otpHash;
 

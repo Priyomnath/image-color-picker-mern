@@ -2187,7 +2187,7 @@ function Login() {
 
         setStep("otp");
 
-        setTimer(90);
+        setTimer(30);
 
         toast.success(response.data.message || "Verification code sent");
 
