@@ -32,7 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
           <ToastContainer
             position="top-right"
-            autoClose={2500}
+            autoClose={1200}
             theme="colored"
           />
         </ThemeProvider>
