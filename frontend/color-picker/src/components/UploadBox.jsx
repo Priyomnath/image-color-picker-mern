@@ -2219,6 +2219,30 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //14/09/2026 {time:  PM}
 import { useCallback, useEffect, useRef, useState } from "react";
 import "../pages/UploadBox.css";
@@ -3640,64 +3664,117 @@ function UploadBox() {
   // DOWNLOAD JSON
   // =====================================================
 
-  const downloadJSON = () => {
-    if (!colors.length) {
-      toast.error(
-        "No colors available",
-      );
+  // const downloadJSON = () => {
+  //   if (!colors.length) {
+  //     toast.error(
+  //       "No colors available",
+  //     );
 
-      return;
-    }
+  //     return;
+  //   }
 
-    const data = {
-      colors,
-      dominantColor,
-      createdAt:
-        new Date().toISOString(),
-    };
+  //   const data = {
+  //     colors,
+  //     dominantColor,
+  //     createdAt:
+  //       new Date().toISOString(),
+  //   };
 
-    const blob = new Blob(
-      [
-        JSON.stringify(
-          data,
-          null,
-          2,
-        ),
-      ],
-      {
-        type: "application/json",
-      },
-    );
+  //   const blob = new Blob(
+  //     [
+  //       JSON.stringify(
+  //         data,
+  //         null,
+  //         2,
+  //       ),
+  //     ],
+  //     {
+  //       type: "application/json",
+  //     },
+  //   );
 
-    const url =
-      URL.createObjectURL(blob);
+  //   const url =
+  //     URL.createObjectURL(blob);
 
-    const link =
-      document.createElement(
-        "a",
-      );
+  //   const link =
+  //     document.createElement(
+  //       "a",
+  //     );
 
-    link.href = url;
+  //   link.href = url;
 
-    link.download =
-      "color-palette.json";
+  //   link.download =
+  //     "color-palette.json";
 
-    document.body.appendChild(
-      link,
-    );
+  //   document.body.appendChild(
+  //     link,
+  //   );
 
-    link.click();
+  //   link.click();
 
-    document.body.removeChild(
-      link,
-    );
+  //   document.body.removeChild(
+  //     link,
+  //   );
 
-    URL.revokeObjectURL(url);
+  //   URL.revokeObjectURL(url);
 
-    toast.success(
-      "Palette downloaded successfully!",
-    );
+  //   toast.success(
+  //     "Palette downloaded successfully!",
+  //   );
+  // };
+
+  //22/09/2026 {time:  PM}💥
+  // =====================================================
+// DOWNLOAD JSON
+// =====================================================
+
+const downloadJSON = () => {
+  const token = localStorage.getItem("token");
+
+  // Login required
+  if (!token) {
+    toast.warning("Please login to download your palette");
+
+    navigate("/login");
+
+    return;
+  }
+
+  if (!colors.length) {
+    toast.error("No colors available");
+    return;
+  }
+
+  const data = {
+    colors,
+    dominantColor,
+    createdAt: new Date().toISOString(),
   };
+
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    {
+      type: "application/json",
+    }
+  );
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "color-palette.json";
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+
+  toast.success("Palette downloaded successfully!");
+};
 
   // =====================================================
   // REMOVE IMAGE
@@ -5142,3 +5219,37 @@ function UploadBox() {
 }
 
 export default UploadBox;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//20/09/2026 {time:  PM}

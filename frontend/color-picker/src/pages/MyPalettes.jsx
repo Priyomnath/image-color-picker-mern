@@ -1039,6 +1039,59 @@ ${colors
     toast.success("Tailwind Config Exported 🚀");
   };
 
+  //22/09/2026 {time:  PM}💥
+//   const handleDownloadImage = async (palette) => {
+//   const token = localStorage.getItem("token");
+
+//   if (!token) {
+//     toast.info("Please login to download your image");
+//     navigate("/login");
+//     return;
+//   }
+
+//   try {
+//     const response = await api.get(
+//       `/colors/${palette._id}/download`,
+//       {
+//         responseType: "blob",
+//       }
+//     );
+
+//     const blob = new Blob([response.data]);
+
+//     const url = window.URL.createObjectURL(blob);
+
+//     const link = document.createElement("a");
+
+//     link.href = url;
+
+//     link.download = `color-palette-${palette._id}.jpg`;
+
+//     document.body.appendChild(link);
+
+//     link.click();
+
+//     link.remove();
+
+//     window.URL.revokeObjectURL(url);
+
+//     toast.success("Image downloaded successfully!");
+//   } catch (error) {
+//     console.error("Download error:", error);
+
+//     if (error.response?.status === 401) {
+//       toast.info("Please login to download your image");
+//       navigate("/login");
+//       return;
+//     }
+
+//     toast.error(
+//       error.response?.data?.message ||
+//         "Failed to download image"
+//     );
+//   }
+// };
+
   // =========================================
   // Delete Palette
   // =========================================

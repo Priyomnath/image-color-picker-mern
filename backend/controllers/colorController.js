@@ -1,5 +1,56 @@
 import Color from "../models/Color.js";
 
+//22/09/2026 {time:  PM}💥
+import axios from "axios";
+
+export const downloadColorImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const palette = await Color.findOne({
+      _id: id,
+      user: req.user.id,
+    });
+
+    if (!palette) {
+      return res.status(404).json({
+        success: false,
+        message: "Palette not found",
+      });
+    }
+
+    if (!palette.image) {
+      return res.status(404).json({
+        success: false,
+        message: "Image not found",
+      });
+    }
+
+    const response = await axios.get(palette.image, {
+      responseType: "arraybuffer",
+    });
+
+    res.setHeader(
+      "Content-Type",
+      response.headers["content-type"] || "image/jpeg"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="color-palette-${palette._id}.jpg"`
+    );
+
+    return res.send(response.data);
+  } catch (error) {
+    console.error("DOWNLOAD IMAGE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to download image",
+    });
+  }
+};
+
 // Save Palette
 
 //07/08/2026 {time:  PM}
