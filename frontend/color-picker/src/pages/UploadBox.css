@@ -675,7 +675,304 @@
 
 
 
+/* 💥💥 */
+/* =====================================================
+   PROFESSIONAL DARK MODE
+===================================================== */
 
-/* //11/08/2026 {time:  PM} */
+.upload-page {
+  transition:
+    background 0.35s ease,
+    color 0.35s ease;
+}
 
+/* MAIN PICKER CARD */
+.picker-main-layout {
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
 
+/* IMAGE CONTAINER */
+.image-magnifier-container {
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.25s ease;
+}
+
+.image-magnifier-container:hover {
+  transform: translateY(-2px);
+}
+
+/* RIGHT SIDE COLOR BOXES */
+.color-value {
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.color-value:hover {
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.25),
+    0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+/* UPLOAD CARD */
+.upload-image-box {
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* MAGNIFIER */
+.magnifier-zoom-box {
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* PALETTE */
+.palette-list > div {
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.palette-list > div:hover {
+  transform: translateY(-2px);
+}
+
+/* PALETTE COPY / PLUS BUTTON */
+.palette-list button {
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.palette-list button:hover {
+  transform: translateY(-1px);
+}
+
+/* ACTION BUTTONS */
+.action-buttons button {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.action-buttons button:hover {
+  transform: translateY(-2px);
+}
+
+/* BLUE SAVE BUTTON */
+.save-palette-btn {
+  background: linear-gradient(
+    135deg,
+    #087cff,
+    #0066ff
+  ) !important;
+
+  border: 1px solid #1685ff !important;
+
+  box-shadow:
+    0 8px 25px rgba(0, 110, 255, 0.25);
+}
+
+.save-palette-btn:hover {
+  box-shadow:
+    0 10px 32px rgba(0, 110, 255, 0.42);
+
+  transform: translateY(-2px);
+}
+
+/* REMOVE BUTTON */
+.remove-image-btn:hover {
+  background: rgba(220, 38, 38, 0.08) !important;
+  box-shadow:
+    0 0 20px rgba(239, 68, 68, 0.08);
+}
+
+/* =====================================================
+   DARK MODE EXTRA POLISH
+===================================================== */
+
+.dark-mode-page {
+  background:
+    radial-gradient(
+      circle at 50% -20%,
+      rgba(30, 80, 150, 0.12),
+      transparent 45%
+    ),
+    #070b12 !important;
+}
+
+.dark-mode-page .picker-main-layout {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(10, 17, 27, 0.96),
+      rgba(6, 10, 17, 0.98)
+    );
+
+  border: 1px solid rgba(72, 94, 120, 0.35);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+/* IMAGE FRAME */
+.dark-mode-page .image-magnifier-container {
+  background: #090f18 !important;
+
+  border: 1px solid #24364b !important;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(59, 130, 246, 0.05);
+}
+
+/* RIGHT SIDE INPUTS */
+.dark-mode-page .color-value {
+  background:
+    linear-gradient(
+      135deg,
+      #111b29,
+      #0d1521
+    ) !important;
+
+  border: 1px solid #26384d !important;
+}
+
+/* UPLOAD BOX */
+.dark-mode-page .upload-image-box {
+  background:
+    linear-gradient(
+      145deg,
+      #111c2b,
+      #0c1521
+    ) !important;
+
+  border: 1px solid #2a4058 !important;
+
+  border-radius: 14px;
+}
+
+/* MAGNIFIER BOX */
+.dark-mode-page .magnifier-zoom-box {
+  background:
+    linear-gradient(
+      145deg,
+      #111a28,
+      #0b131f
+    ) !important;
+
+  border: 1px solid #263a50 !important;
+
+  border-radius: 14px;
+}
+
+/* PALETTE */
+.dark-mode-page .palette-list {
+  margin-top: 12px;
+}
+
+/* PALETTE COLOR */
+.dark-mode-page .palette-list > div {
+  border-radius: 12px;
+}
+
+/* PALETTE PLUS/COPY */
+.dark-mode-page .palette-list button {
+  background: #111b29 !important;
+
+  border: 1px solid #2b4058 !important;
+
+  color: #e8f0f8 !important;
+}
+
+.dark-mode-page .palette-list button:hover {
+  background: #17263a !important;
+
+  border-color: #3b82f6 !important;
+}
+
+/* TEXT */
+.dark-mode-page h1,
+.dark-mode-page h2,
+.dark-mode-page h3,
+.dark-mode-page h4,
+.dark-mode-page h5 {
+  color: #f8fafc;
+}
+
+.dark-mode-page small {
+  color: #94a3b8;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 991px) {
+  .picker-main-layout {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+
+  .picker-right-section {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .picker-main-layout {
+    padding: 12px !important;
+    gap: 22px !important;
+  }
+
+  .image-magnifier-container {
+    min-height: 220px !important;
+    padding: 7px !important;
+    border-radius: 14px !important;
+  }
+
+  .image-magnifier-container img {
+    border-radius: 10px !important;
+  }
+
+  .picker-right-section h5 {
+    font-size: 17px;
+  }
+
+  .color-palette-section {
+    margin-top: 22px !important;
+  }
+
+  .color-value {
+    grid-template-columns:
+      60px 1fr 42px !important;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .picker-main-layout {
+    padding: 8px !important;
+  }
+
+  .action-buttons {
+    grid-template-columns: 1fr !important;
+  }
+}

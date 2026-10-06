@@ -1,0 +1,303 @@
+/* =====================================================
+   EXTRACT COLORS PAGE
+   PROFESSIONAL DARK MODE
+===================================================== */
+
+.extract-page {
+  min-height: 100vh;
+
+  /* transition:
+    background 0.35s ease,
+    color 0.35s ease; */
+}
+
+
+/* =====================================================
+   LIGHT MODE
+===================================================== */
+
+.extract-page-light {
+  background: #f6f8fb;
+  color: #1f2937;
+}
+
+
+/* =====================================================
+   DARK MODE
+===================================================== */
+
+.extract-page-dark {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(37, 99, 235, 0.14),
+      transparent 42%
+    ),
+    #070b12;
+
+  color: #f8fafc;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+/* .extract-hero {
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+} */
+
+
+/* LIGHT HERO */
+
+.extract-hero-light {
+  background:
+    linear-gradient(
+      135deg,
+      #f8f9ff,
+      #eef5ff,
+      #f8f0ff
+    );
+
+  border: 1px solid rgba(13, 110, 253, 0.08);
+}
+
+
+/* DARK HERO */
+
+.extract-hero-dark {
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(37, 99, 235, 0.14),
+      transparent 55%
+    ),
+    linear-gradient(
+      145deg,
+      #0e1725,
+      #090f18
+    );
+
+  border: 1px solid #26384d;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+
+/* =====================================================
+   HERO TEXT
+===================================================== */
+
+.extract-page-dark h1,
+.extract-page-dark h2,
+.extract-page-dark h3 {
+  color: #f8fafc;
+}
+
+.extract-page-dark .text-muted {
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   BADGES
+===================================================== */
+
+.extract-badge-dark {
+  background: #111b29 !important;
+
+  color: #e5edf7 !important;
+
+  border-color: #2b4058 !important;
+}
+
+.extract-badge-dark:hover {
+  background: #17263a !important;
+
+  border-color: #3b82f6 !important;
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.extract-card-light {
+  background: #ffffff;
+
+  color: #1f2937;
+
+  border: 1px solid transparent;
+}
+
+.extract-card-dark {
+  background:
+    linear-gradient(
+      145deg,
+      #111b29,
+      #0d1521
+    ) !important;
+
+  color: #f8fafc;
+
+  border: 1px solid #26384d !important;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.25) !important;
+
+  /* transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease; */
+}
+
+.extract-card-dark:hover {
+  transform: translateY(-4px);
+
+  border-color: #3b82f6 !important;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.35) !important;
+}
+
+.extract-card-dark .text-muted {
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   FAQ
+===================================================== */
+
+.extract-accordion-dark .accordion-item {
+  background: #111b29;
+
+  border: 1px solid #26384d;
+
+  color: #e5edf7;
+}
+
+.extract-accordion-dark .accordion-button {
+  background: #111b29;
+
+  color: #f8fafc;
+
+  box-shadow: none;
+}
+
+.extract-accordion-dark .accordion-button:not(.collapsed) {
+  background: #162438;
+
+  color: #60a5fa;
+
+  box-shadow: none;
+}
+
+.extract-accordion-dark .accordion-button::after {
+  filter: invert(1);
+}
+
+.extract-accordion-dark .accordion-body {
+  background: #0d1521;
+
+  color: #94a3b8;
+}
+
+
+/* =====================================================
+   SMOOTH PAGE TRANSITION
+===================================================== */
+
+/* .extract-page,
+.extract-page * {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+} */
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+  .extract-hero {
+    padding: 25px !important;
+  }
+
+  .extract-page h1 {
+    font-size: 2.2rem;
+  }
+}
+
+
+/* //26/09/2026 {time:  PM} *//* =====================================================
+   EXTRACT COLORS - AUDIENCE & COLOR VALUE CARDS
+===================================================== */
+
+/* Dark mode cards */
+.extract-page-dark .extract-card-dark {
+  background: linear-gradient(
+    145deg,
+    #111b29,
+    #0d1521
+  ) !important;
+
+  color: #f8fafc !important;
+
+  border: 1px solid #26384d !important;
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.25) !important;
+
+  /* transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease; */
+}
+
+
+/* Card hover */
+.extract-page-dark .extract-card-dark:hover {
+  transform: translateY(-5px);
+
+  border-color: #3b82f6 !important;
+
+  background: linear-gradient(
+    145deg,
+    #142238,
+    #0f1a29
+  ) !important;
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.35) !important;
+}
+
+
+/* Card heading */
+.extract-page-dark .extract-card-dark h3,
+.extract-page-dark .extract-card-dark h4,
+.extract-page-dark .extract-card-dark h5 {
+  color: #f8fafc !important;
+}
+
+
+/* Card paragraph */
+.extract-page-dark .extract-card-dark p {
+  color: #94a3b8 !important;
+}
+
+
+/* Emoji / icon */
+.extract-page-dark .extract-card-dark .fs-1,
+.extract-page-dark .extract-card-dark .fs-2,
+.extract-page-dark .extract-card-dark .fs-3 {
+  filter: brightness(1.05);
+}

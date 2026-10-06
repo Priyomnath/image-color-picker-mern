@@ -1,0 +1,13 @@
+.magnifier-lens {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+  border-radius: 50%; /* প্রয়োজন হলে গোল করার জন্য */
+}

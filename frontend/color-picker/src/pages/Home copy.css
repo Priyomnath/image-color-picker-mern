@@ -1,0 +1,159 @@
+/* //25/09/2026 {time:  PM} */
+
+/* =====================================================
+   HOME PAGE THEME
+===================================================== */
+
+.home-page {
+  min-height: 100vh;
+
+  transition:
+    background 0.35s ease,
+    color 0.35s ease;
+}
+
+
+/* =====================================================
+   LIGHT MODE
+===================================================== */
+
+.home-light {
+  background: #f6f8fb;
+  color: #1f2937;
+}
+
+
+/* =====================================================
+   DARK MODE
+===================================================== */
+
+.home-dark {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(37, 99, 235, 0.16),
+      transparent 42%
+    ),
+    #070b12;
+
+  color: #f8fafc;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero-section {
+  border-radius: 22px;
+  padding: 40px;
+
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+
+/* LIGHT HERO */
+
+.hero-light {
+  background:
+    linear-gradient(
+      135deg,
+      #f8f9ff,
+      #eef5ff,
+      #f8f0ff
+    );
+
+  border: 1px solid rgba(13, 110, 253, 0.08);
+}
+
+
+/* DARK HERO */
+
+.hero-dark {
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(37, 99, 235, 0.13),
+      transparent 55%
+    ),
+    linear-gradient(
+      145deg,
+      #0d1521,
+      #090f18
+    );
+
+  border: 1px solid rgba(71, 92, 120, 0.35);
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+
+/* === 2 ==== */
+.hero-title-light {
+  color: #111827;
+}
+
+.hero-title-dark {
+  color: #f8fafc;
+}
+
+
+/* ===== 3 ===== */
+.hero-description-dark {
+  color: #94a3b8;
+}
+
+
+/* ==== 4 ===== */
+.feature-badge-dark {
+  background: #111b29 !important;
+  color: #e5edf7 !important;
+
+  border-color: #2a3d54 !important;
+}
+
+.feature-badge-dark:hover {
+  background: #17263a !important;
+  border-color: #3b82f6 !important;
+}
+
+/* ----- 5 ------ */
+.feature-card-light {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.feature-card-dark {
+  background:
+    linear-gradient(
+      145deg,
+      #111b29,
+      #0d1521
+    ) !important;
+
+  color: #f8fafc;
+
+  border: 1px solid #26384d !important;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.25) !important;
+}
+
+.feature-card-dark p {
+  color: #94a3b8 !important;
+}
+
+.feature-card-dark:hover {
+  border-color: #3b82f6 !important;
+
+  transform: translateY(-4px);
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease;
+}

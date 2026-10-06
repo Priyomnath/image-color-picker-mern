@@ -17,22 +17,18 @@ export function ThemeProvider({ children }) {
     if (darkMode) {
       root.setAttribute("data-theme", "dark");
 
-      body.classList.remove("light-mode");
-      body.classList.add("dark-mode");
+      body.classList.remove("light-theme");
+      body.classList.add("dark-theme");
 
-      body.style.backgroundColor = "#08090a";
-      body.style.color = "#ffffff";
+      localStorage.setItem("theme", "dark");
     } else {
       root.setAttribute("data-theme", "light");
 
-      body.classList.remove("dark-mode");
-      body.classList.add("light-mode");
+      body.classList.remove("dark-theme");
+      body.classList.add("light-theme");
 
-      body.style.backgroundColor = "#f8f9fa";
-      body.style.color = "#212529";
+      localStorage.setItem("theme", "light");
     }
-
-    localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
   // =====================================================

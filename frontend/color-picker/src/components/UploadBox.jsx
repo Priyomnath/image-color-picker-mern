@@ -1,3 +1,4 @@
+// //14/09/2026 {time:  PM}
 // import { useCallback, useEffect, useRef, useState } from "react";
 // import "../pages/UploadBox.css";
 
@@ -86,13 +87,14 @@
 //   // THEME
 //   // =====================================================
 
+//   //💥💥
 //   const theme = {
-//     background: darkMode ? "#08090a" : "#f6f8fb",
-//     card: darkMode ? "#171c22" : "#ffffff",
-//     text: darkMode ? "#ffffff" : "#1f2937",
-//     muted: darkMode ? "#9da3aa" : "#6b7280",
-//     border: darkMode ? "#292d32" : "#dfe3e8",
-//     input: darkMode ? "#111317" : "#ffffff",
+//     background: darkMode ? "#070b12" : "#f6f8fb",
+//     card: darkMode ? "#0d1521" : "#ffffff",
+//     text: darkMode ? "#f8fafc" : "#1f2937",
+//     muted: darkMode ? "#94a3b8" : "#6b7280",
+//     border: darkMode ? "#26384d" : "#dfe3e8",
+//     input: darkMode ? "#111b29" : "#ffffff",
 //   };
 
 //   // =====================================================
@@ -107,15 +109,15 @@
 
 //   const isLoggedIn = !!localStorage.getItem("token");
 
-//   //19/09/2026 {time:  PM}
-//   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-//   const [uploading, setUploading] = useState(false);
-
 //   // =====================================================
 //   // STATES
 //   // =====================================================
 
 //   const [image, setImage] = useState(DEFAULT_IMAGE);
+
+//   // Permanent Cloudinary URL used when saving the palette
+//   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+//   const [uploading, setUploading] = useState(false);
 
 //   const [colors, setColors] = useState([]);
 
@@ -190,6 +192,42 @@
 //     // =================================================
 
 //     setImage(imageUrl);
+//     setUploadedImageUrl("");
+//     setUploading(true);
+
+//     // =================================================
+//     // UPLOAD ORIGINAL IMAGE TO CLOUDINARY
+//     // Keep the blob URL above only for the live preview.
+//     // The permanent Cloudinary URL is stored in MongoDB.
+//     // =================================================
+
+//     try {
+//       const formData = new FormData();
+//       formData.append("image", file);
+
+//       const uploadResponse = await api.post("/upload", formData, {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       });
+
+//       const cloudinaryUrl = uploadResponse.data?.imageUrl;
+
+//       if (!cloudinaryUrl) {
+//         throw new Error("Cloudinary image URL was not returned");
+//       }
+
+//       setUploadedImageUrl(cloudinaryUrl);
+//     } catch (uploadError) {
+//       console.error("Image upload error:", uploadError);
+//       setUploadedImageUrl("");
+//       toast.error(
+//         uploadError.response?.data?.message ||
+//           "Failed to upload image. Please try again.",
+//       );
+//     } finally {
+//       setUploading(false);
+//     }
 
 //     setColors([]);
 
@@ -1012,12 +1050,22 @@
 //       return;
 //     }
 
+//     if (uploading) {
+//       toast.info("Image is still uploading. Please wait.");
+//       return;
+//     }
+
+//     if (!uploadedImageUrl) {
+//       toast.error("Image upload failed. Please upload the image again.");
+//       return;
+//     }
+
 //     try {
 //       const res = await api.post("/colors", {
 //         title: "My Color Palette",
 //         colors,
 //         dominantColor,
-//         image,
+//         image: uploadedImageUrl,
 //       });
 
 //       console.log("SAVE RESPONSE:", res.data);
@@ -1038,10 +1086,84 @@
 //   // DOWNLOAD JSON
 //   // =====================================================
 
+//   // const downloadJSON = () => {
+//   //   if (!colors.length) {
+//   //     toast.error(
+//   //       "No colors available",
+//   //     );
+
+//   //     return;
+//   //   }
+
+//   //   const data = {
+//   //     colors,
+//   //     dominantColor,
+//   //     createdAt:
+//   //       new Date().toISOString(),
+//   //   };
+
+//   //   const blob = new Blob(
+//   //     [
+//   //       JSON.stringify(
+//   //         data,
+//   //         null,
+//   //         2,
+//   //       ),
+//   //     ],
+//   //     {
+//   //       type: "application/json",
+//   //     },
+//   //   );
+
+//   //   const url =
+//   //     URL.createObjectURL(blob);
+
+//   //   const link =
+//   //     document.createElement(
+//   //       "a",
+//   //     );
+
+//   //   link.href = url;
+
+//   //   link.download =
+//   //     "color-palette.json";
+
+//   //   document.body.appendChild(
+//   //     link,
+//   //   );
+
+//   //   link.click();
+
+//   //   document.body.removeChild(
+//   //     link,
+//   //   );
+
+//   //   URL.revokeObjectURL(url);
+
+//   //   toast.success(
+//   //     "Palette downloaded successfully!",
+//   //   );
+//   // };
+
+//   //22/09/2026 {time:  PM}💥
+//   // =====================================================
+//   // DOWNLOAD JSON
+//   // =====================================================
+
 //   const downloadJSON = () => {
+//     const token = localStorage.getItem("token");
+
+//     // Login required
+//     if (!token) {
+//       toast.warning("Please login to download your palette");
+
+//       navigate("/login");
+
+//       return;
+//     }
+
 //     if (!colors.length) {
 //       toast.error("No colors available");
-
 //       return;
 //     }
 
@@ -1060,7 +1182,6 @@
 //     const link = document.createElement("a");
 
 //     link.href = url;
-
 //     link.download = "color-palette.json";
 
 //     document.body.appendChild(link);
@@ -1080,6 +1201,8 @@
 
 //   const removeImage = () => {
 //     setImage(DEFAULT_IMAGE);
+//     setUploadedImageUrl("");
+//     setUploading(false);
 
 //     setHoverColor("");
 
@@ -1128,7 +1251,10 @@
 
 //   return (
 //     <section
-//       className="container-fluid py-4"
+//       //💥💥
+//       className={`container-fluid py-4 upload-page ${
+//         darkMode ? "dark-mode-page" : ""
+//       }`}
 //       style={{
 //         background: theme.background,
 //         color: theme.text,
@@ -1162,6 +1288,9 @@
 //           gap: "35px",
 //           width: "100%",
 //           boxSizing: "border-box",
+//           background: "transparent",
+//           border: "none",
+//           boxShadow: "none",
 //         }}
 //       >
 //         {/* =================================================
@@ -1215,14 +1344,11 @@
 //               minHeight: "300px",
 //               borderRadius: "18px",
 //               overflow: "visible",
-//               background: darkMode ? "#111317" : "#ffffff",
-//               border: `1px solid ${theme.border}`,
-//               boxShadow: darkMode
-//                 ? "0 20px 50px rgba(0,0,0,0.35)"
-//                 : "0 15px 40px rgba(0,0,0,0.08)",
-//               padding: "10px",
+//               background: "transparent",
+//               border: "none",
+//               boxShadow: "none",
+//               padding: "0",
 //               boxSizing: "border-box",
-//               transition: "all 0.3s ease",
 //             }}
 //           >
 //             <input {...getInputProps()} />
@@ -1261,43 +1387,50 @@
 //                 style={{
 //                   position: "fixed",
 
-//                   // Cursor থেকে মাত্র 15px দূরে
 //                   left: `${Math.max(
-//                     8,
-//                     Math.min(magnifier.x + 15, window.innerWidth - 128),
+//                     4,
+//                     Math.min(magnifier.x - 60, window.innerWidth - 124),
 //                   )}px`,
 
 //                   top: `${Math.max(
-//                     8,
-//                     Math.min(magnifier.y + 15, window.innerHeight - 128),
+//                     4,
+//                     Math.min(magnifier.y - 60, window.innerHeight - 124),
 //                   )}px`,
 
 //                   width: "120px",
 //                   height: "120px",
 
 //                   borderRadius: "50%",
-
 //                   overflow: "hidden",
 
-//                   background: "rgba(10, 12, 15, 0.9)",
+//                   background: darkMode
+//                     ? "rgba(8, 12, 18, 0.96)"
+//                     : "rgba(255, 255, 255, 0.96)",
 
-//                   border: "3px solid rgba(255,255,255,0.95)",
+//                   border: darkMode
+//                     ? "3px solid rgba(255,255,255,0.95)"
+//                     : "3px solid rgba(20,25,35,0.9)",
 
-//                   boxShadow: `
-//                       0 0 0 2px rgba(0,0,0,0.75),
-//                       0 10px 35px rgba(0,0,0,0.7),
-//                       0 0 25px rgba(255,255,255,0.15)
-//                     `,
+//                   boxShadow: darkMode
+//                     ? `
+//       0 0 0 2px rgba(0,0,0,0.9),
+//       0 8px 25px rgba(0,0,0,0.65),
+//       0 0 35px rgba(80,140,255,0.22)
+//     `
+//                     : `
+//       0 0 0 2px rgba(0,0,0,0.15),
+//       0 8px 25px rgba(0,0,0,0.22)
+//     `,
 
 //                   zIndex: 99999,
 
 //                   pointerEvents: "auto",
-
 //                   touchAction: "none",
-
 //                   userSelect: "none",
-
 //                   WebkitUserSelect: "none",
+
+//                   transform: "translateZ(0)",
+//                   willChange: "left, top",
 //                 }}
 //               >
 //                 {/* ZOOMED PIXEL CANVAS */}
@@ -2201,7 +2334,7 @@
 
 //             .palette-row span {
 //               width: 62px !important;
-//               font-size: 10px !important; 
+//               font-size: 10px !important;
 //             }
 
 //             .palette-row button {
@@ -2217,33 +2350,9 @@
 
 // export default UploadBox;
 
+// //20/09/2026 {time:  PM}
+//14/09/2026 {time: PM}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//14/09/2026 {time:  PM}
 import { useCallback, useEffect, useRef, useState } from "react";
 import "../pages/UploadBox.css";
 
@@ -2278,10 +2387,7 @@ const rgbToHsl = (r, g, b) => {
   } else {
     const d = max - min;
 
-    s =
-      l > 0.5
-        ? d / (2 - max - min)
-        : d / (max + min);
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
     switch (max) {
       case r:
@@ -2316,11 +2422,7 @@ const rgbToHex = (r, g, b) => {
   return (
     "#" +
     [r, g, b]
-      .map((value) =>
-        Math.round(value)
-          .toString(16)
-          .padStart(2, "0"),
-      )
+      .map((value) => Math.round(value).toString(16).padStart(2, "0"))
       .join("")
       .toUpperCase()
   );
@@ -2340,12 +2442,12 @@ function UploadBox() {
   // =====================================================
 
   const theme = {
-    background: darkMode ? "#08090a" : "#f6f8fb",
-    card: darkMode ? "#171c22" : "#ffffff",
-    text: darkMode ? "#ffffff" : "#1f2937",
-    muted: darkMode ? "#9da3aa" : "#6b7280",
-    border: darkMode ? "#292d32" : "#dfe3e8",
-    input: darkMode ? "#111317" : "#ffffff",
+    background: darkMode ? "#070b12" : "#f6f8fb",
+    card: darkMode ? "#0d1521" : "#ffffff",
+    text: darkMode ? "#f8fafc" : "#1f2937",
+    muted: darkMode ? "#94a3b8" : "#6b7280",
+    border: darkMode ? "#26384d" : "#dfe3e8",
+    input: darkMode ? "#111b29" : "#ffffff",
   };
 
   // =====================================================
@@ -2360,14 +2462,16 @@ function UploadBox() {
 
   const isLoggedIn = !!localStorage.getItem("token");
 
+  void isLoggedIn;
+
   // =====================================================
   // STATES
   // =====================================================
 
   const [image, setImage] = useState(DEFAULT_IMAGE);
 
-  // Permanent Cloudinary URL used when saving the palette
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+
   const [uploading, setUploading] = useState(false);
 
   const [colors, setColors] = useState([]);
@@ -2397,8 +2501,7 @@ function UploadBox() {
   // MAGNIFIER DISABLED AFTER CLICK
   // =====================================================
 
-  const [magnifierDisabled, setMagnifierDisabled] =
-    useState(false);
+  const [magnifierDisabled, setMagnifierDisabled] = useState(false);
 
   // =====================================================
   // PALETTE EXPANSION
@@ -2418,10 +2521,23 @@ function UploadBox() {
 
   const magnifierContainerRef = useRef(null);
 
+  // Direct lens DOM control
+  const magnifierLensRef = useRef(null);
+
+  // Touch position
   const lastTouchPositionRef = useRef({
     x: 0,
     y: 0,
   });
+
+  // Latest pixel position
+  const pixelPositionRef = useRef({
+    x: 0,
+    y: 0,
+  });
+
+  // Animation frame
+  const pixelUpdateFrameRef = useRef(null);
 
   // =====================================================
   // IMAGE UPLOAD
@@ -2439,22 +2555,19 @@ function UploadBox() {
 
     const imageUrl = URL.createObjectURL(file);
 
-    // =================================================
-    // RESET OLD IMAGE DATA
-    // =================================================
-
     setImage(imageUrl);
+
     setUploadedImageUrl("");
+
     setUploading(true);
 
     // =================================================
     // UPLOAD ORIGINAL IMAGE TO CLOUDINARY
-    // Keep the blob URL above only for the live preview.
-    // The permanent Cloudinary URL is stored in MongoDB.
     // =================================================
 
     try {
       const formData = new FormData();
+
       formData.append("image", file);
 
       const uploadResponse = await api.post("/upload", formData, {
@@ -2472,7 +2585,9 @@ function UploadBox() {
       setUploadedImageUrl(cloudinaryUrl);
     } catch (uploadError) {
       console.error("Image upload error:", uploadError);
+
       setUploadedImageUrl("");
+
       toast.error(
         uploadError.response?.data?.message ||
           "Failed to upload image. Please try again.",
@@ -2480,6 +2595,10 @@ function UploadBox() {
     } finally {
       setUploading(false);
     }
+
+    // =================================================
+    // RESET OLD IMAGE DATA
+    // =================================================
 
     setColors([]);
 
@@ -2490,6 +2609,11 @@ function UploadBox() {
     setHoverRGB("");
 
     setHoverHSL("");
+
+    pixelPositionRef.current = {
+      x: 0,
+      y: 0,
+    };
 
     setPixelPosition({
       x: 0,
@@ -2508,13 +2632,12 @@ function UploadBox() {
 
     setExpandedColors({});
 
-    try {
-      // =================================================
-      // EXTRACT COLORS
-      // =================================================
+    // =================================================
+    // EXTRACT COLORS
+    // =================================================
 
-      const palette =
-        await Vibrant.from(imageUrl).getPalette();
+    try {
+      const palette = await Vibrant.from(imageUrl).getPalette();
 
       const extractedColors = [
         palette.Vibrant?.hex,
@@ -2527,33 +2650,17 @@ function UploadBox() {
         .filter(Boolean)
         .map((color) => color.toUpperCase());
 
-      console.log(
-        "Extracted Palette:",
-        extractedColors,
-      );
-
-      // =================================================
-      // SET 6 COLORS
-      // =================================================
+      console.log("Extracted Palette:", extractedColors);
 
       setColors(extractedColors);
 
-      // =================================================
-      // DOMINANT COLOR
-      // =================================================
-
       if (palette.Vibrant?.hex) {
-        setDominantColor(
-          palette.Vibrant.hex.toUpperCase(),
-        );
+        setDominantColor(palette.Vibrant.hex.toUpperCase());
       } else if (extractedColors.length > 0) {
         setDominantColor(extractedColors[0]);
       }
     } catch (error) {
-      console.error(
-        "Color extraction error:",
-        error,
-      );
+      console.error("Color extraction error:", error);
 
       toast.error("Failed to extract colors");
     }
@@ -2563,19 +2670,10 @@ function UploadBox() {
   // DROPZONE
   // =====================================================
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-  } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".webp",
-      ],
+      "image/*": [".jpg", ".jpeg", ".png", ".webp"],
     },
     multiple: false,
   });
@@ -2601,30 +2699,16 @@ function UploadBox() {
 
     if (!ctx) return;
 
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height,
-    );
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.drawImage(
-      img,
-      0,
-      0,
-      img.naturalWidth,
-      img.naturalHeight,
-    );
+    ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
   };
 
   // =====================================================
   // GET PIXEL FROM CLIENT POSITION
   // =====================================================
 
-  const getPixelFromClientPosition = (
-    clientX,
-    clientY,
-  ) => {
+  const getPixelFromClientPosition = (clientX, clientY) => {
     const img = imageRef.current;
 
     if (!img) return null;
@@ -2644,26 +2728,18 @@ function UploadBox() {
       return null;
     }
 
-    const scaleX =
-      img.naturalWidth / rect.width;
+    const scaleX = img.naturalWidth / rect.width;
 
-    const scaleY =
-      img.naturalHeight / rect.height;
+    const scaleY = img.naturalHeight / rect.height;
 
     const pixelX = Math.min(
       img.naturalWidth - 1,
-      Math.max(
-        0,
-        Math.floor(displayX * scaleX),
-      ),
+      Math.max(0, Math.floor(displayX * scaleX)),
     );
 
     const pixelY = Math.min(
       img.naturalHeight - 1,
-      Math.max(
-        0,
-        Math.floor(displayY * scaleY),
-      ),
+      Math.max(0, Math.floor(displayY * scaleY)),
     );
 
     return {
@@ -2675,51 +2751,103 @@ function UploadBox() {
   };
 
   // =====================================================
+  // SMOOTH MAGNIFIER POSITION
+  // =====================================================
+
+  // const moveMagnifierLens = (clientX, clientY) => {
+  //   const lens = magnifierLensRef.current;
+
+  //   if (!lens) return;
+
+  //   const gapX = 4;
+  //   const gapY = 8;
+
+  //   lens.style.transform = `translate3d(${clientX + gapX}px, ${clientY + gapY}px, 0)`;
+  // };
+
+  const moveMagnifierLens = (clientX, clientY) => {
+    const lens = magnifierLensRef.current;
+    if (!lens) return;
+
+    const gapX = 25;
+    const gapY = 25;
+
+    lens.style.transform = `translate3d(
+    ${clientX + gapX}px,
+    ${clientY + gapY}px,
+    0
+  )`;
+  };
+
+  // =====================================================
   // UPDATE MAGNIFIER
   // =====================================================
 
-  const updateMagnifier = (
-    clientX,
-    clientY,
-  ) => {
-    // Lens disabled হলে hide
+  const updateMagnifier = (clientX, clientY) => {
     if (magnifierDisabled) {
-      setMagnifier({
-        visible: false,
-        x: 0,
-        y: 0,
-      });
-
       return;
     }
 
-    const position =
-      getPixelFromClientPosition(
-        clientX,
-        clientY,
-      );
+    const position = getPixelFromClientPosition(clientX, clientY);
 
-    // Image-এর বাইরে গেলে hide
     if (!position) {
-      setMagnifier({
+      setMagnifier((prev) => ({
+        ...prev,
         visible: false,
-        x: 0,
-        y: 0,
-      });
+      }));
 
       return;
     }
 
-    setPixelPosition({
+    // =================================================
+    // MOVE LENS DIRECTLY
+    // =================================================
+
+    moveMagnifierLens(clientX, clientY);
+
+    // =================================================
+    // STORE PIXEL IMMEDIATELY
+    // =================================================
+
+    pixelPositionRef.current = {
       x: position.pixelX,
       y: position.pixelY,
+    };
+
+    // =================================================
+    // UPDATE REACT STATE ON RAF
+    // =================================================
+
+    if (pixelUpdateFrameRef.current === null) {
+      pixelUpdateFrameRef.current = requestAnimationFrame(() => {
+        pixelUpdateFrameRef.current = null;
+
+        setPixelPosition({
+          x: pixelPositionRef.current.x,
+          y: pixelPositionRef.current.y,
+        });
+      });
+    }
+
+    // =================================================
+    // SHOW LENS
+    // =================================================
+
+    setMagnifier((prev) => {
+      if (!prev.visible) {
+        return {
+          visible: true,
+          x: clientX,
+          y: clientY,
+        };
+      }
+
+      return prev;
     });
 
-    setMagnifier({
-      visible: true,
-      x: clientX,
-      y: clientY,
-    });
+    // =================================================
+    // TOUCH POSITION
+    // =================================================
 
     lastTouchPositionRef.current = {
       x: clientX,
@@ -2731,16 +2859,8 @@ function UploadBox() {
   // READ COLOR FROM PIXEL
   // =====================================================
 
-  const selectPixelColor = (
-    clientX,
-    clientY,
-    showToast = true,
-  ) => {
-    const position =
-      getPixelFromClientPosition(
-        clientX,
-        clientY,
-      );
+  const selectPixelColor = (clientX, clientY, showToast = true) => {
+    const position = getPixelFromClientPosition(clientX, clientY);
 
     if (!position) return;
 
@@ -2754,12 +2874,7 @@ function UploadBox() {
 
     if (!ctx) return;
 
-    const pixel = ctx.getImageData(
-      position.pixelX,
-      position.pixelY,
-      1,
-      1,
-    ).data;
+    const pixel = ctx.getImageData(position.pixelX, position.pixelY, 1, 1).data;
 
     const [r, g, b] = pixel;
 
@@ -2767,13 +2882,14 @@ function UploadBox() {
 
     setHoverColor(hex);
 
-    setHoverRGB(
-      `rgb(${r}, ${g}, ${b})`,
-    );
+    setHoverRGB(`rgb(${r}, ${g}, ${b})`);
 
-    setHoverHSL(
-      rgbToHsl(r, g, b),
-    );
+    setHoverHSL(rgbToHsl(r, g, b));
+
+    pixelPositionRef.current = {
+      x: position.pixelX,
+      y: position.pixelY,
+    };
 
     setPixelPosition({
       x: position.pixelX,
@@ -2781,12 +2897,9 @@ function UploadBox() {
     });
 
     if (showToast) {
-      toast.success(
-        `Color Selected: ${hex}`,
-        {
-          autoClose: 800,
-        },
-      );
+      toast.success(`Color Selected: ${hex}`, {
+        autoClose: 800,
+      });
     }
   };
 
@@ -2799,10 +2912,7 @@ function UploadBox() {
       return;
     }
 
-    updateMagnifier(
-      e.clientX,
-      e.clientY,
-    );
+    updateMagnifier(e.clientX, e.clientY);
   };
 
   // =====================================================
@@ -2820,14 +2930,11 @@ function UploadBox() {
 
     if (!img || !canvas) return;
 
-    const rect =
-      img.getBoundingClientRect();
+    const rect = img.getBoundingClientRect();
 
-    const displayX =
-      e.clientX - rect.left;
+    const displayX = e.clientX - rect.left;
 
-    const displayY =
-      e.clientY - rect.top;
+    const displayY = e.clientY - rect.top;
 
     if (
       displayX < 0 ||
@@ -2838,30 +2945,18 @@ function UploadBox() {
       return;
     }
 
-    const scaleX =
-      img.naturalWidth / rect.width;
+    const scaleX = img.naturalWidth / rect.width;
 
-    const scaleY =
-      img.naturalHeight / rect.height;
+    const scaleY = img.naturalHeight / rect.height;
 
     const pixelX = Math.min(
       img.naturalWidth - 1,
-      Math.max(
-        0,
-        Math.floor(
-          displayX * scaleX,
-        ),
-      ),
+      Math.max(0, Math.floor(displayX * scaleX)),
     );
 
     const pixelY = Math.min(
       img.naturalHeight - 1,
-      Math.max(
-        0,
-        Math.floor(
-          displayY * scaleY,
-        ),
-      ),
+      Math.max(0, Math.floor(displayY * scaleY)),
     );
 
     const ctx = canvas.getContext("2d", {
@@ -2870,12 +2965,7 @@ function UploadBox() {
 
     if (!ctx) return;
 
-    const pixel = ctx.getImageData(
-      pixelX,
-      pixelY,
-      1,
-      1,
-    ).data;
+    const pixel = ctx.getImageData(pixelX, pixelY, 1, 1).data;
 
     const [r, g, b] = pixel;
 
@@ -2883,13 +2973,14 @@ function UploadBox() {
 
     setHoverColor(hex);
 
-    setHoverRGB(
-      `rgb(${r}, ${g}, ${b})`,
-    );
+    setHoverRGB(`rgb(${r}, ${g}, ${b})`);
 
-    setHoverHSL(
-      rgbToHsl(r, g, b),
-    );
+    setHoverHSL(rgbToHsl(r, g, b));
+
+    pixelPositionRef.current = {
+      x: pixelX,
+      y: pixelY,
+    };
 
     setPixelPosition({
       x: pixelX,
@@ -2897,25 +2988,19 @@ function UploadBox() {
     });
 
     // =================================================
-    // IMPORTANT
-    // Click করার সাথে সাথে lens permanently hide
-    // যতক্ষণ না image থেকে বের হয়ে আবার ঢোকে
+    // CLICK করলে LENS HIDE
     // =================================================
 
     setMagnifierDisabled(true);
 
-    setMagnifier({
+    setMagnifier((prev) => ({
+      ...prev,
       visible: false,
-      x: 0,
-      y: 0,
-    });
+    }));
 
-    toast.success(
-      `Color Selected: ${hex}`,
-      {
-        autoClose: 800,
-      },
-    );
+    toast.success(`Color Selected: ${hex}`, {
+      autoClose: 800,
+    });
   };
 
   // =====================================================
@@ -2923,13 +3008,11 @@ function UploadBox() {
   // =====================================================
 
   const handleMouseLeave = () => {
-    setMagnifier({
+    setMagnifier((prev) => ({
+      ...prev,
       visible: false,
-      x: 0,
-      y: 0,
-    });
+    }));
 
-    // Image থেকে বের হলে আবার enable
     setMagnifierDisabled(false);
   };
 
@@ -2944,44 +3027,11 @@ function UploadBox() {
 
     const touch = e.touches[0];
 
-    if (
-      !touch ||
-      !imageRef.current
-    ) {
+    if (!touch) {
       return;
     }
 
-    const position =
-      getPixelFromClientPosition(
-        touch.clientX,
-        touch.clientY,
-      );
-
-    if (!position) {
-      setMagnifier({
-        visible: false,
-        x: 0,
-        y: 0,
-      });
-
-      return;
-    }
-
-    setPixelPosition({
-      x: position.pixelX,
-      y: position.pixelY,
-    });
-
-    setMagnifier({
-      visible: true,
-      x: touch.clientX,
-      y: touch.clientY,
-    });
-
-    lastTouchPositionRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-    };
+    updateMagnifier(touch.clientX, touch.clientY);
   };
 
   // =====================================================
@@ -2995,44 +3045,11 @@ function UploadBox() {
 
     const touch = e.touches[0];
 
-    if (
-      !touch ||
-      !imageRef.current
-    ) {
+    if (!touch) {
       return;
     }
 
-    const position =
-      getPixelFromClientPosition(
-        touch.clientX,
-        touch.clientY,
-      );
-
-    if (!position) {
-      setMagnifier({
-        visible: false,
-        x: 0,
-        y: 0,
-      });
-
-      return;
-    }
-
-    setPixelPosition({
-      x: position.pixelX,
-      y: position.pixelY,
-    });
-
-    setMagnifier({
-      visible: true,
-      x: touch.clientX,
-      y: touch.clientY,
-    });
-
-    lastTouchPositionRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-    };
+    updateMagnifier(touch.clientX, touch.clientY);
   };
 
   // =====================================================
@@ -3040,49 +3057,23 @@ function UploadBox() {
   // =====================================================
 
   const handleTouchEnd = () => {
-    const { x, y } =
-      lastTouchPositionRef.current;
+    const { x, y } = lastTouchPositionRef.current;
 
     if (!x && !y) {
-      setMagnifier({
+      setMagnifier((prev) => ({
+        ...prev,
         visible: false,
-        x: 0,
-        y: 0,
-      });
+      }));
 
       return;
     }
 
-    selectPixelColor(
-      x,
-      y,
-      true,
-    );
+    selectPixelColor(x, y, true);
 
-    // Touch শেষ হলে lens hide
-    setMagnifier({
+    setMagnifier((prev) => ({
+      ...prev,
       visible: false,
-      x: 0,
-      y: 0,
-    });
-  };
-
-  // =====================================================
-  // MAGNIFIER CLICK / POINTER DOWN
-  // =====================================================
-
-  const handleMagnifierPointerDown = (
-    e,
-  ) => {
-    e.preventDefault();
-
-    e.stopPropagation();
-
-    setMagnifier({
-      visible: false,
-      x: 0,
-      y: 0,
-    });
+    }));
   };
 
   // =====================================================
@@ -3090,11 +3081,10 @@ function UploadBox() {
   // =====================================================
 
   const handleTouchCancel = () => {
-    setMagnifier({
+    setMagnifier((prev) => ({
+      ...prev,
       visible: false,
-      x: 0,
-      y: 0,
-    });
+    }));
   };
 
   // =====================================================
@@ -3103,26 +3093,18 @@ function UploadBox() {
 
   useEffect(() => {
     const handlePageScroll = () => {
-      setMagnifier({
+      setMagnifier((prev) => ({
+        ...prev,
         visible: false,
-        x: 0,
-        y: 0,
-      });
+      }));
     };
 
-    window.addEventListener(
-      "scroll",
-      handlePageScroll,
-      {
-        passive: true,
-      },
-    );
+    window.addEventListener("scroll", handlePageScroll, {
+      passive: true,
+    });
 
     return () => {
-      window.removeEventListener(
-        "scroll",
-        handlePageScroll,
-      );
+      window.removeEventListener("scroll", handlePageScroll);
     };
   }, []);
 
@@ -3132,23 +3114,28 @@ function UploadBox() {
 
   useEffect(() => {
     const handleResize = () => {
-      setMagnifier({
+      setMagnifier((prev) => ({
+        ...prev,
         visible: false,
-        x: 0,
-        y: 0,
-      });
+      }));
     };
 
-    window.addEventListener(
-      "resize",
-      handleResize,
-    );
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener(
-        "resize",
-        handleResize,
-      );
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // =====================================================
+  // CLEANUP RAF
+  // =====================================================
+
+  useEffect(() => {
+    return () => {
+      if (pixelUpdateFrameRef.current !== null) {
+        cancelAnimationFrame(pixelUpdateFrameRef.current);
+      }
     };
   }, []);
 
@@ -3157,32 +3144,21 @@ function UploadBox() {
   // =====================================================
 
   useEffect(() => {
-    const canvas =
-      canvasRef.current;
+    const canvas = canvasRef.current;
 
-    const magnifierCanvas =
-      magnifierCanvasRef.current;
+    const magnifierCanvas = magnifierCanvasRef.current;
 
-    if (
-      !canvas ||
-      !magnifierCanvas ||
-      !magnifier.visible
-    ) {
+    if (!canvas || !magnifierCanvas || !magnifier.visible) {
       return;
     }
 
-    const ctx =
-      canvas.getContext("2d", {
-        willReadFrequently: true,
-      });
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
 
-    const magnifierCtx =
-      magnifierCanvas.getContext("2d");
+    const magnifierCtx = magnifierCanvas.getContext("2d");
 
-    if (
-      !ctx ||
-      !magnifierCtx
-    ) {
+    if (!ctx || !magnifierCtx) {
       return;
     }
 
@@ -3196,79 +3172,39 @@ function UploadBox() {
     // ZOOM
     // =================================================
 
-    const pixelsPerSide = Math.max(
-      3,
-      Math.round(12 / zoom),
-    );
+    const pixelsPerSide = Math.max(3, Math.round(12 / zoom));
 
-    const sourceSize = Math.min(
-      canvas.width,
-      canvas.height,
-      pixelsPerSide,
-    );
+    const sourceSize = Math.min(canvas.width, canvas.height, pixelsPerSide);
 
-    const half =
-      Math.floor(
-        sourceSize / 2,
-      );
+    const half = Math.floor(sourceSize / 2);
 
-    let sx =
-      pixelPosition.x - half;
+    let sx = pixelPosition.x - half;
 
-    let sy =
-      pixelPosition.y - half;
+    let sy = pixelPosition.y - half;
 
-    sx = Math.max(
-      0,
-      Math.min(
-        canvas.width -
-          sourceSize,
-        sx,
-      ),
-    );
+    sx = Math.max(0, Math.min(canvas.width - sourceSize, sx));
 
-    sy = Math.max(
-      0,
-      Math.min(
-        canvas.height -
-          sourceSize,
-        sy,
-      ),
-    );
+    sy = Math.max(0, Math.min(canvas.height - sourceSize, sy));
 
     // =================================================
     // CLEAR
     // =================================================
 
-    magnifierCtx.clearRect(
-      0,
-      0,
-      lensSize,
-      lensSize,
-    );
+    magnifierCtx.clearRect(0, 0, lensSize, lensSize);
 
     // =================================================
     // BACKGROUND
     // =================================================
 
-    magnifierCtx.fillStyle =
-      darkMode
-        ? "#111317"
-        : "#ffffff";
+    magnifierCtx.fillStyle = darkMode ? "#111317" : "#ffffff";
 
-    magnifierCtx.fillRect(
-      0,
-      0,
-      lensSize,
-      lensSize,
-    );
+    magnifierCtx.fillRect(0, 0, lensSize, lensSize);
 
     // =================================================
     // PIXELATED IMAGE
     // =================================================
 
-    magnifierCtx.imageSmoothingEnabled =
-      false;
+    magnifierCtx.imageSmoothingEnabled = false;
 
     magnifierCtx.drawImage(
       canvas,
@@ -3286,51 +3222,32 @@ function UploadBox() {
     // PIXEL GRID
     // =================================================
 
-    const cellSize =
-      lensSize / sourceSize;
+    const cellSize = lensSize / sourceSize;
 
-    magnifierCtx.strokeStyle =
-      darkMode
-        ? "rgba(255,255,255,0.22)"
-        : "rgba(0,0,0,0.22)";
+    magnifierCtx.strokeStyle = darkMode
+      ? "rgba(255,255,255,0.22)"
+      : "rgba(0,0,0,0.22)";
 
     magnifierCtx.lineWidth = 1;
 
-    for (
-      let i = 1;
-      i < sourceSize;
-      i++
-    ) {
-      const position =
-        i * cellSize;
+    for (let i = 1; i < sourceSize; i++) {
+      const position = i * cellSize;
 
       // Vertical
       magnifierCtx.beginPath();
 
-      magnifierCtx.moveTo(
-        position,
-        0,
-      );
+      magnifierCtx.moveTo(position, 0);
 
-      magnifierCtx.lineTo(
-        position,
-        lensSize,
-      );
+      magnifierCtx.lineTo(position, lensSize);
 
       magnifierCtx.stroke();
 
       // Horizontal
       magnifierCtx.beginPath();
 
-      magnifierCtx.moveTo(
-        0,
-        position,
-      );
+      magnifierCtx.moveTo(0, position);
 
-      magnifierCtx.lineTo(
-        lensSize,
-        position,
-      );
+      magnifierCtx.lineTo(lensSize, position);
 
       magnifierCtx.stroke();
     }
@@ -3339,63 +3256,44 @@ function UploadBox() {
     // CENTER PIXEL
     // =================================================
 
-    const centerIndex =
-      Math.floor(
-        sourceSize / 2,
-      );
+    const centerIndex = Math.floor(sourceSize / 2);
 
-    const centerX =
-      centerIndex * cellSize;
+    const centerX = centerIndex * cellSize;
 
-    const centerY =
-      centerIndex * cellSize;
+    const centerY = centerIndex * cellSize;
 
-    magnifierCtx.strokeStyle =
-      darkMode
-        ? "rgba(255,255,255,0.95)"
-        : "rgba(0,0,0,0.95)";
+    magnifierCtx.strokeStyle = darkMode
+      ? "rgba(255,255,255,0.95)"
+      : "rgba(0,0,0,0.95)";
 
     magnifierCtx.lineWidth = 2;
 
     magnifierCtx.strokeRect(
       centerX + 1,
       centerY + 1,
-      cellSize - 2,
-      cellSize - 2,
+      Math.max(1, cellSize - 2),
+      Math.max(1, cellSize - 2),
     );
 
     // =================================================
     // CENTER GLOW
     // =================================================
 
-    magnifierCtx.shadowColor =
-      darkMode
-        ? "rgba(255,255,255,0.8)"
-        : "rgba(0,0,0,0.35)";
+    magnifierCtx.shadowColor = darkMode
+      ? "rgba(255,255,255,0.8)"
+      : "rgba(0,0,0,0.35)";
 
     magnifierCtx.shadowBlur = 8;
 
     magnifierCtx.strokeRect(
       centerX + 2,
       centerY + 2,
-      Math.max(
-        1,
-        cellSize - 4,
-      ),
-      Math.max(
-        1,
-        cellSize - 4,
-      ),
+      Math.max(1, cellSize - 4),
+      Math.max(1, cellSize - 4),
     );
 
     magnifierCtx.shadowBlur = 0;
-  }, [
-    magnifier.visible,
-    pixelPosition.x,
-    pixelPosition.y,
-    zoom,
-    darkMode,
-  ]);
+  }, [magnifier.visible, pixelPosition.x, pixelPosition.y, zoom, darkMode]);
 
   // =====================================================
   // DEFAULT IMAGE COLORS
@@ -3406,51 +3304,32 @@ function UploadBox() {
       return;
     }
 
-    const extractDefaultColors =
-      async () => {
-        try {
-          const palette =
-            await Vibrant.from(
-              DEFAULT_IMAGE,
-            ).getPalette();
+    const extractDefaultColors = async () => {
+      try {
+        const palette = await Vibrant.from(DEFAULT_IMAGE).getPalette();
 
-          const extractedColors = [
-            palette.Vibrant?.hex,
-            palette.LightVibrant?.hex,
-            palette.DarkVibrant?.hex,
-            palette.Muted?.hex,
-            palette.LightMuted?.hex,
-            palette.DarkMuted?.hex,
-          ]
-            .filter(Boolean)
-            .map((color) =>
-              color.toUpperCase(),
-            );
+        const extractedColors = [
+          palette.Vibrant?.hex,
+          palette.LightVibrant?.hex,
+          palette.DarkVibrant?.hex,
+          palette.Muted?.hex,
+          palette.LightMuted?.hex,
+          palette.DarkMuted?.hex,
+        ]
+          .filter(Boolean)
+          .map((color) => color.toUpperCase());
 
-          setColors(
-            extractedColors,
-          );
+        setColors(extractedColors);
 
-          if (
-            palette.Vibrant?.hex
-          ) {
-            setDominantColor(
-              palette.Vibrant.hex.toUpperCase(),
-            );
-          } else if (
-            extractedColors.length
-          ) {
-            setDominantColor(
-              extractedColors[0],
-            );
-          }
-        } catch (error) {
-          console.error(
-            "Default palette extraction failed:",
-            error,
-          );
+        if (palette.Vibrant?.hex) {
+          setDominantColor(palette.Vibrant.hex.toUpperCase());
+        } else if (extractedColors.length) {
+          setDominantColor(extractedColors[0]);
         }
-      };
+      } catch (error) {
+        console.error("Default palette extraction failed:", error);
+      }
+    };
 
     extractDefaultColors();
   }, [image]);
@@ -3459,63 +3338,34 @@ function UploadBox() {
   // COLOR VARIATIONS
   // =====================================================
 
-  const generateColorVariations = (
-    hex,
-  ) => {
-    const clean =
-      hex.replace("#", "");
+  const generateColorVariations = (hex) => {
+    const clean = hex.replace("#", "");
 
-    const r = parseInt(
-      clean.slice(0, 2),
-      16,
-    );
+    const r = parseInt(clean.slice(0, 2), 16);
 
-    const g = parseInt(
-      clean.slice(2, 4),
-      16,
-    );
+    const g = parseInt(clean.slice(2, 4), 16);
 
-    const b = parseInt(
-      clean.slice(4, 6),
-      16,
-    );
+    const b = parseInt(clean.slice(4, 6), 16);
 
     const variations = [];
 
     // Light
-    [0.15, 0.3, 0.45].forEach(
-      (amount) => {
-        variations.push(
-          rgbToHex(
-            r +
-              (255 - r) *
-                amount,
-            g +
-              (255 - g) *
-                amount,
-            b +
-              (255 - b) *
-                amount,
-          ),
-        );
-      },
-    );
+    [0.15, 0.3, 0.45].forEach((amount) => {
+      variations.push(
+        rgbToHex(
+          r + (255 - r) * amount,
+          g + (255 - g) * amount,
+          b + (255 - b) * amount,
+        ),
+      );
+    });
 
     // Dark
-    [0.15, 0.3, 0.45].forEach(
-      (amount) => {
-        variations.push(
-          rgbToHex(
-            r *
-              (1 - amount),
-            g *
-              (1 - amount),
-            b *
-              (1 - amount),
-          ),
-        );
-      },
-    );
+    [0.15, 0.3, 0.45].forEach((amount) => {
+      variations.push(
+        rgbToHex(r * (1 - amount), g * (1 - amount), b * (1 - amount)),
+      );
+    });
 
     return variations;
   };
@@ -3524,36 +3374,20 @@ function UploadBox() {
   // SELECT PALETTE COLOR
   // =====================================================
 
-  const selectPaletteColor = (
-    color,
-  ) => {
-    const clean =
-      color.replace("#", "");
+  const selectPaletteColor = (color) => {
+    const clean = color.replace("#", "");
 
-    const r = parseInt(
-      clean.slice(0, 2),
-      16,
-    );
+    const r = parseInt(clean.slice(0, 2), 16);
 
-    const g = parseInt(
-      clean.slice(2, 4),
-      16,
-    );
+    const g = parseInt(clean.slice(2, 4), 16);
 
-    const b = parseInt(
-      clean.slice(4, 6),
-      16,
-    );
+    const b = parseInt(clean.slice(4, 6), 16);
 
     setHoverColor(color);
 
-    setHoverRGB(
-      `rgb(${r}, ${g}, ${b})`,
-    );
+    setHoverRGB(`rgb(${r}, ${g}, ${b})`);
 
-    setHoverHSL(
-      rgbToHsl(r, g, b),
-    );
+    setHoverHSL(rgbToHsl(r, g, b));
   };
 
   // =====================================================
@@ -3561,36 +3395,18 @@ function UploadBox() {
   // =====================================================
 
   const savePalette = async () => {
-    const token =
-      localStorage.getItem(
-        "token",
-      );
+    const token = localStorage.getItem("token");
 
-    console.log(
-      "Image:",
-      image,
-    );
+    console.log("Image:", image);
 
-    console.log(
-      "Colors:",
-      colors,
-    );
+    console.log("Colors:", colors);
 
-    console.log(
-      "Dominant:",
-      dominantColor,
-    );
+    console.log("Dominant:", dominantColor);
 
-    console.log(
-      "Token:",
-      token,
-    );
+    console.log("Token:", token);
 
-    // Login required
     if (!token) {
-      toast.warning(
-        "Please login to save your palette",
-      );
+      toast.warning("Please login to save your palette");
 
       navigate("/login");
 
@@ -3598,65 +3414,42 @@ function UploadBox() {
     }
 
     if (!colors.length) {
-      toast.error(
-        "No colors available",
-      );
+      toast.error("No colors available");
 
       return;
     }
 
     if (uploading) {
       toast.info("Image is still uploading. Please wait.");
+
       return;
     }
 
     if (!uploadedImageUrl) {
       toast.error("Image upload failed. Please upload the image again.");
+
       return;
     }
 
     try {
-      const res =
-        await api.post(
-          "/colors",
-          {
-            title:
-              "My Color Palette",
-            colors,
-            dominantColor,
-            image: uploadedImageUrl,
-          },
-        );
+      const res = await api.post("/colors", {
+        title: "My Color Palette",
+        colors,
+        dominantColor,
+        image: uploadedImageUrl,
+      });
 
-      console.log(
-        "SAVE RESPONSE:",
-        res.data,
-      );
+      console.log("SAVE RESPONSE:", res.data);
 
-      toast.success(
-        "Palette saved successfully!",
-      );
+      toast.success("Palette saved successfully!");
     } catch (error) {
-      console.error(
-        "Save Error:",
-        error,
-      );
+      console.error("Save Error:", error);
 
-      console.log(
-        "Status:",
-        error.response?.status,
-      );
+      console.log("Status:", error.response?.status);
 
-      console.log(
-        "Data:",
-        error.response?.data,
-      );
+      console.log("Data:", error.response?.data);
 
-      toast.error(
-        error.response?.data
-          ?.message ||
-          "Failed to save palette",
-      );
+      toast.error(error.response?.data?.message || "Failed to save palette");
     }
   };
 
@@ -3664,117 +3457,51 @@ function UploadBox() {
   // DOWNLOAD JSON
   // =====================================================
 
-  // const downloadJSON = () => {
-  //   if (!colors.length) {
-  //     toast.error(
-  //       "No colors available",
-  //     );
+  const downloadJSON = () => {
+    const token = localStorage.getItem("token");
 
-  //     return;
-  //   }
+    if (!token) {
+      toast.warning("Please login to download your palette");
 
-  //   const data = {
-  //     colors,
-  //     dominantColor,
-  //     createdAt:
-  //       new Date().toISOString(),
-  //   };
+      navigate("/login");
 
-  //   const blob = new Blob(
-  //     [
-  //       JSON.stringify(
-  //         data,
-  //         null,
-  //         2,
-  //       ),
-  //     ],
-  //     {
-  //       type: "application/json",
-  //     },
-  //   );
-
-  //   const url =
-  //     URL.createObjectURL(blob);
-
-  //   const link =
-  //     document.createElement(
-  //       "a",
-  //     );
-
-  //   link.href = url;
-
-  //   link.download =
-  //     "color-palette.json";
-
-  //   document.body.appendChild(
-  //     link,
-  //   );
-
-  //   link.click();
-
-  //   document.body.removeChild(
-  //     link,
-  //   );
-
-  //   URL.revokeObjectURL(url);
-
-  //   toast.success(
-  //     "Palette downloaded successfully!",
-  //   );
-  // };
-
-  //22/09/2026 {time:  PM}💥
-  // =====================================================
-// DOWNLOAD JSON
-// =====================================================
-
-const downloadJSON = () => {
-  const token = localStorage.getItem("token");
-
-  // Login required
-  if (!token) {
-    toast.warning("Please login to download your palette");
-
-    navigate("/login");
-
-    return;
-  }
-
-  if (!colors.length) {
-    toast.error("No colors available");
-    return;
-  }
-
-  const data = {
-    colors,
-    dominantColor,
-    createdAt: new Date().toISOString(),
-  };
-
-  const blob = new Blob(
-    [JSON.stringify(data, null, 2)],
-    {
-      type: "application/json",
+      return;
     }
-  );
 
-  const url = URL.createObjectURL(blob);
+    if (!colors.length) {
+      toast.error("No colors available");
 
-  const link = document.createElement("a");
+      return;
+    }
 
-  link.href = url;
-  link.download = "color-palette.json";
+    const data = {
+      colors,
+      dominantColor,
+      createdAt: new Date().toISOString(),
+    };
 
-  document.body.appendChild(link);
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
 
-  link.click();
+    const url = URL.createObjectURL(blob);
 
-  document.body.removeChild(link);
+    const link = document.createElement("a");
 
-  URL.revokeObjectURL(url);
+    link.href = url;
 
-  toast.success("Palette downloaded successfully!");
-};
+    link.download = "color-palette.json";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+    toast.success("Palette downloaded successfully!");
+  };
 
   // =====================================================
   // REMOVE IMAGE
@@ -3782,7 +3509,9 @@ const downloadJSON = () => {
 
   const removeImage = () => {
     setImage(DEFAULT_IMAGE);
+
     setUploadedImageUrl("");
+
     setUploading(false);
 
     setHoverColor("");
@@ -3790,6 +3519,11 @@ const downloadJSON = () => {
     setHoverRGB("");
 
     setHoverHSL("");
+
+    pixelPositionRef.current = {
+      x: 0,
+      y: 0,
+    };
 
     setPixelPosition({
       x: 0,
@@ -3815,17 +3549,23 @@ const downloadJSON = () => {
 
   const cardStyle = {
     background: theme.card,
+
     border: `1px solid ${theme.border}`,
+
     color: theme.text,
-    transition:
-      "background 0.3s ease, color 0.3s ease, border 0.3s ease",
+
+    transition: "background 0.3s ease, color 0.3s ease, border 0.3s ease",
   };
 
   const inputStyle = {
     background: theme.input,
+
     color: theme.text,
+
     border: `1px solid ${theme.border}`,
   };
+
+  void inputStyle;
 
   // =====================================================
   // UI
@@ -3833,19 +3573,20 @@ const downloadJSON = () => {
 
   return (
     <section
-      className="container-fluid py-4"
+      className={`container-fluid py-4 upload-page ${
+        darkMode ? "dark-mode-page" : ""
+      }`}
       style={{
-        background:
-          theme.background,
+        background: theme.background,
+
         color: theme.text,
+
         minHeight: "100vh",
-        transition:
-          "background 0.3s ease, color 0.3s ease",
+
+        transition: "background 0.3s ease, color 0.3s ease",
       }}
     >
-      {/* =================================================
-          HIDDEN CANVAS
-      ================================================= */}
+      {/* HIDDEN CANVAS */}
 
       <canvas
         ref={canvasRef}
@@ -3854,27 +3595,35 @@ const downloadJSON = () => {
         }}
       />
 
-      {/* =================================================
-          MAIN CONTAINER
-      ================================================= */}
+      {/* MAIN CONTAINER */}
 
       <div
         className="picker-main-layout"
         style={{
           maxWidth: "1180px",
+
           margin: "0 auto",
+
           padding: "20px",
+
           display: "grid",
-          gridTemplateColumns:
-            "minmax(0, 1.55fr) minmax(300px, 0.85fr)",
+
+          gridTemplateColumns: "minmax(0, 1.55fr) minmax(300px, 0.85fr)",
+
           gap: "35px",
+
           width: "100%",
+
           boxSizing: "border-box",
+
+          background: "transparent",
+
+          border: "none",
+
+          boxShadow: "none",
         }}
       >
-        {/* =================================================
-            LEFT SECTION
-        ================================================= */}
+        {/* LEFT SECTION */}
 
         <div className="picker-left-section">
           {/* IMAGE TITLE */}
@@ -3882,9 +3631,11 @@ const downloadJSON = () => {
           <div
             style={{
               display: "flex",
-              justifyContent:
-                "space-between",
+
+              justifyContent: "space-between",
+
               alignItems: "center",
+
               marginBottom: "15px",
             }}
           >
@@ -3892,7 +3643,9 @@ const downloadJSON = () => {
               <h5
                 style={{
                   fontWeight: 800,
+
                   margin: 0,
+
                   color: theme.text,
                 }}
               >
@@ -3901,286 +3654,251 @@ const downloadJSON = () => {
 
               <small
                 style={{
-                  color:
-                    theme.muted,
+                  color: theme.muted,
                 }}
               >
-                Move your pointer or
-                finger over the image
+                Move your pointer or finger over the image
               </small>
             </div>
           </div>
 
-          {/* =================================================
-              IMAGE AREA
-          ================================================= */}
+          {/* IMAGE AREA */}
 
           <div
-            ref={
-              magnifierContainerRef
-            }
+            ref={magnifierContainerRef}
             className="image-magnifier-container"
             {...getRootProps()}
             style={{
               position: "relative",
+
               width: "100%",
+
               maxWidth: "700px",
+
               minHeight: "300px",
+
               borderRadius: "18px",
+
               overflow: "visible",
-              background:
-                darkMode
-                  ? "#111317"
-                  : "#ffffff",
-              border: `1px solid ${theme.border}`,
-              boxShadow: darkMode
-                ? "0 20px 50px rgba(0,0,0,0.35)"
-                : "0 15px 40px rgba(0,0,0,0.08)",
-              padding: "10px",
+
+              background: "transparent",
+
+              border: "none",
+
+              boxShadow: "none",
+
+              padding: "0",
+
               boxSizing: "border-box",
-              transition:
-                "all 0.3s ease",
             }}
           >
-            <input
-              {...getInputProps()}
-            />
+            <input {...getInputProps()} />
 
             <img
               ref={imageRef}
               src={image}
               alt="Uploaded"
               onLoad={handleImageLoad}
-              onMouseMove={
-                handleMouseMove
-              }
-              onMouseLeave={
-                handleMouseLeave
-              }
-              onClick={
-                handleImageClick
-              }
-              onTouchStart={
-                handleTouchStart
-              }
-              onTouchMove={
-                handleTouchMove
-              }
-              onTouchEnd={
-                handleTouchEnd
-              }
-              onTouchCancel={
-                handleTouchCancel
-              }
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              onClick={handleImageClick}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchCancel}
               draggable={false}
               style={{
                 width: "100%",
+
                 maxWidth: "700px",
+
                 userSelect: "none",
-                WebkitUserSelect:
-                  "none",
+
+                WebkitUserSelect: "none",
+
                 touchAction: "none",
+
                 display: "block",
-                cursor:
-                  magnifierDisabled
-                    ? "default"
-                    : "crosshair",
+
+                cursor: magnifierDisabled ? "default" : "crosshair",
               }}
             />
 
-            {/* =================================================
-                MAGNIFIER LENS
-            ================================================= */}
+            {/* MAGNIFIER LENS */}
 
-            {magnifier.visible &&
-              !magnifierDisabled && (
-                <div
-                  onPointerDown={
-                    handleMagnifierPointerDown
-                  }
-                  style={{
-                    position: "fixed",
+            <div
+              ref={magnifierLensRef}
+              style={{
+                position: "fixed",
 
-                    // Cursor থেকে মাত্র 15px দূরে
-                    left: `${Math.max(
-                      8,
-                      Math.min(
-                        magnifier.x +
-                          15,
-                        window.innerWidth -
-                          128,
-                      ),
-                    )}px`,
+                left: "0px",
 
-                    top: `${Math.max(
-                      8,
-                      Math.min(
-                        magnifier.y +
-                          15,
-                        window.innerHeight -
-                          128,
-                      ),
-                    )}px`,
+                top: "0px",
 
-                    width: "120px",
-                    height: "120px",
+                width: "120px",
 
-                    borderRadius: "50%",
+                height: "120px",
 
-                    overflow: "hidden",
+                boxSizing: "border-box",
 
-                    background:
-                      "rgba(10, 12, 15, 0.9)",
+                borderRadius: "50%",
 
-                    border:
-                      "3px solid rgba(255,255,255,0.95)",
+                overflow: "hidden",
 
-                    boxShadow: `
-                      0 0 0 2px rgba(0,0,0,0.75),
-                      0 10px 35px rgba(0,0,0,0.7),
-                      0 0 25px rgba(255,255,255,0.15)
+                background: darkMode
+                  ? "rgba(8, 12, 18, 0.96)"
+                  : "rgba(255, 255, 255, 0.96)",
+
+                border: darkMode
+                  ? "3px solid rgba(255,255,255,0.95)"
+                  : "3px solid rgba(20,25,35,0.9)",
+
+                boxShadow: darkMode
+                  ? `
+                      0 0 0 2px rgba(0,0,0,0.9),
+                      0 8px 25px rgba(0,0,0,0.65),
+                      0 0 35px rgba(80,140,255,0.22)
+                    `
+                  : `
+                      0 0 0 2px rgba(0,0,0,0.15),
+                      0 8px 25px rgba(0,0,0,0.22)
                     `,
 
-                    zIndex: 99999,
+                zIndex: 99999,
 
-                    pointerEvents:
-                      "auto",
+                pointerEvents: "none",
 
-                    touchAction:
-                      "none",
+                touchAction: "none",
 
-                    userSelect:
-                      "none",
+                userSelect: "none",
 
-                    WebkitUserSelect:
-                      "none",
-                  }}
-                >
-                  {/* ZOOMED PIXEL CANVAS */}
+                WebkitUserSelect: "none",
 
-                  <canvas
-                    ref={
-                      magnifierCanvasRef
-                    }
-                    width={120}
-                    height={120}
-                    style={{
-                      width: "120px",
-                      height: "120px",
-                      display: "block",
-                      imageRendering:
-                        "pixelated",
-                      userSelect:
-                        "none",
-                      pointerEvents:
-                        "none",
-                    }}
-                  />
+                // IMPORTANT:
+                // DO NOT ADD transform HERE.
+                // Movement is controlled directly by
+                // moveMagnifierLens().
 
-                  {/* CENTER PIXEL FOCUS */}
+                willChange: "transform",
 
-                  <div
-                    style={{
-                      position:
-                        "absolute",
+                visibility:
+                  magnifier.visible && !magnifierDisabled
+                    ? "visible"
+                    : "hidden",
 
-                      top: "50%",
+                opacity: magnifier.visible && !magnifierDisabled ? 1 : 0,
 
-                      left: "50%",
+                transition: "opacity 0.08s ease",
+              }}
+            >
+              {/* ZOOMED PIXEL CANVAS */}
 
-                      width: "28px",
+              <canvas
+                ref={magnifierCanvasRef}
+                width={120}
+                height={120}
+                style={{
+                  width: "120px",
 
-                      height: "28px",
+                  height: "120px",
 
-                      transform:
-                        "translate(-50%, -50%)",
+                  display: "block",
 
-                      border:
-                        "2px solid rgba(255,255,255,0.95)",
+                  imageRendering: "pixelated",
 
-                      borderRadius:
-                        "4px",
+                  userSelect: "none",
 
-                      boxShadow: `
-                        0 0 0 1px rgba(0,0,0,0.8),
-                        0 0 10px rgba(255,255,255,0.7)
-                      `,
+                  pointerEvents: "none",
+                }}
+              />
 
-                      pointerEvents:
-                        "none",
-                    }}
-                  />
+              {/* CENTER PIXEL FOCUS */}
 
-                  {/* CENTER CROSSHAIR VERTICAL */}
+              <div
+                style={{
+                  position: "absolute",
 
-                  <div
-                    style={{
-                      position:
-                        "absolute",
+                  top: "50%",
 
-                      top: "50%",
+                  left: "50%",
 
-                      left: "50%",
+                  width: "28px",
 
-                      width: "2px",
+                  height: "28px",
 
-                      height: "34px",
+                  transform: "translate(-50%, -50%)",
 
-                      transform:
-                        "translate(-50%, -50%)",
+                  border: "2px solid rgba(255,255,255,0.95)",
 
-                      background:
-                        "rgba(255,255,255,0.95)",
+                  borderRadius: "4px",
 
-                      boxShadow:
-                        "0 0 5px rgba(0,0,0,0.9)",
+                  boxShadow: `
+                    0 0 0 1px rgba(0,0,0,0.8),
+                    0 0 10px rgba(255,255,255,0.7)
+                  `,
 
-                      pointerEvents:
-                        "none",
-                    }}
-                  />
+                  pointerEvents: "none",
+                }}
+              />
 
-                  {/* CENTER CROSSHAIR HORIZONTAL */}
+              {/* CENTER CROSSHAIR VERTICAL */}
 
-                  <div
-                    style={{
-                      position:
-                        "absolute",
+              <div
+                style={{
+                  position: "absolute",
 
-                      top: "50%",
+                  top: "50%",
 
-                      left: "50%",
+                  left: "50%",
 
-                      width: "34px",
+                  width: "2px",
 
-                      height: "2px",
+                  height: "34px",
 
-                      transform:
-                        "translate(-50%, -50%)",
+                  transform: "translate(-50%, -50%)",
 
-                      background:
-                        "rgba(255,255,255,0.95)",
+                  background: "rgba(255,255,255,0.95)",
 
-                      boxShadow:
-                        "0 0 5px rgba(0,0,0,0.9)",
+                  boxShadow: "0 0 5px rgba(0,0,0,0.9)",
 
-                      pointerEvents:
-                        "none",
-                    }}
-                  />
-                </div>
-              )}
+                  pointerEvents: "none",
+                }}
+              />
+
+              {/* CENTER CROSSHAIR HORIZONTAL */}
+
+              <div
+                style={{
+                  position: "absolute",
+
+                  top: "50%",
+
+                  left: "50%",
+
+                  width: "34px",
+
+                  height: "2px",
+
+                  transform: "translate(-50%, -50%)",
+
+                  background: "rgba(255,255,255,0.95)",
+
+                  boxShadow: "0 0 5px rgba(0,0,0,0.9)",
+
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
           </div>
 
-          {/* =================================================
-              UPLOAD BUTTON
-          ================================================= */}
+          {/* UPLOAD BUTTON */}
 
           <div
             style={{
               display: "flex",
-              justifyContent:
-                "center",
+
+              justifyContent: "center",
+
               marginTop: "18px",
             }}
           >
@@ -4192,8 +3910,7 @@ const downloadJSON = () => {
                 display: "none",
               }}
               onChange={(e) => {
-                const file =
-                  e.target.files?.[0];
+                const file = e.target.files?.[0];
 
                 if (!file) return;
 
@@ -4204,36 +3921,37 @@ const downloadJSON = () => {
             />
           </div>
 
-          {/* =================================================
-              SELECTED COLOR INFO
-          ================================================= */}
+          {/* SELECTED COLOR INFO */}
 
           {hoverColor && (
             <div
               className="mt-4"
               style={{
                 width: "100%",
+
                 maxWidth: "700px",
-                padding:
-                  "16px 20px",
-                background:
-                  hoverColor,
+
+                padding: "16px 20px",
+
+                background: hoverColor,
+
                 color: "#ffffff",
-                borderRadius:
-                  "14px",
-                textShadow:
-                  "0 1px 4px rgba(0,0,0,0.8)",
-                boxShadow:
-                  "0 8px 25px rgba(0,0,0,0.15)",
+
+                borderRadius: "14px",
+
+                textShadow: "0 1px 4px rgba(0,0,0,0.8)",
+
+                boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
               }}
             >
               <div
                 style={{
                   display: "flex",
-                  flexWrap:
-                    "wrap",
-                  alignItems:
-                    "center",
+
+                  flexWrap: "wrap",
+
+                  alignItems: "center",
+
                   gap: "30px",
                 }}
               >
@@ -4287,31 +4005,30 @@ const downloadJSON = () => {
                       fontWeight: 700,
                     }}
                   >
-                    {pixelPosition.x},{" "}
-                    {pixelPosition.y}
+                    {pixelPosition.x}, {pixelPosition.y}
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* =================================================
-              COLOR PALETTE
-          ================================================= */}
+          {/* COLOR PALETTE */}
 
           {colors.length > 0 && (
             <div
               style={{
                 marginTop: "30px",
+
                 width: "100%",
+
                 maxWidth: "700px",
               }}
             >
               <h5
                 style={{
                   fontWeight: 800,
-                  marginBottom:
-                    "16px",
+
+                  marginBottom: "16px",
                 }}
               >
                 Color Palette
@@ -4321,296 +4038,261 @@ const downloadJSON = () => {
                 className="palette-list"
                 style={{
                   display: "flex",
-                  flexDirection:
-                    "column",
+
+                  flexDirection: "column",
+
                   gap: "10px",
                 }}
               >
-                {colors.map(
-                  (
-                    color,
-                    index,
-                  ) => (
+                {colors.map((color, index) => (
+                  <div key={index}>
+                    {/* PALETTE ROW */}
+
                     <div
-                      key={index}
+                      style={{
+                        display: "flex",
+
+                        alignItems: "center",
+
+                        gap: "10px",
+
+                        width: "100%",
+
+                        minWidth: 0,
+                      }}
                     >
-                      {/* PALETTE ROW */}
+                      {/* COLOR */}
 
                       <div
+                        onClick={() => selectPaletteColor(color)}
                         style={{
-                          display:
-                            "flex",
-                          alignItems:
-                            "center",
-                          gap: "10px",
-                          width:
-                            "100%",
+                          flex: 1,
+
                           minWidth: 0,
+
+                          height: "48px",
+
+                          background: color,
+
+                          borderRadius: "10px",
+
+                          cursor: "pointer",
+
+                          border:
+                            hoverColor === color
+                              ? `3px solid ${theme.text}`
+                              : "1px solid rgba(255,255,255,0.12)",
+
+                          boxShadow:
+                            hoverColor === color
+                              ? "0 0 0 2px rgba(13,110,253,0.35)"
+                              : "none",
+
+                          transition: "all 0.2s ease",
+                        }}
+                      />
+
+                      {/* HEX */}
+
+                      <span
+                        style={{
+                          width: "82px",
+
+                          minWidth: "60px",
+
+                          fontSize: "13px",
+
+                          fontWeight: 700,
+
+                          color: theme.text,
+
+                          overflow: "hidden",
+
+                          textOverflow: "ellipsis",
+
+                          whiteSpace: "nowrap",
                         }}
                       >
-                        {/* COLOR */}
+                        {color}
+                      </span>
 
-                        <div
-                          onClick={() =>
-                            selectPaletteColor(
-                              color,
-                            )
-                          }
-                          style={{
-                            flex: 1,
-                            minWidth: 0,
-                            height:
-                              "48px",
-                            background:
-                              color,
-                            borderRadius:
-                              "10px",
-                            cursor:
-                              "pointer",
-                            border:
-                              hoverColor ===
-                              color
-                                ? `3px solid ${theme.text}`
-                                : "1px solid rgba(255,255,255,0.12)",
-                            boxShadow:
-                              hoverColor ===
-                              color
-                                ? "0 0 0 2px rgba(13,110,253,0.35)"
-                                : "none",
-                            transition:
-                              "all 0.2s ease",
-                          }}
-                        />
+                      {/* PLUS */}
 
-                        {/* HEX */}
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() =>
+                          setExpandedColors((prev) => ({
+                            ...prev,
 
-                        <span
-                          style={{
-                            width:
-                              "82px",
-                            minWidth:
-                              "60px",
-                            fontSize:
-                              "13px",
-                            fontWeight:
-                              700,
-                            color:
-                              theme.text,
-                            overflow:
-                              "hidden",
-                            textOverflow:
-                              "ellipsis",
-                            whiteSpace:
-                              "nowrap",
-                          }}
-                        >
-                          {color}
-                        </span>
+                            [index]: !prev[index],
+                          }))
+                        }
+                        style={{
+                          width: "38px",
 
-                        {/* PLUS */}
+                          height: "38px",
 
-                        <button
-                          type="button"
-                          className="btn"
-                          onClick={() =>
-                            setExpandedColors(
-                              (
-                                prev,
-                              ) => ({
-                                ...prev,
-                                [index]:
-                                  !prev[
-                                    index
-                                  ],
-                              }),
-                            )
-                          }
-                          style={{
-                            width:
-                              "38px",
-                            height:
-                              "38px",
-                            flexShrink:
-                              0,
-                            borderRadius:
-                              "10px",
-                            border: `1px solid ${theme.border}`,
-                            background:
-                              theme.card,
-                            color:
-                              theme.text,
-                            fontSize:
-                              "20px",
-                            fontWeight:
-                              700,
-                            padding: 0,
-                          }}
-                        >
-                          {expandedColors[
-                            index
-                          ]
-                            ? "−"
-                            : "+"}
-                        </button>
-                      </div>
+                          flexShrink: 0,
 
-                      {/* VARIATIONS */}
+                          borderRadius: "10px",
 
-                      {expandedColors[
-                        index
-                      ] && (
-                        <div
-                          style={{
-                            display:
-                              "grid",
-                            gridTemplateColumns:
-                              "repeat(6, 1fr)",
-                            gap: "8px",
-                            marginTop:
-                              "10px",
-                            padding:
-                              "10px",
-                            background:
-                              theme.card,
-                            border: `1px solid ${theme.border}`,
-                            borderRadius:
-                              "12px",
-                          }}
-                        >
-                          {generateColorVariations(
-                            color,
-                          ).map(
-                            (
-                              variation,
-                              variationIndex,
-                            ) => (
-                              <div
-                                key={
-                                  variationIndex
-                                }
-                                onClick={() => {
-                                  selectPaletteColor(
-                                    variation,
-                                  );
+                          border: `1px solid ${theme.border}`,
 
-                                  toast.success(
-                                    `Color Selected: ${variation}`,
-                                    {
-                                      autoClose: 800,
-                                    },
-                                  );
-                                }}
-                                title={
-                                  variation
-                                }
-                                style={{
-                                  height:
-                                    "42px",
-                                  background:
-                                    variation,
-                                  borderRadius:
-                                    "8px",
-                                  cursor:
-                                    "pointer",
-                                  border:
-                                    "1px solid rgba(0,0,0,0.15)",
-                                  transition:
-                                    "transform 0.2s ease",
-                                }}
-                              />
-                            ),
-                          )}
-                        </div>
-                      )}
+                          background: theme.card,
+
+                          color: theme.text,
+
+                          fontSize: "20px",
+
+                          fontWeight: 700,
+
+                          padding: 0,
+                        }}
+                      >
+                        {expandedColors[index] ? "−" : "+"}
+                      </button>
                     </div>
-                  ),
-                )}
+
+                    {/* VARIATIONS */}
+
+                    {expandedColors[index] && (
+                      <div
+                        style={{
+                          display: "grid",
+
+                          gridTemplateColumns: "repeat(6, 1fr)",
+
+                          gap: "8px",
+
+                          marginTop: "10px",
+
+                          padding: "10px",
+
+                          background: theme.card,
+
+                          border: `1px solid ${theme.border}`,
+
+                          borderRadius: "12px",
+                        }}
+                      >
+                        {generateColorVariations(color).map(
+                          (variation, variationIndex) => (
+                            <div
+                              key={variationIndex}
+                              onClick={() => {
+                                selectPaletteColor(variation);
+
+                                toast.success(`Color Selected: ${variation}`, {
+                                  autoClose: 800,
+                                });
+                              }}
+                              title={variation}
+                              style={{
+                                height: "42px",
+
+                                background: variation,
+
+                                borderRadius: "8px",
+
+                                cursor: "pointer",
+
+                                border: "1px solid rgba(0,0,0,0.15)",
+
+                                transition: "transform 0.2s ease",
+                              }}
+                            />
+                          ),
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
 
-        {/* =================================================
-            RIGHT SECTION
-        ================================================= */}
+        {/* RIGHT SECTION */}
 
         <div className="picker-right-section">
           <h5
             style={{
               fontWeight: 800,
+
               marginBottom: "18px",
             }}
           >
             Colors
           </h5>
 
-          {/* =================================================
-              COLOR PREVIEW
-          ================================================= */}
+          {/* COLOR PREVIEW */}
 
           <div
             style={{
               display: "flex",
+
               gap: "14px",
-              marginBottom:
-                "20px",
+
+              marginBottom: "20px",
             }}
           >
             <div
               style={{
                 flex: 1,
+
                 height: "100px",
-                borderRadius:
-                  "14px",
-                backgroundColor:
-                  hoverColor ||
-                  "#4CAF4F",
-                boxShadow:
-                  "0 10px 25px rgba(0,0,0,0.12)",
+
+                borderRadius: "14px",
+
+                backgroundColor: hoverColor || "#4CAF4F",
+
+                boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
               }}
             />
 
             <div
               style={{
                 width: "100px",
+
                 height: "100px",
-                borderRadius:
-                  "14px",
-                backgroundColor:
-                  dominantColor ||
-                  "#4CAF4F",
-                boxShadow:
-                  "0 10px 25px rgba(0,0,0,0.12)",
+
+                borderRadius: "14px",
+
+                backgroundColor: dominantColor || "#4CAF4F",
+
+                boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
               }}
             />
           </div>
 
-          {/* =================================================
-              HEX
-          ================================================= */}
+          {/* HEX */}
 
           <div
             style={{
               ...cardStyle,
+
               display: "grid",
-              gridTemplateColumns:
-                "70px 1fr 45px",
-              alignItems:
-                "center",
+
+              gridTemplateColumns: "70px 1fr 45px",
+
+              alignItems: "center",
+
               minHeight: "55px",
-              borderRadius:
-                "14px",
-              marginBottom:
-                "10px",
-              overflow:
-                "hidden",
+
+              borderRadius: "14px",
+
+              marginBottom: "10px",
+
+              overflow: "hidden",
             }}
           >
             <span
               style={{
                 padding: "15px",
-                color:
-                  theme.muted,
+
+                color: theme.muted,
+
                 fontWeight: 700,
               }}
             >
@@ -4620,67 +4302,63 @@ const downloadJSON = () => {
             <strong
               style={{
                 padding: "15px",
+
                 borderLeft: `1px solid ${theme.border}`,
               }}
             >
-              {hoverColor ||
-                "#4CAF4F"}
+              {hoverColor || "#4CAF4F"}
             </strong>
 
             <button
               type="button"
               style={{
                 border: "none",
-                background:
-                  "transparent",
-                color:
-                  theme.text,
-                fontSize:
-                  "16px",
+
+                background: "transparent",
+
+                color: theme.text,
+
+                fontSize: "16px",
               }}
               onClick={() => {
-                if (!hoverColor)
-                  return;
+                if (!hoverColor) return;
 
-                navigator.clipboard.writeText(
-                  hoverColor,
-                );
+                navigator.clipboard.writeText(hoverColor);
 
-                toast.success(
-                  "HEX Copied!",
-                );
+                toast.success("HEX Copied!");
               }}
             >
               📋
             </button>
           </div>
 
-          {/* =================================================
-              RGB
-          ================================================= */}
+          {/* RGB */}
 
           <div
             style={{
               ...cardStyle,
+
               display: "grid",
-              gridTemplateColumns:
-                "70px 1fr 45px",
-              alignItems:
-                "center",
+
+              gridTemplateColumns: "70px 1fr 45px",
+
+              alignItems: "center",
+
               minHeight: "55px",
-              borderRadius:
-                "14px",
-              marginBottom:
-                "10px",
-              overflow:
-                "hidden",
+
+              borderRadius: "14px",
+
+              marginBottom: "10px",
+
+              overflow: "hidden",
             }}
           >
             <span
               style={{
                 padding: "15px",
-                color:
-                  theme.muted,
+
+                color: theme.muted,
+
                 fontWeight: 700,
               }}
             >
@@ -4690,69 +4368,65 @@ const downloadJSON = () => {
             <strong
               style={{
                 padding: "15px",
+
                 borderLeft: `1px solid ${theme.border}`,
-                fontSize:
-                  "14px",
+
+                fontSize: "14px",
               }}
             >
-              {hoverRGB ||
-                "rgb(76, 175, 79)"}
+              {hoverRGB || "rgb(76, 175, 79)"}
             </strong>
 
             <button
               type="button"
               style={{
                 border: "none",
-                background:
-                  "transparent",
-                color:
-                  theme.text,
-                fontSize:
-                  "16px",
+
+                background: "transparent",
+
+                color: theme.text,
+
+                fontSize: "16px",
               }}
               onClick={() => {
-                if (!hoverRGB)
-                  return;
+                if (!hoverRGB) return;
 
-                navigator.clipboard.writeText(
-                  hoverRGB,
-                );
+                navigator.clipboard.writeText(hoverRGB);
 
-                toast.success(
-                  "RGB Copied!",
-                );
+                toast.success("RGB Copied!");
               }}
             >
               📋
             </button>
           </div>
 
-          {/* =================================================
-              HSL
-          ================================================= */}
+          {/* HSL */}
 
           <div
             style={{
               ...cardStyle,
+
               display: "grid",
-              gridTemplateColumns:
-                "70px 1fr 45px",
-              alignItems:
-                "center",
+
+              gridTemplateColumns: "70px 1fr 45px",
+
+              alignItems: "center",
+
               minHeight: "55px",
-              borderRadius:
-                "14px",
-              marginBottom:
-                "25px",
-              overflow:
-                "hidden",
+
+              borderRadius: "14px",
+
+              marginBottom: "25px",
+
+              overflow: "hidden",
             }}
           >
             <span
               style={{
                 padding: "15px",
-                color:
-                  theme.muted,
+
+                color: theme.muted,
+
                 fontWeight: 700,
               }}
             >
@@ -4762,65 +4436,60 @@ const downloadJSON = () => {
             <strong
               style={{
                 padding: "15px",
+
                 borderLeft: `1px solid ${theme.border}`,
-                fontSize:
-                  "14px",
+
+                fontSize: "14px",
               }}
             >
-              {hoverHSL ||
-                "hsl(122, 39%, 49%)"}
+              {hoverHSL || "hsl(122, 39%, 49%)"}
             </strong>
 
             <button
               type="button"
               style={{
                 border: "none",
-                background:
-                  "transparent",
-                color:
-                  theme.text,
-                fontSize:
-                  "16px",
+
+                background: "transparent",
+
+                color: theme.text,
+
+                fontSize: "16px",
               }}
               onClick={() => {
-                if (!hoverHSL)
-                  return;
+                if (!hoverHSL) return;
 
-                navigator.clipboard.writeText(
-                  hoverHSL,
-                );
+                navigator.clipboard.writeText(hoverHSL);
 
-                toast.success(
-                  "HSL Copied!",
-                );
+                toast.success("HSL Copied!");
               }}
             >
               📋
             </button>
           </div>
 
-          {/* =================================================
-              USE YOUR OWN IMAGE
-          ================================================= */}
+          {/* USE YOUR OWN IMAGE */}
 
           <div
             style={{
               marginTop: "20px",
+
               padding: "22px",
-              borderRadius:
-                "16px",
-              background:
-                theme.card,
+
+              borderRadius: "16px",
+
+              background: theme.card,
+
               border: `1px solid ${theme.border}`,
-              transition:
-                "all 0.3s ease",
+
+              transition: "all 0.3s ease",
             }}
           >
             <h5
               style={{
                 fontWeight: 800,
-                marginBottom:
-                  "15px",
+
+                marginBottom: "15px",
               }}
             >
               Use your own image
@@ -4830,30 +4499,23 @@ const downloadJSON = () => {
               type="button"
               className="btn w-100"
               onClick={() =>
-                document
-                  .getElementById(
-                    "side-image-input",
-                  )
-                  ?.click()
+                document.getElementById("side-image-input")?.click()
               }
               style={{
-                background:
-                  darkMode
-                    ? "#ffffff"
-                    : "#212529",
-                color:
-                  darkMode
-                    ? "#08090a"
-                    : "#ffffff",
+                background: darkMode ? "#ffffff" : "#212529",
+
+                color: darkMode ? "#08090a" : "#ffffff",
+
                 border: "none",
-                borderRadius:
-                  "12px",
+
+                borderRadius: "12px",
+
                 padding: "12px",
+
                 fontWeight: 700,
               }}
             >
-              🖼️ Upload Another
-              Image
+              🖼️ Upload Another Image
             </button>
 
             <input
@@ -4864,8 +4526,7 @@ const downloadJSON = () => {
                 display: "none",
               }}
               onChange={(e) => {
-                const file =
-                  e.target.files?.[0];
+                const file = e.target.files?.[0];
 
                 if (!file) return;
 
@@ -4876,36 +4537,34 @@ const downloadJSON = () => {
             />
           </div>
 
-          {/* =================================================
-              ZOOM CONTROLS
-          ================================================= */}
+          {/* ZOOM CONTROLS */}
 
           <div
             style={{
               ...cardStyle,
+
               marginTop: "14px",
+
               padding: "15px",
-              borderRadius:
-                "14px",
+
+              borderRadius: "14px",
             }}
           >
             <div
               style={{
                 display: "flex",
-                justifyContent:
-                  "space-between",
-                alignItems:
-                  "center",
+
+                justifyContent: "space-between",
+
+                alignItems: "center",
               }}
             >
-              <strong>
-                Magnifier Zoom
-              </strong>
+              <strong>Magnifier Zoom</strong>
 
               <span
                 style={{
-                  color:
-                    theme.muted,
+                  color: theme.muted,
+
                   fontWeight: 700,
                 }}
               >
@@ -4916,35 +4575,25 @@ const downloadJSON = () => {
             <div
               style={{
                 display: "flex",
+
                 gap: "8px",
-                marginTop:
-                  "12px",
+
+                marginTop: "12px",
               }}
             >
               <button
                 type="button"
                 className="btn flex-fill"
                 onClick={() =>
-                  setZoom(
-                    (prev) =>
-                      Math.max(
-                        0.5,
-                        Number(
-                          (
-                            prev -
-                            0.25
-                          ).toFixed(
-                            2,
-                          ),
-                        ),
-                      ),
+                  setZoom((prev) =>
+                    Math.max(0.5, Number((prev - 0.25).toFixed(2))),
                   )
                 }
                 style={{
-                  background:
-                    theme.card,
-                  color:
-                    theme.text,
+                  background: theme.card,
+
+                  color: theme.text,
+
                   border: `1px solid ${theme.border}`,
                 }}
               >
@@ -4955,26 +4604,15 @@ const downloadJSON = () => {
                 type="button"
                 className="btn flex-fill"
                 onClick={() =>
-                  setZoom(
-                    (prev) =>
-                      Math.min(
-                        8,
-                        Number(
-                          (
-                            prev +
-                            0.25
-                          ).toFixed(
-                            2,
-                          ),
-                        ),
-                      ),
+                  setZoom((prev) =>
+                    Math.min(8, Number((prev + 0.25).toFixed(2))),
                   )
                 }
                 style={{
-                  background:
-                    theme.card,
-                  color:
-                    theme.text,
+                  background: theme.card,
+
+                  color: theme.text,
+
                   border: `1px solid ${theme.border}`,
                 }}
               >
@@ -4983,140 +4621,132 @@ const downloadJSON = () => {
             </div>
           </div>
 
-          {/* =================================================
-              REMOVE IMAGE
-          ================================================= */}
+          {/* REMOVE IMAGE */}
 
           <button
             type="button"
             className="btn btn-outline-danger w-100"
-            onClick={
-              removeImage
-            }
+            onClick={removeImage}
             style={{
               marginTop: "14px",
+
               minHeight: "48px",
-              borderRadius:
-                "12px",
+
+              borderRadius: "12px",
+
               fontWeight: 700,
             }}
           >
             🗑️ Remove Image
           </button>
 
-          {/* =================================================
-              ACTION BUTTONS
-          ================================================= */}
+          {/* ACTION BUTTONS */}
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns:
-                "1fr 1fr",
+
+              gridTemplateColumns: "1fr 1fr",
+
               gap: "12px",
-              marginTop:
-                "16px",
+
+              marginTop: "16px",
             }}
           >
             {/* DOWNLOAD */}
 
             <button
               type="button"
-              onClick={
-                downloadJSON
-              }
+              onClick={downloadJSON}
               style={{
                 minHeight: "52px",
-                borderRadius:
-                  "14px",
+
+                borderRadius: "14px",
+
                 border: `1px solid ${theme.border}`,
-                background:
-                  theme.card,
-                color:
-                  theme.text,
-                fontSize:
-                  "14px",
+
+                background: theme.card,
+
+                color: theme.text,
+
+                fontSize: "14px",
+
                 fontWeight: 700,
+
                 display: "flex",
-                alignItems:
-                  "center",
-                justifyContent:
-                  "center",
+
+                alignItems: "center",
+
+                justifyContent: "center",
+
                 gap: "8px",
-                cursor:
-                  "pointer",
-                transition:
-                  "all 0.25s ease",
+
+                cursor: "pointer",
+
+                transition: "all 0.25s ease",
               }}
             >
               <span
                 style={{
-                  fontSize:
-                    "20px",
+                  fontSize: "20px",
                 }}
               >
                 📥
               </span>
 
-              <span>
-                Download
-              </span>
+              <span>Download</span>
             </button>
 
             {/* SAVE */}
 
             <button
               type="button"
-              onClick={
-                savePalette
-              }
+              onClick={savePalette}
               style={{
                 minHeight: "52px",
-                borderRadius:
-                  "14px",
-                border:
-                  "1px solid #0d6efd",
-                background:
-                  "#0d6efd",
-                color:
-                  "#ffffff",
-                fontSize:
-                  "14px",
+
+                borderRadius: "14px",
+
+                border: "1px solid #0d6efd",
+
+                background: "#0d6efd",
+
+                color: "#ffffff",
+
+                fontSize: "14px",
+
                 fontWeight: 700,
+
                 display: "flex",
-                alignItems:
-                  "center",
-                justifyContent:
-                  "center",
+
+                alignItems: "center",
+
+                justifyContent: "center",
+
                 gap: "8px",
-                cursor:
-                  "pointer",
-                transition:
-                  "all 0.25s ease",
-                boxShadow:
-                  "0 8px 20px rgba(13,110,253,0.2)",
+
+                cursor: "pointer",
+
+                transition: "all 0.25s ease",
+
+                boxShadow: "0 8px 20px rgba(13,110,253,0.2)",
               }}
             >
               <span
                 style={{
-                  fontSize:
-                    "20px",
+                  fontSize: "20px",
                 }}
               >
                 💾
               </span>
 
-              <span>
-                Save Palette
-              </span>
+              <span>Save Palette</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* =====================================================
-          RESPONSIVE STYLE
-      ===================================================== */}
+      {/* RESPONSIVE STYLE */}
 
       <style>
         {`
@@ -5204,7 +4834,7 @@ const downloadJSON = () => {
 
             .palette-row span {
               width: 62px !important;
-              font-size: 10px !important; 
+              font-size: 10px !important;
             }
 
             .palette-row button {
@@ -5219,37 +4849,3 @@ const downloadJSON = () => {
 }
 
 export default UploadBox;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//20/09/2026 {time:  PM}

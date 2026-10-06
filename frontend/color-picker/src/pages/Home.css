@@ -1,0 +1,267 @@
+/* =====================================================
+   HOME PAGE
+   PROFESSIONAL DARK MODE
+===================================================== */
+
+.home-page {
+  min-height: 100vh;
+
+  /* transition:
+    background 0.35s ease,
+    color 0.35s ease; */
+}
+
+
+/* =====================================================
+   LIGHT MODE
+===================================================== */
+
+.home-light {
+  background: #f6f8fb;
+  color: #1f2937;
+}
+
+
+/* =====================================================
+   DARK MODE
+===================================================== */
+
+.home-dark {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(37, 99, 235, 0.14),
+      transparent 42%
+    ),
+    #070b12;
+
+  color: #f8fafc;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+/* .hero-section {
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+} */
+
+
+/* =====================================================
+   LIGHT HERO
+===================================================== */
+
+.hero-light {
+  background:
+    linear-gradient(
+      135deg,
+      #f8f9ff,
+      #eef5ff,
+      #f8f0ff
+    );
+
+  border: 1px solid rgba(13, 110, 253, 0.08);
+}
+
+
+/* =====================================================
+   DARK HERO
+===================================================== */
+
+.hero-dark {
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(37, 99, 235, 0.14),
+      transparent 55%
+    ),
+    linear-gradient(
+      145deg,
+      #0e1725,
+      #090f18
+    );
+
+  border: 1px solid #26384d;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+
+/* =====================================================
+   HERO TEXT
+===================================================== */
+
+.hero-title-light {
+  color: #111827;
+}
+
+.hero-title-dark {
+  color: #f8fafc;
+}
+
+.home-dark .hero-description {
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   BADGES
+===================================================== */
+
+.feature-badge-light {
+  background: #ffffff;
+
+  color: #1f2937;
+
+  border-color: rgba(13, 110, 253, 0.08);
+}
+
+
+.feature-badge-dark {
+  background: #111b29 !important;
+
+  color: #e5edf7 !important;
+
+  border-color: #2b4058 !important;
+
+  /* transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease; */
+}
+
+.feature-badge-dark:hover {
+  background: #17263a !important;
+
+  border-color: #3b82f6 !important;
+}
+
+
+/* =====================================================
+   FEATURE CARDS
+===================================================== */
+
+.feature-card-light {
+  background: #ffffff;
+
+  color: #1f2937;
+
+  border: 1px solid transparent;
+}
+
+
+.feature-card-dark {
+  background:
+    linear-gradient(
+      145deg,
+      #111b29,
+      #0d1521
+    ) !important;
+
+  color: #f8fafc !important;
+
+  border: 1px solid #26384d !important;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.25) !important;
+
+  /* transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease; */
+}
+
+
+/* =====================================================
+   FEATURE CARD HOVER
+===================================================== */
+
+.feature-card-dark:hover {
+  transform: translateY(-5px);
+
+  border-color: #3b82f6 !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #142238,
+      #0f1a29
+    ) !important;
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.35) !important;
+}
+
+
+/* =====================================================
+   FEATURE CARD TEXT
+===================================================== */
+
+.feature-card-dark h3,
+.feature-card-dark h4,
+.feature-card-dark h5 {
+  color: #f8fafc !important;
+}
+
+
+.feature-card-dark p {
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   TEXT MUTED
+===================================================== */
+
+.home-dark .text-muted {
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   GENERAL DARK MODE TEXT
+===================================================== */
+
+.home-dark h1,
+.home-dark h2,
+.home-dark h3,
+.home-dark h4,
+.home-dark h5,
+.home-dark h6 {
+  color: #f8fafc;
+}
+
+
+/* =====================================================
+   SMOOTH PAGE TRANSITION
+===================================================== */
+
+/* .home-page,
+.home-page * {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease;
+} */
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 25px !important;
+  }
+
+  .home-page h1 {
+    font-size: 2.2rem;
+  }
+}

@@ -1,0 +1,370 @@
+/* =====================================================
+   PALETTE GENERATOR PAGE
+   PROFESSIONAL DARK MODE
+===================================================== */
+
+.palette-page {
+  min-height: 100vh;
+
+  /* transition:
+    background 0.15s ease,
+    color 0.15s ease; */
+}
+
+
+/* =====================================================
+   LIGHT MODE
+===================================================== */
+
+.palette-page-light {
+  background: #f6f8fb;
+  color: #1f2937;
+}
+
+
+/* =====================================================
+   DARK MODE
+===================================================== */
+
+.palette-page-dark {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(37, 99, 235, 0.14),
+      transparent 42%
+    ),
+    #070b12;
+
+  color: #f8fafc;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+/* .palette-hero {
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+} */
+
+
+/* LIGHT HERO */
+
+.palette-hero-light {
+  background:
+    linear-gradient(
+      135deg,
+      #f8f9ff,
+      #eef5ff,
+      #f8f0ff
+    );
+
+  border: 1px solid rgba(13, 110, 253, 0.08);
+}
+
+
+/* DARK HERO */
+
+.palette-hero-dark {
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(37, 99, 235, 0.14),
+      transparent 55%
+    ),
+    linear-gradient(
+      145deg,
+      #0e1725,
+      #090f18
+    );
+
+  border: 1px solid #26384d;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+
+/* =====================================================
+   HERO TEXT
+===================================================== */
+
+.palette-title-light {
+  color: #111827;
+}
+
+.palette-title-dark {
+  color: #f8fafc !important;
+}
+
+.palette-description-dark {
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   MAIN BADGE
+===================================================== */
+
+.palette-main-badge-light {
+  background: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+
+.palette-main-badge-dark {
+  background: #111b29 !important;
+
+  color: #60a5fa !important;
+
+  border: 1px solid #2b4058;
+}
+
+
+/* =====================================================
+   FEATURE BADGES
+===================================================== */
+
+.palette-badge-dark {
+  background: #111b29 !important;
+
+  color: #e5edf7 !important;
+
+  border-color: #2b4058 !important;
+
+  /* transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease; */
+}
+
+.palette-badge-dark:hover {
+  background: #17263a !important;
+
+  border-color: #3b82f6 !important;
+}
+
+
+/* =====================================================
+   SECTION HEADINGS
+===================================================== */
+
+.palette-page-dark h1,
+.palette-page-dark h2,
+.palette-page-dark h3,
+.palette-page-dark h4,
+.palette-page-dark h5,
+.palette-page-dark h6 {
+  color: #f8fafc;
+}
+
+
+.palette-page-dark .text-muted {
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   NORMAL CARDS
+===================================================== */
+
+.palette-card-light {
+  background: #ffffff;
+
+  color: #1f2937;
+
+  border: 1px solid transparent;
+}
+
+
+.palette-card-dark {
+  background:
+    linear-gradient(
+      145deg,
+      #111b29,
+      #0d1521
+    ) !important;
+
+  color: #f8fafc !important;
+
+  border: 1px solid #26384d !important;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.25) !important;
+
+  /* transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease; */
+}
+
+
+/* Card hover */
+
+.palette-card-dark:hover {
+  transform: translateY(-5px);
+
+  border-color: #3b82f6 !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #142238,
+      #0f1a29
+    ) !important;
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.35) !important;
+}
+
+
+/* Card headings */
+
+.palette-card-dark h3,
+.palette-card-dark h4,
+.palette-card-dark h5 {
+  color: #f8fafc !important;
+}
+
+
+/* Card paragraphs */
+
+.palette-card-dark p {
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   WHY USE TOOL BOXES
+===================================================== */
+
+.palette-benefit-light {
+  background: #ffffff;
+
+  color: #1f2937;
+
+  border: 1px solid #dee2e6;
+}
+
+
+.palette-benefit-dark {
+  background:
+    linear-gradient(
+      145deg,
+      #111b29,
+      #0d1521
+    ) !important;
+
+  color: #e5edf7 !important;
+
+  border: 1px solid #26384d !important;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.2);
+
+  /* transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease; */
+}
+
+
+.palette-benefit-dark:hover {
+  transform: translateY(-3px);
+
+  border-color: #3b82f6 !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #142238,
+      #0f1a29
+    ) !important;
+}
+
+
+/* =====================================================
+   FAQ
+===================================================== */
+
+.palette-accordion-dark .accordion-item {
+  background: #111b29 !important;
+
+  border: 1px solid #26384d !important;
+
+  color: #e5edf7 !important;
+}
+
+
+.palette-accordion-dark .accordion-button {
+  background: #111b29 !important;
+
+  color: #f8fafc !important;
+
+  box-shadow: none !important;
+}
+
+
+.palette-accordion-dark .accordion-button:not(.collapsed) {
+  background: #162438 !important;
+
+  color: #60a5fa !important;
+
+  box-shadow: none !important;
+}
+
+
+.palette-accordion-dark .accordion-button::after {
+  filter: invert(1);
+}
+
+
+.palette-accordion-dark .accordion-body {
+  background: #0d1521 !important;
+
+  color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   UPLOAD BOX AREA
+===================================================== */
+
+.palette-page-dark .mt-5 {
+  color: #f8fafc;
+}
+
+
+/* =====================================================
+   SMOOTH TRANSITION
+===================================================== */
+
+/* .palette-page,
+.palette-page * {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+} */
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .palette-hero {
+    padding: 25px !important;
+  }
+
+  .palette-page h1 {
+    font-size: 2.2rem;
+  }
+
+}
