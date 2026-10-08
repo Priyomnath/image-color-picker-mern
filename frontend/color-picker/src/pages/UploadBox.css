@@ -206,9 +206,9 @@
   box-shadow:
     0 12px 35px rgba(0,0,0,0.25);
 
-  transition:
+  /* transition:
     background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease; */
 }
 
 .selected-color-content {
@@ -277,9 +277,9 @@
 
   cursor: pointer;
 
-  transition:
+  /* transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease; */
 }
 
 .palette-color-preview:hover {
@@ -340,9 +340,9 @@
 
   cursor: pointer;
 
-  transition:
+  /* transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease; */
 }
 
 .color-variation:hover {
@@ -447,9 +447,9 @@
 
   color: #aeb4bb;
 
-  transition:
+  /* transition:
     background 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease; */
 }
 
 .copy-button:hover {
@@ -507,11 +507,11 @@
 
   font-size: 13px;
   font-weight: 700;
-
+/* 
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease; */
 }
 
 .action-btn:hover {
@@ -680,40 +680,40 @@
    PROFESSIONAL DARK MODE
 ===================================================== */
 
-.upload-page {
+/* .upload-page {
   transition:
     background 0.35s ease,
     color 0.35s ease;
-}
+} */
 
 /* MAIN PICKER CARD */
-.picker-main-layout {
+/* .picker-main-layout {
   transition:
     background 0.35s ease,
     border-color 0.35s ease,
     box-shadow 0.35s ease;
-}
+} */
 
 /* IMAGE CONTAINER */
-.image-magnifier-container {
+/* .image-magnifier-container {
   transition:
     background 0.35s ease,
     border-color 0.35s ease,
     box-shadow 0.35s ease,
     transform 0.25s ease;
-}
+} */
 
 .image-magnifier-container:hover {
   transform: translateY(-2px);
 }
 
 /* RIGHT SIDE COLOR BOXES */
-.color-value {
+/* .color-value {
   transition:
     background 0.3s ease,
     border-color 0.3s ease,
     box-shadow 0.3s ease;
-}
+} */
 
 .color-value:hover {
   box-shadow:
@@ -722,49 +722,49 @@
 }
 
 /* UPLOAD CARD */
-.upload-image-box {
+/* .upload-image-box {
   transition:
     background 0.3s ease,
     border-color 0.3s ease;
-}
+} */
 
 /* MAGNIFIER */
-.magnifier-zoom-box {
+/* .magnifier-zoom-box {
   transition:
     background 0.3s ease,
     border-color 0.3s ease;
-}
+} */
 
 /* PALETTE */
-.palette-list > div {
+/* .palette-list > div {
   transition:
     transform 0.2s ease,
     opacity 0.2s ease;
-}
+} */
 
 .palette-list > div:hover {
   transform: translateY(-2px);
 }
 
 /* PALETTE COPY / PLUS BUTTON */
-.palette-list button {
+/* .palette-list button {
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
     transform 0.2s ease;
-}
+} */
 
 .palette-list button:hover {
   transform: translateY(-1px);
 }
 
 /* ACTION BUTTONS */
-.action-buttons button {
+/* .action-buttons button {
   transition:
     transform 0.2s ease,
     box-shadow 0.25s ease,
     background 0.25s ease;
-}
+} */
 
 .action-buttons button:hover {
   transform: translateY(-2px);
@@ -975,4 +975,36 @@
   .action-buttons {
     grid-template-columns: 1fr !important;
   }
+}
+
+
+
+
+/* //10/10/2026 {time:  PM} */
+/* .picker-main-layout,
+.picker-left-section,
+.picker-right-section,
+.image-magnifier-container,
+.color-palette-section {
+  transition: none !important;
+} */
+
+
+
+/* =========================================
+   INSTANT DARK / LIGHT MODE
+========================================= */
+
+.picker-page,
+.picker-main-layout,
+.picker-left-section,
+.picker-right-section,
+.image-card,
+.image-magnifier-container,
+.selected-color-card,
+.palette-card,
+.inspector-card,
+.upload-own-card,
+.color-value-row {
+  transition: none !important;
 }
