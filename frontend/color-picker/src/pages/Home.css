@@ -265,3 +265,25 @@
     font-size: 2.2rem;
   }
 }
+
+
+
+/* /* //10/10/2026 {time:  PM} */
+/* .feature-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 24px;
+  width: 100%;
+}
+
+.feature-item {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 8px;
+  white-space: nowrap;
+} */

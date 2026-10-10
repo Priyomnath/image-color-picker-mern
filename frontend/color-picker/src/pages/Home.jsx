@@ -1,5 +1,8 @@
 import NavbarComponent from "../components/Navbar";
 import UploadBox from "../components/UploadBox";
+
+// import { FiZap, FiDroplet, FiSave, FiDownload } from "react-icons/fi";
+
 import "./Home.css";
 
 //💥💥
@@ -105,6 +108,28 @@ function Home() {
                 📥 Download JSON
               </span>
             </div>
+
+            {/* <div className="feature-list">
+              <div className="feature-item">
+                <FiZap className="feature-icon" />
+                <span>Instant Color Extraction</span>
+              </div>
+
+              <div className="feature-item">
+                <FiDroplet className="feature-icon" />
+                <span>HEX • RGB • HSL</span>
+              </div>
+
+              <div className="feature-item">
+                <FiSave className="feature-icon" />
+                <span>Save Your Palettes</span>
+              </div>
+
+              <div className="feature-item">
+                <FiDownload className="feature-icon" />
+                <span>Download JSON</span>
+              </div>
+            </div> */}
 
             {/* Main Tool */}
 
