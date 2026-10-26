@@ -305,126 +305,229 @@
 
 
 
+// import { Resend } from "resend";
+
+// const resend = new Resend(process.env.RESEND_API_KEY);
+
+// export const sendOTPEmail = async (
+//   email,
+//   otp,
+//   purpose = "login"
+// ) => {
+//   try {
+//     if (!process.env.RESEND_API_KEY) {
+//       throw new Error("RESEND_API_KEY is missing");
+//     }
+
+//     if (!email || !otp) {
+//       throw new Error("Email and OTP are required");
+//     }
+
+//     const isRegister = purpose === "register";
+
+//     // Use a sender address verified in your Resend account.
+//     const fromEmail = process.env.RESEND_FROM_EMAIL;
+
+//     if (!fromEmail) {
+//       throw new Error("RESEND_FROM_EMAIL is missing");
+//     }
+
+//     const { data, error } = await resend.emails.send({
+//       from: `Image Color Picker <${fromEmail}>`,
+//       to: [email],
+
+//       subject: isRegister
+//         ? "Verify your Image Color Picker account"
+//         : "Your Image Color Picker Login Verification Code",
+
+//       html: `
+//         <div style="
+//           max-width:600px;
+//           margin:40px auto;
+//           padding:35px;
+//           font-family:Arial,sans-serif;
+//           background:#ffffff;
+//           border:1px solid #e5e7eb;
+//           border-radius:16px;
+//         ">
+//           <div style="text-align:center; margin-bottom:25px;">
+//             <div style="
+//               display:inline-block;
+//               width:55px;
+//               height:55px;
+//               line-height:55px;
+//               border-radius:14px;
+//               background:linear-gradient(135deg, #6f42c1, #0d6efd);
+//               font-size:28px;
+//             ">🎨</div>
+
+//             <h2 style="margin:15px 0 5px; color:#222;">
+//               Image Color Picker
+//             </h2>
+
+//             <p style="color:#777; margin:0;">
+//               ${isRegister ? "Account Verification" : "Login Verification"}
+//             </p>
+//           </div>
+
+//           <p style="font-size:16px; color:#333;">Hello,</p>
+
+//           <p style="font-size:16px; color:#555; line-height:1.6;">
+//             ${
+//               isRegister
+//                 ? "Use the verification code below to complete your account registration."
+//                 : "Use the verification code below to complete your login."
+//             }
+//           </p>
+
+//           <div style="
+//             margin:30px 0;
+//             padding:22px;
+//             text-align:center;
+//             background:#f8f9fa;
+//             border-radius:12px;
+//           ">
+//             <div style="
+//               font-size:34px;
+//               font-weight:bold;
+//               letter-spacing:10px;
+//               color:#0d6efd;
+//             ">${otp}</div>
+//           </div>
+
+//           <p style="text-align:center; color:#555;">
+//             This verification code expires in
+//             <strong>30 seconds</strong>.
+//           </p>
+
+//           <p style="
+//             margin-top:30px;
+//             font-size:13px;
+//             color:#999;
+//             text-align:center;
+//           ">
+//             If you did not request this code, you can safely ignore this email.
+//           </p>
+
+//           <hr style="
+//             border:none;
+//             border-top:1px solid #eee;
+//             margin:30px 0;
+//           ">
+
+//           <p style="text-align:center; font-size:12px; color:#aaa;">
+//             © Image Color Picker
+//           </p>
+//         </div>
+//       `,
+//     });
+
+//     if (error) {
+//       console.error("RESEND API ERROR:", error);
+//       throw new Error(error.message || "Failed to send OTP email");
+//     }
+
+//     console.log("OTP EMAIL SENT:", data?.id);
+
+//     return data;
+//   } catch (error) {
+//     console.error("SEND OTP EMAIL FAILED:", error.message);
+//     throw error;
+//   }
+// };
+
+
+
+// 💥💥 test only
+
+
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const sendOTPEmail = async (
-  email,
-  otp,
-  purpose = "login"
-) => {
+export const sendOTPEmail = async (email, otp, purpose = "login") => {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY is missing");
+    const apiKey = process.env.RESEND_API_KEY;
+    const fromEmail =
+      process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    const testEmail = process.env.RESEND_TEST_EMAIL;
+
+    if (!apiKey) {
+      throw new Error("RESEND_API_KEY is missing in environment variables");
     }
 
     if (!email || !otp) {
       throw new Error("Email and OTP are required");
     }
 
+    if (!testEmail) {
+      throw new Error("RESEND_TEST_EMAIL is missing in environment variables");
+    }
+
+    const recipient = email.trim().toLowerCase();
+    const allowedRecipient = testEmail.trim().toLowerCase();
+
+    // Testing mode: allow sending only to your own test email.
+    if (recipient !== allowedRecipient) {
+      throw new Error(
+        "Testing mode: OTP can only be sent to RESEND_TEST_EMAIL"
+      );
+    }
+
     const isRegister = purpose === "register";
 
-    // Use a sender address verified in your Resend account.
-    const fromEmail = process.env.RESEND_FROM_EMAIL;
+    const subject = isRegister
+      ? "Verify your Image Color Picker account"
+      : "Your Image Color Picker Login Verification Code";
 
-    if (!fromEmail) {
-      throw new Error("RESEND_FROM_EMAIL is missing");
-    }
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <body style="margin:0;padding:24px;background:#f4f7fb;font-family:Arial,sans-serif;">
+          <div style="max-width:480px;margin:auto;background:#ffffff;padding:32px;border-radius:12px;">
+            <h2 style="color:#087cff;margin-top:0;">Image Color Picker</h2>
+
+            <p style="color:#333;font-size:16px;">
+              ${
+                isRegister
+                  ? "Use this code to verify your account."
+                  : "Use this code to complete your login."
+              }
+            </p>
+
+            <div style="margin:24px 0;padding:18px;background:#eef5ff;border-radius:8px;text-align:center;">
+              <div style="font-size:30px;font-weight:bold;letter-spacing:8px;color:#087cff;">
+                ${String(otp).replace(/[^0-9]/g, "")}
+              </div>
+            </div>
+
+            <p style="color:#555;font-size:14px;">
+              This verification code expires according to the expiry time
+              configured by your backend.
+            </p>
+
+            <p style="color:#777;font-size:12px;">
+              If you did not request this code, you can ignore this email.
+            </p>
+          </div>
+        </body>
+      </html>
+    `;
 
     const { data, error } = await resend.emails.send({
       from: `Image Color Picker <${fromEmail}>`,
-      to: [email],
-
-      subject: isRegister
-        ? "Verify your Image Color Picker account"
-        : "Your Image Color Picker Login Verification Code",
-
-      html: `
-        <div style="
-          max-width:600px;
-          margin:40px auto;
-          padding:35px;
-          font-family:Arial,sans-serif;
-          background:#ffffff;
-          border:1px solid #e5e7eb;
-          border-radius:16px;
-        ">
-          <div style="text-align:center; margin-bottom:25px;">
-            <div style="
-              display:inline-block;
-              width:55px;
-              height:55px;
-              line-height:55px;
-              border-radius:14px;
-              background:linear-gradient(135deg, #6f42c1, #0d6efd);
-              font-size:28px;
-            ">🎨</div>
-
-            <h2 style="margin:15px 0 5px; color:#222;">
-              Image Color Picker
-            </h2>
-
-            <p style="color:#777; margin:0;">
-              ${isRegister ? "Account Verification" : "Login Verification"}
-            </p>
-          </div>
-
-          <p style="font-size:16px; color:#333;">Hello,</p>
-
-          <p style="font-size:16px; color:#555; line-height:1.6;">
-            ${
-              isRegister
-                ? "Use the verification code below to complete your account registration."
-                : "Use the verification code below to complete your login."
-            }
-          </p>
-
-          <div style="
-            margin:30px 0;
-            padding:22px;
-            text-align:center;
-            background:#f8f9fa;
-            border-radius:12px;
-          ">
-            <div style="
-              font-size:34px;
-              font-weight:bold;
-              letter-spacing:10px;
-              color:#0d6efd;
-            ">${otp}</div>
-          </div>
-
-          <p style="text-align:center; color:#555;">
-            This verification code expires in
-            <strong>30 seconds</strong>.
-          </p>
-
-          <p style="
-            margin-top:30px;
-            font-size:13px;
-            color:#999;
-            text-align:center;
-          ">
-            If you did not request this code, you can safely ignore this email.
-          </p>
-
-          <hr style="
-            border:none;
-            border-top:1px solid #eee;
-            margin:30px 0;
-          ">
-
-          <p style="text-align:center; font-size:12px; color:#aaa;">
-            © Image Color Picker
-          </p>
-        </div>
-      `,
+      to: [recipient],
+      subject,
+      html,
     });
 
     if (error) {
-      console.error("RESEND API ERROR:", error);
-      throw new Error(error.message || "Failed to send OTP email");
+      console.error("RESEND API ERROR:", {
+        name: error.name,
+        message: error.message,
+      });
+
+      throw new Error(error.message || "Resend failed to send OTP email");
     }
 
     console.log("OTP EMAIL SENT:", data?.id);
